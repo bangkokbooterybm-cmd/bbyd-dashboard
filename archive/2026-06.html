@@ -73,7 +73,12 @@ td{padding:5px 7px;border-bottom:0.5px solid var(--border);color:var(--text);fon
 <div class="wrap">
 <div class="topbar">
   <h1>🏪 Bangkok Bootery — Sales Dashboard</h1>
-  <div><span class="bdg">มิถุนายน 2569 · MTD 30 วัน (อัพเดท 30 มิ.ย.)</span>
+  <div style="display:flex;align-items:center">
+  <span class="bdg">มิถุนายน 2569 · MTD 30 วัน (อัพเดท 30 มิ.ย.)</span>
+  <select onchange="if(this.value)location.href=this.value" style="margin-left:8px;font-size:11px;padding:4px 8px;border-radius:6px;border:none;background:rgba(255,255,255,.15);color:#fff;cursor:pointer">
+    <option value="">📅 มิถุนายน 2569 (หน้านี้)</option>
+    <option value="https://bangkokbooterybm-cmd.github.io/bbyd-dashboard/">📅 กรกฎาคม 2569 (ปัจจุบัน)</option>
+  </select>
   <a href="#" onclick="document.getElementById('app').style.display='none';document.getElementById('pw-overlay').style.display='flex'" class="lo">ออกจากระบบ</a></div>
 </div>
 <div class="tabs">
