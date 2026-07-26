@@ -205,10 +205,41 @@ td{padding:5px 7px;border-bottom:0.5px solid var(--border);color:var(--text);fon
     </div>
   </div>
 
-  <div class="card">
-    <div class="ct">🏙️ กรุงเทพ (BKK) · 🌴 ต่างจังหวัด (UPC)</div>
-    <table id="ovTR" style="font-size:12px"></table>
-    <p style="font-size:9px;color:var(--text3);margin-top:6px">Ach% เทียบเป้า 100% เสมอ · Target กับ ต้องทำ/วัน วิ่งตามปุ่ม % ด้านบน</p>
+  <div class="r2">
+    <div class="card" style="margin-bottom:0">
+      <div class="ct">🏙️ กรุงเทพ (BKK)</div>
+      <div style="font-size:17px;font-weight:500"><span id="ovBkkMtd"></span> <span style="font-size:10px;font-weight:400">บาท</span></div>
+      <div style="font-size:10px;margin-top:2px;color:var(--text3)">Target <span id="ovBkkTgt"></span> บาท <span class="ovmtgl" id="ovBkkTgtLb"></span></div>
+      <div id="ovBkkBar"></div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:3px">
+        <span style="font-size:12px;font-weight:500" id="ovBkkAch"></span>
+        <span style="font-size:10px;color:var(--text3)">ควรได้ 80.6%</span>
+      </div>
+      <div class="dvd"></div>
+      <div style="display:flex;justify-content:space-between">
+        <div><div style="font-size:10px;color:var(--text2)">MTD avg/วัน</div>
+          <div style="font-size:12px;font-weight:500;margin-top:1px"><span id="ovBkkAvg"></span> บาท</div></div>
+        <div style="text-align:right"><div style="font-size:10px;color:var(--text2)">ต้องทำ/วัน <span class="ovmtgl" id="ovBkkLb"></span></div>
+          <div style="font-size:12px;font-weight:500;margin-top:1px;color:#A32D2D"><span id="ovBkkMtg"></span> บาท</div></div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:0">
+      <div class="ct">🌴 ต่างจังหวัด (UPC)</div>
+      <div style="font-size:17px;font-weight:500"><span id="ovUpcMtd"></span> <span style="font-size:10px;font-weight:400">บาท</span></div>
+      <div style="font-size:10px;margin-top:2px;color:var(--text3)">Target <span id="ovUpcTgt"></span> บาท <span class="ovmtgl" id="ovUpcTgtLb"></span></div>
+      <div id="ovUpcBar"></div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:3px">
+        <span style="font-size:12px;font-weight:500" id="ovUpcAch"></span>
+        <span style="font-size:10px;color:var(--text3)">ควรได้ 80.6%</span>
+      </div>
+      <div class="dvd"></div>
+      <div style="display:flex;justify-content:space-between">
+        <div><div style="font-size:10px;color:var(--text2)">MTD avg/วัน</div>
+          <div style="font-size:12px;font-weight:500;margin-top:1px"><span id="ovUpcAvg"></span> บาท</div></div>
+        <div style="text-align:right"><div style="font-size:10px;color:var(--text2)">ต้องทำ/วัน <span class="ovmtgl" id="ovUpcLb"></span></div>
+          <div style="font-size:12px;font-weight:500;margin-top:1px;color:#A32D2D"><span id="ovUpcMtg"></span> บาท</div></div>
+      </div>
+    </div>
   </div>
 
   <div class="card ovclk" data-dw="b" style="margin-bottom:0">
@@ -255,7 +286,7 @@ td{padding:5px 7px;border-bottom:0.5px solid var(--border);color:var(--text);fon
   </div>
 
 <script>
-const OV = {"d": {"ALL": {"label": "รวมทั้งหมด", "mtd": 8810452, "tgt": 9450000, "ach": 93.2, "avg": 352418, "yest": 358850, "yestd": 6432, "mtg": 106591, "bills": 582, "pieces": 829, "atv": 15138, "upt": 1.42, "avp": 10628, "nm": 3628558, "ot": 5147657, "days": [251624, 311709, 327948, 455813, 366680, 636219, 422029, 202757, 373229, 548328, 483442, 426206, 326348, 173610, 291553, 340140, 393788, 434418, 316769, 355047, 218324, 276801, 341990, 176831, 358850], "r7": 292087, "ly": 7948650, "lyach": 110.8, "lygap": 0}, "BKK": {"label": "BKK", "mtd": 7510880, "tgt": 7640000, "ach": 98.3, "avg": 300435, "yest": 331963, "yestd": 31528, "mtg": 21520, "bills": 429, "pieces": 624, "atv": 17508, "upt": 1.45, "avp": 12037, "nm": 3046182, "ot": 4456021, "days": [235094, 295789, 265298, 420367, 319420, 516865, 355098, 167622, 329644, 427858, 441650, 343896, 286578, 163695, 226685, 324500, 219240, 400298, 309755, 259897, 145692, 261501, 302335, 160141, 331963], "r7": 253041, "ly": 5947694, "lyach": 126.3, "lygap": 0}, "UPC": {"label": "UPC", "mtd": 1299572, "tgt": 1810000, "ach": 71.8, "avg": 51983, "yest": 26887, "yestd": -25096, "mtg": 85071, "bills": 153, "pieces": 205, "atv": 8494, "upt": 1.34, "avp": 6339, "nm": 582377, "ot": 691636, "days": [16530, 15920, 62650, 35446, 47260, 119354, 66931, 35135, 43585, 120470, 41792, 82310, 39770, 9915, 64868, 15640, 174548, 34120, 7014, 95150, 72632, 15300, 39655, 16690, 26887], "r7": 39047, "ly": 1564744, "lyach": 83.1, "lygap": 265172}}, "g": [{"n": "Lady BKK", "s": "BKK", "v": 2811266, "a": 92.8}, {"n": "Men BKK", "s": "BKK", "v": 966539, "a": 90.3}, {"n": "Shop BKK", "s": "BKK", "v": 3376926, "a": 102.6}, {"n": "Lady UPC", "s": "UPC", "v": 344333, "a": 55.5}, {"n": "Men UPC", "s": "UPC", "v": 178599, "a": 55.8}, {"n": "Shop UPC", "s": "UPC", "v": 414841, "a": 66.9}, {"n": "Event BKK", "s": "BKK", "v": 339185, "a": 36.7}, {"n": "Event UPC", "s": "UPC", "v": 361799, "a": 60.3}, {"n": "O2O", "s": "BKK", "v": 16965, "a": 0}], "y": [{"n": "Paragon Lady", "c": "PRGL", "s": "BKK", "v": 77640, "act": 1, "sent": 1}, {"n": "Zen Lady", "c": "ZENL", "s": "BKK", "v": 19900, "act": 1, "sent": 1}, {"n": "Siam Takashimaya", "c": "STKL", "s": "BKK", "v": 21700, "act": 1, "sent": 1}, {"n": "Chidlom Men", "c": "CHDM", "s": "BKK", "v": 150, "act": 1, "sent": 1}, {"n": "Paragon Men", "c": "PRGM", "s": "BKK", "v": 45570, "act": 1, "sent": 1}, {"n": "Zen Men", "c": "ZENM", "s": "BKK", "v": 16990, "act": 1, "sent": 1}, {"n": "Gaysorn Village", "c": "GSVS", "s": "BKK", "v": 134663, "act": 1, "sent": 1}, {"n": "Icon Siam", "c": "ICDS", "s": "BKK", "v": 11920, "act": 1, "sent": 1}, {"n": "Terminal Asoke", "c": "TMNS", "s": "BKK", "v": 0, "act": 1, "sent": 1}, {"n": "Riverside Plaza", "c": "RGRS", "s": "BKK", "v": 3430, "act": 1, "sent": 1}, {"n": "Central Phuket Lady", "c": "PKCL", "s": "UPC", "v": 0, "act": 1, "sent": 1}, {"n": "Central Patong Lady", "c": "PHCL", "s": "UPC", "v": 0, "act": 1, "sent": 1}, {"n": "Central Samui", "c": "SMUL", "s": "UPC", "v": 0, "act": 1, "sent": 1}, {"n": "Phuket Men", "c": "PKCM", "s": "UPC", "v": 1960, "act": 1, "sent": 1}, {"n": "Patong Men", "c": "PHCM", "s": "UPC", "v": 0, "act": 1, "sent": 1}, {"n": "Jungceylon Plaza", "c": "JCPS", "s": "UPC", "v": 0, "act": 1, "sent": 1}, {"n": "Samui Airport", "c": "SMAS", "s": "UPC", "v": 23667, "act": 1, "sent": 1}, {"n": "Central Phuket Event", "c": "PKCE", "s": "UPC", "v": 1260, "act": 1, "sent": 1}, {"n": "Jungceylon Event", "c": "JCPE", "s": "UPC", "v": 0, "act": 1, "sent": 1}, {"n": "Terminal 21 Event", "c": "TMNE", "s": "BKK", "v": 0, "act": 0, "sent": 0}, {"n": "Zen Event", "c": "ZENE", "s": "BKK", "v": 0, "act": 1, "sent": 1}, {"n": "O2O", "c": "O2O", "s": "BKK", "v": 0, "act": 1, "sent": 0}], "b": [{"n": "Chidlom Men", "s": "BKK", "atv": 25582, "upt": 1.83, "bl": 23}, {"n": "Paragon Lady", "s": "BKK", "atv": 22560, "upt": 1.29, "bl": 90}, {"n": "Zen Lady", "s": "BKK", "atv": 19907, "upt": 1.45, "bl": 22}, {"n": "Icon Siam", "s": "BKK", "atv": 19716, "upt": 1.59, "bl": 54}, {"n": "Gaysorn Village", "s": "BKK", "atv": 19041, "upt": 1.51, "bl": 77}, {"n": "Terminal Asoke", "s": "BKK", "atv": 16306, "upt": 1.4, "bl": 43}, {"n": "Siam Takashimaya", "s": "BKK", "atv": 15587, "upt": 1.73, "bl": 22}, {"n": "Paragon Men", "s": "BKK", "atv": 15005, "upt": 1.5, "bl": 10}, {"n": "Central Patong Lady", "s": "UPC", "atv": 13204, "upt": 1.07, "bl": 15}, {"n": "Samui Airport", "s": "UPC", "atv": 11258, "upt": 1.7, "bl": 27}, {"n": "Zen Event", "s": "BKK", "atv": 10561, "upt": 1.17, "bl": 12}, {"n": "Phuket Men", "s": "UPC", "atv": 10226, "upt": 1.3, "bl": 10}, {"n": "Jungceylon Plaza", "s": "UPC", "atv": 10079, "upt": 1.45, "bl": 11}, {"n": "O2O", "s": "BKK", "atv": 8482, "upt": 1.0, "bl": 2}, {"n": "Riverside Plaza", "s": "BKK", "atv": 8053, "upt": 1.44, "bl": 18}, {"n": "Terminal 21 Event", "s": "BKK", "atv": 7869, "upt": 1.26, "bl": 27}, {"n": "Zen Men", "s": "BKK", "atv": 7865, "upt": 1.48, "bl": 29}, {"n": "Central Phuket Event", "s": "UPC", "atv": 7741, "upt": 1.3, "bl": 37}, {"n": "Central Phuket Lady", "s": "UPC", "atv": 7320, "upt": 1.29, "bl": 7}, {"n": "Central Samui", "s": "UPC", "atv": 6788, "upt": 1.64, "bl": 14}, {"n": "Jungceylon Event", "s": "UPC", "atv": 5797, "upt": 1.08, "bl": 13}, {"n": "Patong Men", "s": "UPC", "atv": 4018, "upt": 1.05, "bl": 19}], "c": {"BKK": {"mtd": 7493916, "tgt": 7640000}, "UPC": {"mtd": 1299572, "tgt": 1810000}}, "o": [{"n": "Jungceylon Event", "s": "UPC", "nm": 1140, "ot": 78226, "p": 98.6}, {"n": "Central Patong Lady", "s": "UPC", "nm": 9220, "ot": 179655, "p": 95.1}, {"n": "Samui Airport", "s": "UPC", "nm": 69500, "ot": 234467, "p": 77.1}, {"n": "Patong Men", "s": "UPC", "nm": 20807, "ot": 55532, "p": 72.7}, {"n": "Chidlom Men", "s": "BKK", "nm": 163330, "ot": 425067, "p": 72.2}, {"n": "Gaysorn Village", "s": "BKK", "nm": 447397, "ot": 1018770, "p": 69.5}, {"n": "Jungceylon Plaza", "s": "UPC", "nm": 37810, "ot": 73064, "p": 65.9}, {"n": "Paragon Lady", "s": "BKK", "nm": 735140, "ot": 1289381, "p": 63.7}, {"n": "Icon Siam", "s": "BKK", "nm": 427408, "ot": 634096, "p": 59.7}, {"n": "Terminal Asoke", "s": "BKK", "nm": 293362, "ot": 407793, "p": 58.2}, {"n": "Phuket Men", "s": "UPC", "nm": 34442, "ot": 47450, "p": 57.9}, {"n": "Zen Lady", "s": "BKK", "nm": 202428, "ot": 235525, "p": 53.8}, {"n": "Paragon Men", "s": "BKK", "nm": 74820, "ot": 75233, "p": 50.1}, {"n": "Zen Event", "s": "BKK", "nm": 63380, "ot": 63700, "p": 50.1}, {"n": "Zen Men", "s": "BKK", "nm": 127260, "ot": 100830, "p": 44.2}, {"n": "Riverside Plaza", "s": "BKK", "nm": 90830, "ot": 54121, "p": 37.3}, {"n": "Terminal 21 Event", "s": "BKK", "nm": 147105, "ot": 65350, "p": 30.8}, {"n": "O2O", "s": "BKK", "nm": 12800, "ot": 4165, "p": 24.6}, {"n": "Central Samui", "s": "UPC", "nm": 71785, "ot": 23243, "p": 24.5}, {"n": "Siam Takashimaya", "s": "BKK", "nm": 260922, "ot": 81990, "p": 23.9}, {"n": "Central Phuket Lady", "s": "UPC", "nm": 51240, "ot": 0, "p": 0.0}, {"n": "Central Phuket Event", "s": "UPC", "nm": 286433, "ot": 0, "p": 0.0}], "bm": 80.6, "N": 25, "rem": 6};
+const OV = {"d": {"ALL": {"label": "รวมทั้งหมด", "mtd": 8810452, "tgt": 9450000, "ach": 93.2, "avg": 352418, "yest": 358850, "yestd": 6432, "mtg": 106591, "bills": 582, "pieces": 829, "atv": 15138, "upt": 1.42, "avp": 10628, "nm": 3628558, "ot": 5147657, "days": [251624, 311709, 327948, 455813, 366680, 636219, 422029, 202757, 373229, 548328, 483442, 426206, 326348, 173610, 291553, 340140, 393788, 434418, 316769, 355047, 218324, 276801, 341990, 176831, 358850], "r7": 292087, "ly": 7948650, "lyach": 110.8, "lygap": 0}, "BKK": {"label": "BKK", "mtd": 7510880, "tgt": 7640000, "ach": 98.3, "avg": 300435, "yest": 331963, "yestd": 31528, "mtg": 21520, "bills": 429, "pieces": 624, "atv": 17508, "upt": 1.45, "avp": 12037, "nm": 3046182, "ot": 4456021, "days": [235094, 295789, 265298, 420367, 319420, 516865, 355098, 167622, 329644, 427858, 441650, 343896, 286578, 163695, 226685, 324500, 219240, 400298, 309755, 259897, 145692, 261501, 302335, 160141, 331963], "r7": 253041, "ly": 5947694, "lyach": 126.3, "lygap": 0}, "UPC": {"label": "UPC", "mtd": 1299572, "tgt": 1810000, "ach": 71.8, "avg": 51983, "yest": 26887, "yestd": -25096, "mtg": 85071, "bills": 153, "pieces": 205, "atv": 8494, "upt": 1.34, "avp": 6339, "nm": 582377, "ot": 691636, "days": [16530, 15920, 62650, 35446, 47260, 119354, 66931, 35135, 43585, 120470, 41792, 82310, 39770, 9915, 64868, 15640, 174548, 34120, 7014, 95150, 72632, 15300, 39655, 16690, 26887], "r7": 39047, "ly": 1564744, "lyach": 83.1, "lygap": 265172}}, "g": [{"n": "Lady BKK", "s": "BKK", "v": 2811266, "a": 92.8}, {"n": "Men BKK", "s": "BKK", "v": 966539, "a": 90.3}, {"n": "Shop BKK", "s": "BKK", "v": 3376926, "a": 102.6}, {"n": "Lady UPC", "s": "UPC", "v": 344333, "a": 55.5}, {"n": "Men UPC", "s": "UPC", "v": 178599, "a": 55.8}, {"n": "Shop UPC", "s": "UPC", "v": 414841, "a": 66.9}, {"n": "Event BKK", "s": "BKK", "v": 339185, "a": 36.7}, {"n": "Event UPC", "s": "UPC", "v": 361799, "a": 60.3}, {"n": "O2O", "s": "BKK", "v": 16965, "a": 0}], "y": [{"n": "Paragon Lady", "c": "PRGL", "s": "BKK", "v": 77640, "act": 1, "sent": 1, "vir": 0}, {"n": "Zen Lady", "c": "ZENL", "s": "BKK", "v": 19900, "act": 1, "sent": 1, "vir": 0}, {"n": "Siam Takashimaya", "c": "STKL", "s": "BKK", "v": 21700, "act": 1, "sent": 1, "vir": 0}, {"n": "Chidlom Men", "c": "CHDM", "s": "BKK", "v": 150, "act": 1, "sent": 1, "vir": 0}, {"n": "Paragon Men", "c": "PRGM", "s": "BKK", "v": 45570, "act": 1, "sent": 1, "vir": 0}, {"n": "Zen Men", "c": "ZENM", "s": "BKK", "v": 16990, "act": 1, "sent": 1, "vir": 0}, {"n": "Gaysorn Village", "c": "GSVS", "s": "BKK", "v": 134663, "act": 1, "sent": 1, "vir": 0}, {"n": "Icon Siam", "c": "ICDS", "s": "BKK", "v": 11920, "act": 1, "sent": 1, "vir": 0}, {"n": "Terminal Asoke", "c": "TMNS", "s": "BKK", "v": 0, "act": 1, "sent": 1, "vir": 0}, {"n": "Riverside Plaza", "c": "RGRS", "s": "BKK", "v": 3430, "act": 1, "sent": 1, "vir": 0}, {"n": "Central Phuket Lady", "c": "PKCL", "s": "UPC", "v": 0, "act": 1, "sent": 1, "vir": 0}, {"n": "Central Patong Lady", "c": "PHCL", "s": "UPC", "v": 0, "act": 1, "sent": 1, "vir": 0}, {"n": "Central Samui", "c": "SMUL", "s": "UPC", "v": 0, "act": 1, "sent": 1, "vir": 0}, {"n": "Phuket Men", "c": "PKCM", "s": "UPC", "v": 1960, "act": 1, "sent": 1, "vir": 0}, {"n": "Patong Men", "c": "PHCM", "s": "UPC", "v": 0, "act": 1, "sent": 1, "vir": 0}, {"n": "Jungceylon Plaza", "c": "JCPS", "s": "UPC", "v": 0, "act": 1, "sent": 1, "vir": 0}, {"n": "Samui Airport", "c": "SMAS", "s": "UPC", "v": 23667, "act": 1, "sent": 1, "vir": 0}, {"n": "Central Phuket Event", "c": "PKCE", "s": "UPC", "v": 1260, "act": 1, "sent": 1, "vir": 0}, {"n": "Jungceylon Event", "c": "JCPE", "s": "UPC", "v": 0, "act": 1, "sent": 1, "vir": 0}, {"n": "Terminal 21 Event", "c": "TMNE", "s": "BKK", "v": 0, "act": 0, "sent": 0, "vir": 0}, {"n": "Zen Event", "c": "ZENE", "s": "BKK", "v": 0, "act": 1, "sent": 1, "vir": 0}, {"n": "O2O", "c": "O2O", "s": "BKK", "v": 0, "act": 1, "sent": 0, "vir": 1}], "b": [{"n": "Chidlom Men", "s": "BKK", "atv": 25582, "upt": 1.83, "bl": 23}, {"n": "Paragon Lady", "s": "BKK", "atv": 22560, "upt": 1.29, "bl": 90}, {"n": "Zen Lady", "s": "BKK", "atv": 19907, "upt": 1.45, "bl": 22}, {"n": "Icon Siam", "s": "BKK", "atv": 19716, "upt": 1.59, "bl": 54}, {"n": "Gaysorn Village", "s": "BKK", "atv": 19041, "upt": 1.51, "bl": 77}, {"n": "Terminal Asoke", "s": "BKK", "atv": 16306, "upt": 1.4, "bl": 43}, {"n": "Siam Takashimaya", "s": "BKK", "atv": 15587, "upt": 1.73, "bl": 22}, {"n": "Paragon Men", "s": "BKK", "atv": 15005, "upt": 1.5, "bl": 10}, {"n": "Central Patong Lady", "s": "UPC", "atv": 13204, "upt": 1.07, "bl": 15}, {"n": "Samui Airport", "s": "UPC", "atv": 11258, "upt": 1.7, "bl": 27}, {"n": "Zen Event", "s": "BKK", "atv": 10561, "upt": 1.17, "bl": 12}, {"n": "Phuket Men", "s": "UPC", "atv": 10226, "upt": 1.3, "bl": 10}, {"n": "Jungceylon Plaza", "s": "UPC", "atv": 10079, "upt": 1.45, "bl": 11}, {"n": "O2O", "s": "BKK", "atv": 8482, "upt": 1.0, "bl": 2}, {"n": "Riverside Plaza", "s": "BKK", "atv": 8053, "upt": 1.44, "bl": 18}, {"n": "Terminal 21 Event", "s": "BKK", "atv": 7869, "upt": 1.26, "bl": 27}, {"n": "Zen Men", "s": "BKK", "atv": 7865, "upt": 1.48, "bl": 29}, {"n": "Central Phuket Event", "s": "UPC", "atv": 7741, "upt": 1.3, "bl": 37}, {"n": "Central Phuket Lady", "s": "UPC", "atv": 7320, "upt": 1.29, "bl": 7}, {"n": "Central Samui", "s": "UPC", "atv": 6788, "upt": 1.64, "bl": 14}, {"n": "Jungceylon Event", "s": "UPC", "atv": 5797, "upt": 1.08, "bl": 13}, {"n": "Patong Men", "s": "UPC", "atv": 4018, "upt": 1.05, "bl": 19}], "c": {"BKK": {"mtd": 7493916, "tgt": 7640000}, "UPC": {"mtd": 1299572, "tgt": 1810000}}, "o": [{"n": "Jungceylon Event", "s": "UPC", "nm": 1140, "ot": 78226, "p": 98.6}, {"n": "Central Patong Lady", "s": "UPC", "nm": 9220, "ot": 179655, "p": 95.1}, {"n": "Samui Airport", "s": "UPC", "nm": 69500, "ot": 234467, "p": 77.1}, {"n": "Patong Men", "s": "UPC", "nm": 20807, "ot": 55532, "p": 72.7}, {"n": "Chidlom Men", "s": "BKK", "nm": 163330, "ot": 425067, "p": 72.2}, {"n": "Gaysorn Village", "s": "BKK", "nm": 447397, "ot": 1018770, "p": 69.5}, {"n": "Jungceylon Plaza", "s": "UPC", "nm": 37810, "ot": 73064, "p": 65.9}, {"n": "Paragon Lady", "s": "BKK", "nm": 735140, "ot": 1289381, "p": 63.7}, {"n": "Icon Siam", "s": "BKK", "nm": 427408, "ot": 634096, "p": 59.7}, {"n": "Terminal Asoke", "s": "BKK", "nm": 293362, "ot": 407793, "p": 58.2}, {"n": "Phuket Men", "s": "UPC", "nm": 34442, "ot": 47450, "p": 57.9}, {"n": "Zen Lady", "s": "BKK", "nm": 202428, "ot": 235525, "p": 53.8}, {"n": "Paragon Men", "s": "BKK", "nm": 74820, "ot": 75233, "p": 50.1}, {"n": "Zen Event", "s": "BKK", "nm": 63380, "ot": 63700, "p": 50.1}, {"n": "Zen Men", "s": "BKK", "nm": 127260, "ot": 100830, "p": 44.2}, {"n": "Riverside Plaza", "s": "BKK", "nm": 90830, "ot": 54121, "p": 37.3}, {"n": "Terminal 21 Event", "s": "BKK", "nm": 147105, "ot": 65350, "p": 30.8}, {"n": "O2O", "s": "BKK", "nm": 12800, "ot": 4165, "p": 24.6}, {"n": "Central Samui", "s": "UPC", "nm": 71785, "ot": 23243, "p": 24.5}, {"n": "Siam Takashimaya", "s": "BKK", "nm": 260922, "ot": 81990, "p": 23.9}, {"n": "Central Phuket Lady", "s": "UPC", "nm": 51240, "ot": 0, "p": 0.0}, {"n": "Central Phuket Event", "s": "UPC", "nm": 286433, "ot": 0, "p": 0.0}], "bm": 80.6, "N": 25, "rem": 6};
 let ovS = 'ALL';
 let ovP = 100;
 function ovMtgCalc(mtd, tgt){
@@ -354,24 +385,20 @@ function ovRender(){
     mf.textContent = hard ? '✗ สูงกว่า MTD avg (' + ovF(d.avg) + '/วัน) — ต้องเร่ง' : '✓ ต่ำกว่า MTD avg — ทำได้';
     mf.style.color = hard ? '#A32D2D' : '#0F6E56';
   }
-  document.getElementById('ovTR').innerHTML =
-    '<tr><th>ภูมิภาค</th><th class="r">MTD (฿)</th><th class="r">Target @' + ovP +
-    '% (฿)</th><th class="r">Ach%</th><th style="width:70px"></th><th class="r">MTD avg/วัน</th>' +
-    '<th class="r">ต้องทำ/วัน</th></tr>' +
-    [['กรุงเทพ (BKK)', 'BKK'], ['ต่างจังหวัด (UPC)', 'UPC']].map(r => {
-      const cc = OV.c[r[1]], mm = ovMtgCalc(cc.mtd, cc.tgt);
-      const ac = cc.mtd / cc.tgt * 100, ok = ac >= OV.bm, col = ok ? '#0F6E56' : '#A32D2D';
-      return '<tr><td>' + r[0] + '</td>' +
-        '<td class="r">' + ovF(cc.mtd) + '</td>' +
-        '<td class="r" style="color:var(--text3)">' + ovF(cc.tgt * ovP / 100) + '</td>' +
-        '<td class="r" style="color:' + col + '">' + ac.toFixed(1) + '% ' + (ok ? '✓' : '✗') + '</td>' +
-        '<td><div class="at" style="position:relative;margin:0"><div class="af" style="width:' +
-        Math.min(ac, 100) + '%;background:' + col + '"></div><div style="position:absolute;top:-2px;bottom:-2px;left:' +
-        Math.min(OV.bm, 100) + '%;width:2px;background:#3d2f04"></div></div></td>' +
-        '<td class="r">' + ovF(cc.mtd / OV.N) + '</td>' +
-        '<td class="r" style="color:#A32D2D">' + (mm.done ? '0' : ovF(mm.perDay)) + '</td></tr>';
-    }).join('');
-
+  [['Bkk','BKK'], ['Upc','UPC']].forEach(function(r){
+    var k = r[0], cc = OV.c[r[1]], mm = ovMtgCalc(cc.mtd, cc.tgt);
+    var ac = cc.mtd / cc.tgt * 100, ok = ac >= OV.bm, col = ok ? '#0F6E56' : '#A32D2D';
+    document.getElementById('ov' + k + 'Mtd').textContent = ovF(cc.mtd);
+    document.getElementById('ov' + k + 'Tgt').textContent = ovF(cc.tgt * ovP / 100);
+    document.getElementById('ov' + k + 'TgtLb').textContent = '@' + ovP + '%';
+    document.getElementById('ov' + k + 'Bar').innerHTML = ovBar(ac, OV.bm);
+    var ae = document.getElementById('ov' + k + 'Ach');
+    ae.textContent = ac.toFixed(1) + '% ' + (ok ? '✓' : '✗');
+    ae.style.color = col;
+    document.getElementById('ov' + k + 'Avg').textContent = ovF(cc.mtd / OV.N);
+    document.getElementById('ov' + k + 'Mtg').textContent = mm.done ? '0' : ovF(mm.perDay);
+    document.getElementById('ov' + k + 'Lb').textContent = '@' + ovP + '%';
+  });
   const g = OV.g.filter(x => ovS === 'ALL' || x.s === ovS);
   document.getElementById('ovTG').innerHTML =
     '<tr><th>กลุ่ม</th><th class="r">MTD (฿)</th><th class="r">Ach%</th></tr>' +
@@ -380,9 +407,10 @@ function ovRender(){
       (x.a >= OV.bm ? '#0F6E56' : '#A32D2D') + '">' + x.a.toFixed(1) + '%</td></tr>').join('');
 
   const ys = OV.y.filter(x => ovS === 'ALL' || x.s === ovS).sort((a, b) => b.v - a.v);
-  const act = ys.filter(x => x.act === 1);
+  const act = ys.filter(x => x.act === 1 && !x.vir);
   const miss = act.filter(x => x.sent === 0);
   const zsent = act.filter(x => x.sent === 1 && x.v <= 0);
+  const vir = ys.filter(x => x.vir === 1 && x.act === 1);
   const se = document.getElementById('ovSent');
   se.innerHTML = 'ส่งฟอร์ม ' + (act.length - miss.length) + '/' + act.length + ' สาขา' +
     (miss.length ? ' · <b style="font-weight:500">ยังไม่ส่ง ' + miss.length + '</b>' : '');
@@ -392,6 +420,9 @@ function ovRender(){
     act.map(x => '<tr><td>' + x.n + '</td><td class="r">' + (x.v > 0 ? ovF(x.v) : '—') +
       '</td><td class="r" style="color:' + (x.sent ? 'var(--text3)' : '#A32D2D') + '">' +
       (x.sent ? 'ส่งแล้ว' : 'ยังไม่ส่ง') + '</td></tr>').join('') +
+    vir.map(x => '<tr><td style="color:var(--text3)">' + x.n + '</td><td class="r">' +
+      (x.v > 0 ? ovF(x.v) : '—') + '</td><td class="r" style="color:var(--text3);font-size:10px">' +
+      'ไม่ต้องส่งทุกวัน</td></tr>').join('') +
     '<tr><td colspan="3" style="padding-top:8px;border:0;font-size:10px;line-height:1.8">' +
     (miss.length ? '<span style="color:#A32D2D">ยังไม่ส่งฟอร์ม ' + miss.length + ' สาขา — ' +
       miss.map(x => x.n).join(', ') + ' (ยอดรวมเมื่อวานยังไม่ครบ)</span><br>' : '') +
