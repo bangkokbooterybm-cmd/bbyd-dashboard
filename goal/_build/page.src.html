@@ -178,7 +178,7 @@ function canonOf(sc,ro){const k=nameKey(sc);const r=ro.find(x=>rosterKeys(x).inc
 
 const S={scope:store.get('gs2.scope')||'BKK',month:Number(store.get('gs2.month'))||(new Date().getFullYear()===YEAR?new Date().getMonth()+1:9),tab:store.get('gs2.tab')||'overview',
   config:null,monthly:{},team:{},audit:null,demand:null,sales:null,staff:null,stocks:[],db:null,user:null,mcp:null,canAdmin:false,openBr:{}};
-const DEFAULT_CFG={supervisors:[{scope:'SENIOR',title:'Senior Supervisor'},{scope:'BKK',title:'Supervisor BKK'},{scope:'UPC',title:'Supervisor UPC'}],roster:[],focus:[],discountPeriods:[],liveTargets:{}};
+const DEFAULT_CFG={supervisors:[{scope:'SENIOR',title:'Supervisor'},{scope:'BKK',title:'Supervisor BKK'},{scope:'UPC',title:'Supervisor UPC'}],roster:[],focus:[],discountPeriods:[],liveTargets:{}};
 const cfg=()=>S.config||DEFAULT_CFG;
 const sup=()=>cfg().supervisors.find(s=>s.scope===S.scope)||{};
 const mainIn=scope=>Object.keys(MAIN).filter(k=>scope==='SENIOR'||MAIN[k].s===scope);
@@ -186,6 +186,9 @@ const mainIn=scope=>Object.keys(MAIN).filter(k=>scope==='SENIOR'||MAIN[k].s===sc
 const isSr=()=>S.scope==='SENIOR';
 const team=()=>isSr()?'BKK':S.scope;
 const SR_KEY='โอ'; // nameKey of คุณโอ๋
+// whose audits/visits count on each board: Supervisor = คุณโอ๋, Supervisor BKK = คุณเอ, Supervisor UPC = คุณมิ้ว (only UPC evaluator kept by the parser)
+const EV_KEY={SENIOR:'โอ',BKK:'เอ'};
+const evOK=ev=>!EV_KEY[S.scope]||nameKey(ev)===EV_KEY[S.scope];
 const salesScopes=()=>isSr()?['BKK','UPC']:[S.scope];
 // Who is on a team in a month: from the HR sheet (nickname + work location). Out from the month they resign, whatever the day.
 const addDays=(d,n)=>{const t=new Date(d+'T00:00:00Z');t.setUTCDate(t.getUTCDate()+n);return t.toISOString().slice(0,10);};
@@ -244,8 +247,8 @@ function salesStats(){
   return {rows,cur,ytdAll:upto.reduce((x,r)=>x+(r.sales||0),0),lastClosed:have.length?have[have.length-1].m:null,curAch:cur.sales!=null&&cur.target?cur.sales/cur.target:null,ytdS,ytdT,ytdAch:ytdT?ytdS/ytdT:null,avgAch:achs.length?achs.reduce((a,b)=>a+b,0)/achs.length:null,nMonths:achs.length,evYTD:upto.reduce((a,r)=>a+(r.eventDays||0),0),evCur:cur.eventDays};
 }
 function auditsMonth(){if(!peopleOK())return [];const mine=new Set(rosterIn().flatMap(rosterKeys)),other=new Set(rosterFor(otherScope(),curYM()).flatMap(rosterKeys));
-  return (S.audit?.audits||[]).filter(a=>a.scope===team()&&a.ym===curYM()&&!a.x&&(!isSr()||nameKey(a.ev)===SR_KEY)&&!(other.has(nameKey(a.sc))&&!mine.has(nameKey(a.sc))));} // skip SCs of the other team
-function visitsMonth(){if(!peopleOK())return [];return (S.audit?.visits||[]).filter(v=>v.scope===team()&&v.ym===curYM()&&(isSr()?nameKey(v.ev)===SR_KEY:!v.x));}
+  return (S.audit?.audits||[]).filter(a=>a.scope===team()&&a.ym===curYM()&&!a.x&&evOK(a.ev)&&!(other.has(nameKey(a.sc))&&!mine.has(nameKey(a.sc))));} // skip SCs of the other team
+function visitsMonth(){if(!peopleOK())return [];return (S.audit?.visits||[]).filter(v=>v.scope===team()&&v.ym===curYM()&&evOK(v.ev)&&(isSr()||!v.x));}
 function auditStats(){
   const recs=auditsMonth(),ro=rosterIn(),by={};
   recs.forEach(a=>{const k=canonOf(a.sc,ro);(by[k]=by[k]||[]).push(a);});
@@ -266,7 +269,7 @@ function examStats(){
   const people=Object.values(per).map(p=>({name:p.name,avg:p.vals.reduce((a,b)=>a+b,0)/p.vals.length,n:p.vals.length}));
   return {recs,people,avg:people.length?people.reduce((a,p)=>a+p.avg,0)/people.length:null,pass:people.filter(p=>p.avg>=4).length};
 }
-function demandStats(){const recs=peopleOK()?(S.demand?.rows||[]).filter(r=>r.scope===team()&&r.ym===curYM()&&(!isSr()||nameKey(r.by)===SR_KEY)):[];return {recs,times:recs.length,qty:recs.reduce((a,r)=>a+(r.qty||0),0),done:recs.filter(r=>r.done).length};}
+function demandStats(){const recs=peopleOK()?(S.demand?.rows||[]).filter(r=>r.ym===curYM()) /* shared target: โอ๋ + เอ + มิ้ว together */:[];return {recs,times:recs.length,qty:recs.reduce((a,r)=>a+(r.qty||0),0),done:recs.filter(r=>r.done).length};}
 function stockFor(){
   const end=`${curYM()}-31`;const list=S.stocks.filter(s=>s.stockDate&&s.stockDate<=end).sort((a,b)=>b.stockDate.localeCompare(a.stockDate));
   const s=list[0]||null;return s?{s,inMonth:s.stockDate.startsWith(curYM())}:null;
@@ -457,7 +460,7 @@ function viewDemand(){
   st.recs.slice().sort((a,b)=>b.d.localeCompare(a.d)).forEach(r=>tb.append(el('tr',{},el('td',{},thDate(r.d)),el('td',{class:'l wrap'},r.item+(r.size?` #${r.size}`:'')),el('td',{class:'l wrap muted'},r.skin||''),el('td',{class:'num'},fmt(r.qty)),el('td',{class:'l'},r.by),el('td',{class:'l'},r.done?el('span',{class:'pill good'},r.status||'Done'):el('span',{class:'pill warn'},'ยังไม่ Done')),el('td',{class:'l wrap muted'},r.plan||''))));
   return el('div',{class:'panel'},el('h2',{},`Product Demand · ${MONTHS[S.month-1]} ${YEAR}`),needSync('demand'),stampTxt('ข้อมูลจากชีทแจ้งความต้องการสินค้า อัปเดต',S.demand?.updatedAt),
     el('div',{class:'stats'},stat(String(st.times),'จำนวนครั้งที่แจ้ง'),stat(fmt(st.qty),'จำนวนชิ้นที่ขอ'),stat(`${st.done}/${st.times}`,'Done แล้ว')),
-    el('div',{class:'small muted'},isSr()?'นับเฉพาะรายการที่ผู้แจ้งเป็นคุณโอ๋':S.scope==='BKK'?'นับรายการที่ผู้แจ้งเป็นคุณเอและคุณโอ๋':'นับรายการที่ผู้แจ้งเป็นคุณมิ้ว'),
+    el('div',{class:'small muted'},'เป้าร่วมกัน · นับทุกรายการที่คุณโอ๋ คุณเอ และคุณมิ้วแจ้ง (ตัวเลขเท่ากันทุกแถบ)'||'นับรายการที่ผู้แจ้งเป็นคุณมิ้ว'),
     st.recs.length?el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},...['Date','Model','Skin','Qty','By','Status','Plan'].map((h,i)=>el('th',{class:[1,2,4,5,6].includes(i)?'l':null},h)))),tb)):el('div',{class:'empty'},'ยังไม่มีการแจ้งในเดือนนี้'));
 }
 
@@ -535,7 +538,7 @@ function viewSettings(){
     const sv=el('button',{class:'btn ghost small',type:'button'},'Save');sv.addEventListener('click',async()=>{sv.disabled=true;const n=v=>v===''?null:Number(v);
       try{await S.db.doc(`monthly/${id}`).set(Object.assign({},d,{scope:S.scope,ym:ym(m),sales:n(ins.sales.value),target:n(ins.target.value),disc:ins.disc.value===''?null:Number(ins.disc.value)/100,eventDays:n(ins.eventDays.value),updatedAt:Date.now()}));toast(`บันทึก ${MONTHS[m-1]} แล้ว`);}catch(e){toast('บันทึกไม่สำเร็จ');}finally{sv.disabled=false;}});
     tb.append(el('tr',{},el('td',{},MONTHS[m-1]),el('td',{},ins.target),el('td',{},ins.sales),el('td',{},ins.disc),el('td',{},ins.eventDays),el('td',{},sv)));}
-  wrap.append(el('div',{class:'panel',style:'grid-column:1/-1'},el('h3',{},`ตัวเลขรายเดือน · ${sup().title}`),isSr()?el('div',{class:'small muted'},'Senior Supervisor ใช้ยอดรวม BKK + UPC อัตโนมัติ แก้ตัวเลขที่แถบ Supervisor BKK / UPC'):null,el('div',{class:'small muted'},'ส่วนลดใส่เป็น % เช่น 39.5 · เดือนที่ยังไม่ปิด ยอดขายและวันอีเว้นท์มาจากฟอร์มส่งยอดรายวัน ช่อง Sales ในตารางนี้ใช้กับเดือนที่ปิดแล้ว'),el('div',{class:'tscroll mini'},el('table',{},el('thead',{},el('tr',{},...['Month','Target','Sales','Disc %','Event Days',''].map(h=>el('th',{},h)))),tb))));
+  wrap.append(el('div',{class:'panel',style:'grid-column:1/-1'},el('h3',{},`ตัวเลขรายเดือน · ${sup().title}`),isSr()?el('div',{class:'small muted'},'แถบ Supervisor ใช้ยอดรวม BKK + UPC อัตโนมัติ แก้ตัวเลขที่แถบ Supervisor BKK / UPC'):null,el('div',{class:'small muted'},'ส่วนลดใส่เป็น % เช่น 39.5 · เดือนที่ยังไม่ปิด ยอดขายและวันอีเว้นท์มาจากฟอร์มส่งยอดรายวัน ช่อง Sales ในตารางนี้ใช้กับเดือนที่ปิดแล้ว'),el('div',{class:'tscroll mini'},el('table',{},el('thead',{},el('tr',{},...['Month','Target','Sales','Disc %','Event Days',''].map(h=>el('th',{},h)))),tb))));
   const s=sup(),sa=el('input',{type:'number',value:s.annualTarget??''}),se=el('input',{type:'number',value:s.eventDaysTarget??''});
   const as=S.team[`allstar-${S.scope}-${YEAR}`]||{},av=el('input',{type:'number',step:'0.1',value:as.value??''}),an=el('input',{type:'text',value:as.note||''});
   wrap.append(el('div',{class:'panel'},el('h3',{},'ข้อมูล Supervisor'),el('label',{class:'row small'},'เป้ายอดขายทั้งปี',sa),el('label',{class:'row small'},'เป้าวันอีเว้นท์/ปี',se),
