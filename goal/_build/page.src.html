@@ -370,7 +370,7 @@ function viewSales(){
 /* ---------- Audit ---------- */
 function auditCard(a){
   const ro=rosterIn(),k=canonOf(a.sc,ro),r=ro.find(x=>nameKey(x.name)===k);
-  const who=r&&nameKey(r.name)!==nameKey(a.sc)?`${r.name} (กรอกว่า ${a.sc})`:(r?r.name:a.sc);
+  const who=r?r.name:a.sc; // show the roster name only (กุ๊บกิ๊บ -> กิ้ฟ, ญา -> ญาญ่า)
   const items=S.audit?.diag?.items||[],d=el('details',{class:'au'});
   d.append(el('summary',{},el('span',{class:'num'},thDate(a.d)),el('b',{},who),el('span',{},a.br||a.brRaw||'–'),el('span',{class:'muted small hide-s'},a.ev+(a.online?' · Online':'')),
     a.avg==null?el('span',{class:'muted'},'–'):el('span',{class:'pill '+tone(a.avg/5,.8,.6)},`${a.avg.toFixed(2)} / 5`)));
