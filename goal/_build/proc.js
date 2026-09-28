@@ -134,7 +134,7 @@ var GSProc = (function () {
       var brRaw = norm(r[c.br]), br = branchCode(brRaw);
       if (!br && brRaw) diag.unknownBranches[brRaw] = (diag.unknownBranches[brRaw] || 0) + 1;
       var bs = scopeOfBranch(br);
-      if (bs && bs !== scope) { diag.crossScope++; return; } // a Sup only counts work in their own team
+      var cross = bs && bs !== scope; if (cross) diag.crossScope++; // kept but flagged: team boards skip it, the Senior board shows it outside the KPI
       var mName = norm(r[c.month]), mNum = TH_MONTH[mName] || (d ? d.getMonth() + 1 : null);
       var ymAudit = mNum ? '2026-' + pad(mNum) : null;
       if (d && mNum && d.getMonth() + 1 !== mNum) diag.monthDateMismatch++;
@@ -153,12 +153,12 @@ var GSProc = (function () {
         audits.push({ d: d ? ymd(d) : null, ym: ymAudit, sc: sc, br: br, brRaw: br ? undefined : brRaw, ev: evName, scope: scope,
           avg: scores.length ? Math.round(scores.reduce(function (a, b) { return a + b; }, 0) / scores.length * 100) / 100 : null, n: scores.length,
           exam: exams.length ? Math.round(exams.reduce(function (a, b) { return a + b; }, 0) / exams.length * 100) / 100 : null,
-          online: online || undefined, note: note || undefined, s: scores.length ? sArr : undefined, notes: notes.length ? notes : undefined });
+          online: online || undefined, x: cross ? 1 : undefined, note: note || undefined, s: scores.length ? sArr : undefined, notes: notes.length ? notes : undefined });
       } else diag.visitOnly++;
       // Every onsite row is a store visit: one per evaluator + branch + day
       if (!online && d && (br || brRaw)) {
         var k = scope + '|' + evName + '|' + (br || brRaw) + '|' + ymd(d);
-        var v = visitMap[k] || (visitMap[k] = { d: ymd(d), ym: ymd(d).slice(0, 7), br: br, brRaw: br ? undefined : brRaw, ev: evName, scope: scope, audits: 0 });
+        var v = visitMap[k] || (visitMap[k] = { d: ymd(d), ym: ymd(d).slice(0, 7), br: br, brRaw: br ? undefined : brRaw, ev: evName, scope: scope, x: cross ? 1 : undefined, audits: 0 });
         if (isAudit) v.audits++;
       }
     });

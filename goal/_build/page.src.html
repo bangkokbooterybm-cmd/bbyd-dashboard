@@ -178,10 +178,15 @@ function canonOf(sc,ro){const k=nameKey(sc);const r=ro.find(x=>rosterKeys(x).inc
 
 const S={scope:store.get('gs2.scope')||'BKK',month:Number(store.get('gs2.month'))||(new Date().getFullYear()===YEAR?new Date().getMonth()+1:9),tab:store.get('gs2.tab')||'overview',
   config:null,monthly:{},team:{},audit:null,demand:null,sales:null,staff:null,stocks:[],db:null,user:null,mcp:null,canAdmin:false,openBr:{}};
-const DEFAULT_CFG={supervisors:[{scope:'BKK',title:'Supervisor BKK'},{scope:'UPC',title:'Supervisor UPC'}],roster:[],focus:[],discountPeriods:[],liveTargets:{}};
+const DEFAULT_CFG={supervisors:[{scope:'SENIOR',title:'Senior Supervisor'},{scope:'BKK',title:'Supervisor BKK'},{scope:'UPC',title:'Supervisor UPC'}],roster:[],focus:[],discountPeriods:[],liveTargets:{}};
 const cfg=()=>S.config||DEFAULT_CFG;
 const sup=()=>cfg().supervisors.find(s=>s.scope===S.scope)||{};
-const mainIn=scope=>Object.keys(MAIN).filter(k=>MAIN[k].s===scope);
+const mainIn=scope=>Object.keys(MAIN).filter(k=>scope==='SENIOR'||MAIN[k].s===scope);
+// Senior Supervisor (คุณโอ๋): sales + focus = whole country; audit = own evaluations of BKK SCs; visit KPI = BKK branches (UPC visits shown, not counted)
+const isSr=()=>S.scope==='SENIOR';
+const team=()=>isSr()?'BKK':S.scope;
+const SR_KEY='โอ'; // nameKey of คุณโอ๋
+const salesScopes=()=>isSr()?['BKK','UPC']:[S.scope];
 // Who is on a team in a month: from the HR sheet (nickname + work location). Out from the month they resign, whatever the day.
 const addDays=(d,n)=>{const t=new Date(d+'T00:00:00Z');t.setUTCDate(t.getUTCDate()+n);return t.toISOString().slice(0,10);};
 const GRACE=14; // new staff are evaluated after 14 days; no sales form for more than 14 days = left
@@ -213,9 +218,9 @@ function rosterFor(scope,ymk){
   if(!mp)return cfg().roster.filter(r=>r.scope===scope&&r.active!==false);
   return mp.filter(p=>p.scope===scope&&(!p.fromYM||p.fromYM<=ymk)&&(!p.untilYM||p.untilYM>ymk)).map(p=>({name:p.name,scope}));
 }
-const rosterIn=()=>rosterFor(S.scope,curYM());
+const rosterIn=()=>rosterFor(team(),curYM());
 const peopleOK=()=>curYM()>=PEOPLE_FROM;
-const otherScope=()=>S.scope==='BKK'?'UPC':'BKK';
+const otherScope=()=>team()==='BKK'?'UPC':'BKK';
 const curYM=()=>ym(S.month);
 function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,3000);}
 function banner(m){const b=$('#banner');b.hidden=!m;b.textContent=m||'';}
@@ -226,17 +231,21 @@ const stampTxt=(label,ts)=>el('div',{class:'stamp'},label,' ',el('b',{},ts?new D
 /* ---------- derived data ---------- */
 function liveTarget(ymk,scope){const lt=(cfg().liveTargets||{})[ymk];const L=S.sales?.months?.[ymk];if(!lt||lt[scope]==null)return null;
   const n=L?.eventsWithSales||0,mine=L?.[scope]?.eventsWithSales||0;return lt[scope]+(n&&lt.event?lt.event*mine/n:0);}
-function salesRows(){const r=[];for(let m=1;m<=12;m++){const id=ym(m),d=S.monthly[`${S.scope}-${id}`]||{},L=S.sales?.months?.[id]?.[S.scope];
-  if(!d.closed&&L){r.push({m,live:true,asOf:S.sales.months[id].lastDate,sales:L.sales,target:d.target??liveTarget(id,S.scope),disc:d.disc??null,eventDays:L.eventDays,events:L.events.map(e=>({code:e.code,days:e.days}))});continue;}
-  r.push({m,sales:d.sales??null,target:d.target??null,disc:d.disc??null,eventDays:d.eventDays??null,events:d.events||[]});}return r;}
+function rowFor(scope,m){const id=ym(m),d=S.monthly[`${scope}-${id}`]||{},L=S.sales?.months?.[id]?.[scope];
+  if(!d.closed&&L)return {m,live:true,asOf:S.sales.months[id].lastDate,sales:L.sales,target:d.target??liveTarget(id,scope),disc:d.disc??null,eventDays:L.eventDays,events:L.events.map(e=>({code:e.code,days:e.days}))};
+  return {m,sales:d.sales??null,target:d.target??null,disc:d.disc??null,eventDays:d.eventDays??null,events:d.events||[]};}
+function salesRows(){const r=[];for(let m=1;m<=12;m++){const parts=salesScopes().map(sc=>rowFor(sc,m));if(parts.length===1){r.push(parts[0]);continue;}
+  const sum=k=>parts.every(p=>p[k]!=null)?parts.reduce((a,p)=>a+p[k],0):null;
+  r.push({m,live:parts.some(p=>p.live),asOf:parts.map(p=>p.asOf).filter(Boolean).sort().pop(),sales:sum('sales'),target:sum('target'),disc:null,eventDays:sum('eventDays'),events:parts.flatMap(p=>p.events||[])});}
+  return r;}
 function salesStats(){
   const rows=salesRows(),upto=rows.filter(r=>r.m<=S.month),have=upto.filter(r=>r.sales!=null&&r.target&&!r.live); // YTD / average use closed months only
   const ytdS=have.reduce((a,r)=>a+r.sales,0),ytdT=have.reduce((a,r)=>a+r.target,0),achs=have.map(r=>r.sales/r.target),cur=rows[S.month-1];
   return {rows,cur,ytdAll:upto.reduce((x,r)=>x+(r.sales||0),0),lastClosed:have.length?have[have.length-1].m:null,curAch:cur.sales!=null&&cur.target?cur.sales/cur.target:null,ytdS,ytdT,ytdAch:ytdT?ytdS/ytdT:null,avgAch:achs.length?achs.reduce((a,b)=>a+b,0)/achs.length:null,nMonths:achs.length,evYTD:upto.reduce((a,r)=>a+(r.eventDays||0),0),evCur:cur.eventDays};
 }
 function auditsMonth(){if(!peopleOK())return [];const mine=new Set(rosterIn().flatMap(rosterKeys)),other=new Set(rosterFor(otherScope(),curYM()).flatMap(rosterKeys));
-  return (S.audit?.audits||[]).filter(a=>a.scope===S.scope&&a.ym===curYM()&&!(other.has(nameKey(a.sc))&&!mine.has(nameKey(a.sc))));} // skip SCs of the other team
-function visitsMonth(){if(!peopleOK())return [];return (S.audit?.visits||[]).filter(v=>v.scope===S.scope&&v.ym===curYM());}
+  return (S.audit?.audits||[]).filter(a=>a.scope===team()&&a.ym===curYM()&&!a.x&&(!isSr()||nameKey(a.ev)===SR_KEY)&&!(other.has(nameKey(a.sc))&&!mine.has(nameKey(a.sc))));} // skip SCs of the other team
+function visitsMonth(){if(!peopleOK())return [];return (S.audit?.visits||[]).filter(v=>v.scope===team()&&v.ym===curYM()&&(isSr()?nameKey(v.ev)===SR_KEY:!v.x));}
 function auditStats(){
   const recs=auditsMonth(),ro=rosterIn(),by={};
   recs.forEach(a=>{const k=canonOf(a.sc,ro);(by[k]=by[k]||[]).push(a);});
@@ -247,9 +256,9 @@ function auditStats(){
   return {recs,ro,by,c1,c2,unknown,avg:sc.length?sc.reduce((a,b)=>a+b,0)/sc.length:null};
 }
 function visitStats(){
-  const recs=visitsMonth(),br=mainIn(S.scope),by={};recs.forEach(v=>{const k=v.br||v.brRaw;by[k]=(by[k]||0)+1;});
+  const all=visitsMonth(),recs=all.filter(v=>!v.x),extra=all.filter(v=>v.x),br=mainIn(team()),by={};recs.forEach(v=>{const k=v.br||v.brRaw;by[k]=(by[k]||0)+1;});
   const total=br.reduce((a,b)=>a+(by[b]||0),0);
-  return {recs,br,by,visited:br.filter(b=>by[b]).length,total,avg:br.length?total/br.length:null,visitOnly:recs.filter(v=>!v.audits).length,other:recs.filter(v=>!v.br||!MAIN[v.br]).length};
+  return {recs,all,extra,br,by,visited:br.filter(b=>by[b]).length,total,avg:br.length?total/br.length:null,visitOnly:recs.filter(v=>!v.audits).length,other:recs.filter(v=>!v.br||!MAIN[v.br]).length};
 }
 function examStats(){
   const recs=auditsMonth().filter(a=>a.exam!=null);const per={};
@@ -257,7 +266,7 @@ function examStats(){
   const people=Object.values(per).map(p=>({name:p.name,avg:p.vals.reduce((a,b)=>a+b,0)/p.vals.length,n:p.vals.length}));
   return {recs,people,avg:people.length?people.reduce((a,p)=>a+p.avg,0)/people.length:null,pass:people.filter(p=>p.avg>=4).length};
 }
-function demandStats(){const recs=peopleOK()?(S.demand?.rows||[]).filter(r=>r.scope===S.scope&&r.ym===curYM()):[];return {recs,times:recs.length,qty:recs.reduce((a,r)=>a+(r.qty||0),0),done:recs.filter(r=>r.done).length};}
+function demandStats(){const recs=peopleOK()?(S.demand?.rows||[]).filter(r=>r.scope===team()&&r.ym===curYM()&&(!isSr()||nameKey(r.by)===SR_KEY)):[];return {recs,times:recs.length,qty:recs.reduce((a,r)=>a+(r.qty||0),0),done:recs.filter(r=>r.done).length};}
 function stockFor(){
   const end=`${curYM()}-31`;const list=S.stocks.filter(s=>s.stockDate&&s.stockDate<=end).sort((a,b)=>b.stockDate.localeCompare(a.stockDate));
   const s=list[0]||null;return s?{s,inMonth:s.stockDate.startsWith(curYM())}:null;
@@ -289,7 +298,7 @@ function kpi(code,w,name,big,subs,rule,extra,tab){
 }
 function viewOverview(){
   const st=salesStats(),as=auditStats(),vs=visitStats(),ds=demandStats(),fs=focusStats(),ex=examStats(),s=sup(),m=MONTHS[S.month-1];
-  const per=(cfg().discountPeriods||[]).map(p=>({label:p.label,v:p[S.scope]&&p[S.scope].list?1-p[S.scope].net/p[S.scope].list:null})).filter(p=>p.v!=null);
+  const per=(cfg().discountPeriods||[]).map(p=>{const xs=salesScopes().map(sc=>p[sc]).filter(Boolean),list=xs.reduce((a,x)=>a+(x.list||0),0),net=xs.reduce((a,x)=>a+(x.net||0),0);return {label:p.label,v:xs.length===salesScopes().length&&list?1-net/list:null};}).filter(p=>p.v!=null);
   const allstar=S.team[`allstar-${S.scope}-${YEAR}`];
   const box=el('section',{class:'score'});
   box.append(
@@ -321,7 +330,8 @@ function barChart(vals,{fmtLbl,colorOf,refLine,refLabel,yFmt,step,label}){
   return svg;
 }
 function liveNote(rows){const r=rows.find(x=>x.live);if(!r)return null;const id=ym(r.m),lt=(cfg().liveTargets||{})[id],L=S.sales.months[id];
-  let t='';if(S.monthly[`${S.scope}-${id}`]?.target!=null)t='เป้าตามที่ตั้งไว้ใน Settings';
+  let t='';if(isSr())t=lt&&lt.BKK!=null&&lt.UPC!=null?`เป้า = ทั้งประเทศ (BKK ${fmt(lt.BKK)} + UPC ${fmt(lt.UPC)} + Event ${fmt(lt.event||0)})`:'ยังไม่ได้ตั้งเป้าเดือนนี้ (ตั้งได้ที่ Settings)';
+  else if(S.monthly[`${S.scope}-${id}`]?.target!=null)t='เป้าตามที่ตั้งไว้ใน Settings';
   else if(lt&&lt[S.scope]!=null){const n=L.eventsWithSales||0,mine=L[S.scope].eventsWithSales||0;t=`เป้า = สาขา ${fmt(lt[S.scope])}`+(lt.event&&n?` + เป้าอีเว้นท์ ${fmt(lt.event)} ÷ ${n} อีเว้นท์ที่มียอด × ${mine} อีเว้นท์ของทีมนี้`:'');}
   else t='ยังไม่ได้ตั้งเป้าเดือนนี้ (ตั้งได้ที่ Settings)';
   return el('div',{class:'small muted'},`${MONTHS[r.m-1]} = ยอดล่าสุดถึง ${thDate(r.asOf)} จากฟอร์มส่งยอดรายวัน (ยังไม่ปิดเดือน) · ${t}`);}
@@ -402,13 +412,14 @@ function stat(v,k){return el('div',{class:'stat'},el('div',{class:'v num'},v),el
 function viewVisit(){
   const st=visitStats(),chips=el('div',{class:'chips'});
   st.br.forEach(b=>{const n=st.by[b]||0;chips.append(el('span',{class:'chip '+(n>=3?'good':n>=1?'warn':'bad')},b,el('b',{},String(n))));});
-  const tb=el('tbody');st.recs.slice().sort((a,b)=>b.d.localeCompare(a.d)).forEach(v=>tb.append(el('tr',{},el('td',{},thDate(v.d)),el('td',{class:'l'},v.br||v.brRaw),el('td',{class:'l'},v.ev),el('td',{class:'l'},v.audits?el('span',{class:'pill good'},`Visit + ประเมิน ${v.audits} คน`):el('span',{class:'pill'},'Visit Store')))));
+  const tb=el('tbody');st.all.slice().sort((a,b)=>b.d.localeCompare(a.d)).forEach(v=>tb.append(el('tr',{},el('td',{},thDate(v.d)),el('td',{class:'l'},v.br||v.brRaw),el('td',{class:'l'},v.ev),el('td',{class:'l'},v.x?el('span',{class:'pill ex'},v.audits?`UPC · ประเมิน ${v.audits} คน · ไม่นับ KPI`:'UPC · ไม่นับ KPI'):v.audits?el('span',{class:'pill good'},`Visit + ประเมิน ${v.audits} คน`):el('span',{class:'pill'},'Visit Store')))));
   if(!peopleOK())return preBox('Visit');
   return el('div',{class:'panel'},el('h2',{},`Visit · ${MONTHS[S.month-1]} ${YEAR}`),needSync('audit'),stampTxt('ข้อมูลจากชีทประเมิน SC อัปเดต',S.audit?.updatedAt),
     el('div',{class:'stats'},stat(`${st.visited}/${st.br.length}`,'สาขาที่เข้าแล้ว'),stat(String(st.total),'จำนวนครั้งรวม (สาขาหลัก)'),stat(st.avg==null?'–':st.avg.toFixed(1),'เฉลี่ยครั้ง/สาขา'),stat(String(st.visitOnly),'เข้าสาขาโดยไม่ได้ประเมิน')),
     el('div',{class:'legend'},el('span',{class:'key good'},'≥3 ครั้ง'),el('span',{class:'key warn'},'1–2 ครั้ง'),el('span',{class:'key bad'},'ยังไม่เข้า')),chips,
     el('div',{class:'small muted'},'1 Visit = ผู้เยี่ยม 1 คน + สาขา 1 แห่ง + 1 วัน · นับทุกรายการ Onsite ในชีทประเมิน ทั้งที่ประเมินและไม่ได้ประเมิน SC'),
-    st.recs.length?el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},...['Date','Branch','Visitor','Type'].map((h,i)=>el('th',{class:i?'l':null},h)))),tb)):el('div',{class:'empty'},'ยังไม่มี Visit ในเดือนนี้'));
+    isSr()?el('div',{class:'small muted'},`KPI นับเฉพาะสาขา BKK ที่คุณโอ๋เข้า · การลงพื้นที่ UPC แสดงในตารางแต่ไม่นับ KPI${st.extra.length?` (เดือนนี้ ${st.extra.length} ครั้ง)`:''}`):null,
+    st.all.length?el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},...['Date','Branch','Visitor','Type'].map((h,i)=>el('th',{class:i?'l':null},h)))),tb)):el('div',{class:'empty'},'ยังไม่มี Visit ในเดือนนี้'));
 }
 
 /* ---------- Focus ---------- */
@@ -446,7 +457,7 @@ function viewDemand(){
   st.recs.slice().sort((a,b)=>b.d.localeCompare(a.d)).forEach(r=>tb.append(el('tr',{},el('td',{},thDate(r.d)),el('td',{class:'l wrap'},r.item+(r.size?` #${r.size}`:'')),el('td',{class:'l wrap muted'},r.skin||''),el('td',{class:'num'},fmt(r.qty)),el('td',{class:'l'},r.by),el('td',{class:'l'},r.done?el('span',{class:'pill good'},r.status||'Done'):el('span',{class:'pill warn'},'ยังไม่ Done')),el('td',{class:'l wrap muted'},r.plan||''))));
   return el('div',{class:'panel'},el('h2',{},`Product Demand · ${MONTHS[S.month-1]} ${YEAR}`),needSync('demand'),stampTxt('ข้อมูลจากชีทแจ้งความต้องการสินค้า อัปเดต',S.demand?.updatedAt),
     el('div',{class:'stats'},stat(String(st.times),'จำนวนครั้งที่แจ้ง'),stat(fmt(st.qty),'จำนวนชิ้นที่ขอ'),stat(`${st.done}/${st.times}`,'Done แล้ว')),
-    el('div',{class:'small muted'},S.scope==='BKK'?'นับรายการที่ผู้แจ้งเป็นคุณเอและคุณโอ๋':'นับรายการที่ผู้แจ้งเป็นคุณมิ้ว'),
+    el('div',{class:'small muted'},isSr()?'นับเฉพาะรายการที่ผู้แจ้งเป็นคุณโอ๋':S.scope==='BKK'?'นับรายการที่ผู้แจ้งเป็นคุณเอและคุณโอ๋':'นับรายการที่ผู้แจ้งเป็นคุณมิ้ว'),
     st.recs.length?el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},...['Date','Model','Skin','Qty','By','Status','Plan'].map((h,i)=>el('th',{class:[1,2,4,5,6].includes(i)?'l':null},h)))),tb)):el('div',{class:'empty'},'ยังไม่มีการแจ้งในเดือนนี้'));
 }
 
@@ -519,12 +530,12 @@ function viewSettings(){
   const f3=el('input',{type:'file',accept:'.xlsx,.xls',id:'focusFile'});f3.addEventListener('change',()=>f3.files[0]&&uploadFocus(f3.files[0],out3));
   wrap.append(el('div',{class:'panel'},el('h3',{},'สต็อก (ไฟล์ check stock / Main Stock)'),el('label',{class:'small muted'},'เลือกไฟล์ .xlsx ที่มีชีท Main Stock',f2),out2,el('h3',{},'รายชื่อ Focus Product'),el('label',{class:'small muted'},'เลือกไฟล์ focus_product.xlsx',f3),out3));
   const tb=el('tbody');
-  for(let m=1;m<=12;m++){const id=`${S.scope}-${ym(m)}`,d=S.monthly[id]||{};
+  for(let m=1;m<=12&&!isSr();m++){const id=`${S.scope}-${ym(m)}`,d=S.monthly[id]||{};
     const ins={sales:el('input',{type:'number',step:'0.01',value:d.sales??''}),target:el('input',{type:'number',value:d.target??''}),disc:el('input',{type:'number',step:'0.1',class:'s',value:d.disc!=null?(d.disc*100).toFixed(1):''}),eventDays:el('input',{type:'number',class:'s',value:d.eventDays??''})};
     const sv=el('button',{class:'btn ghost small',type:'button'},'Save');sv.addEventListener('click',async()=>{sv.disabled=true;const n=v=>v===''?null:Number(v);
       try{await S.db.doc(`monthly/${id}`).set(Object.assign({},d,{scope:S.scope,ym:ym(m),sales:n(ins.sales.value),target:n(ins.target.value),disc:ins.disc.value===''?null:Number(ins.disc.value)/100,eventDays:n(ins.eventDays.value),updatedAt:Date.now()}));toast(`บันทึก ${MONTHS[m-1]} แล้ว`);}catch(e){toast('บันทึกไม่สำเร็จ');}finally{sv.disabled=false;}});
     tb.append(el('tr',{},el('td',{},MONTHS[m-1]),el('td',{},ins.target),el('td',{},ins.sales),el('td',{},ins.disc),el('td',{},ins.eventDays),el('td',{},sv)));}
-  wrap.append(el('div',{class:'panel',style:'grid-column:1/-1'},el('h3',{},`ตัวเลขรายเดือน · ${sup().title}`),el('div',{class:'small muted'},'ส่วนลดใส่เป็น % เช่น 39.5 · เดือนที่ยังไม่ปิด ยอดขายและวันอีเว้นท์มาจากฟอร์มส่งยอดรายวัน ช่อง Sales ในตารางนี้ใช้กับเดือนที่ปิดแล้ว'),el('div',{class:'tscroll mini'},el('table',{},el('thead',{},el('tr',{},...['Month','Target','Sales','Disc %','Event Days',''].map(h=>el('th',{},h)))),tb))));
+  wrap.append(el('div',{class:'panel',style:'grid-column:1/-1'},el('h3',{},`ตัวเลขรายเดือน · ${sup().title}`),isSr()?el('div',{class:'small muted'},'Senior Supervisor ใช้ยอดรวม BKK + UPC อัตโนมัติ แก้ตัวเลขที่แถบ Supervisor BKK / UPC'):null,el('div',{class:'small muted'},'ส่วนลดใส่เป็น % เช่น 39.5 · เดือนที่ยังไม่ปิด ยอดขายและวันอีเว้นท์มาจากฟอร์มส่งยอดรายวัน ช่อง Sales ในตารางนี้ใช้กับเดือนที่ปิดแล้ว'),el('div',{class:'tscroll mini'},el('table',{},el('thead',{},el('tr',{},...['Month','Target','Sales','Disc %','Event Days',''].map(h=>el('th',{},h)))),tb))));
   const s=sup(),sa=el('input',{type:'number',value:s.annualTarget??''}),se=el('input',{type:'number',value:s.eventDaysTarget??''});
   const as=S.team[`allstar-${S.scope}-${YEAR}`]||{},av=el('input',{type:'number',step:'0.1',value:as.value??''}),an=el('input',{type:'text',value:as.note||''});
   wrap.append(el('div',{class:'panel'},el('h3',{},'ข้อมูล Supervisor'),el('label',{class:'row small'},'เป้ายอดขายทั้งปี',sa),el('label',{class:'row small'},'เป้าวันอีเว้นท์/ปี',se),
@@ -540,10 +551,10 @@ function viewSettings(){
   const ro=rosterIn(),am=cfg().aliases||{};
   const ta=el('textarea',{rows:4,style:'width:100%',placeholder:'ชื่อในรายชื่อ = ชื่ออื่นที่กรอกในชีท เช่น\nกิ้ฟ = กุ๊บกิ๊บ, กิ๊ฟ'});
   ta.value=Object.entries(am).map(([k,v])=>`${k} = ${v.join(', ')}`).join('\n');
-  wrap.append(el('div',{class:'panel'},el('h3',{},`รายชื่อ SC ทีม ${S.scope} · ${MONTHS[S.month-1]} (${ro.length} คน)`),
+  wrap.append(el('div',{class:'panel'},el('h3',{},`รายชื่อ SC ทีม ${team()} · ${MONTHS[S.month-1]} (${ro.length} คน)`),
     el('div',{class:'small muted'},S.staff?'ชีทข้อมูลพนักงาน BBYD ประกอบกับฟอร์มส่งยอดขาย · ไม่ส่งยอดเกิน 14 วัน = ออก · ไม่นับตั้งแต่เดือนที่ออก · พนักงานใหม่นับเมื่อครบ 14 วัน':'ยังไม่ได้ดึงชีทข้อมูลพนักงาน'),
     el('div',{class:'chips'},...ro.map(r=>el('span',{class:'chip'},r.name))),
-    (()=>{const mp=mergedPeople();if(!mp)return null;const L=mp.filter(p=>p.scope===S.scope&&(p.note||p.src==='form'||(p.fromYM&&p.fromYM>curYM()&&p.fromYM<=ym(12))));
+    (()=>{const mp=mergedPeople();if(!mp)return null;const L=mp.filter(p=>p.scope===team()&&(p.note||p.src==='form'||(p.fromYM&&p.fromYM>curYM()&&p.fromYM<=ym(12))));
       return L.length?el('div',{class:'diag'},el('b',{},'รวมกับฟอร์มส่งยอดขาย'),...L.map(p=>el('span',{},`${p.name}: ${[p.src==='form'?'มีในฟอร์มส่งยอด แต่ไม่มีในชีทพนักงาน':'',p.note,p.fromYM&&p.fromYM>curYM()?`เริ่มนับ ${MONTHS[+p.fromYM.slice(5)-1]} (ยังไม่ครบ 14 วัน)`:''].filter(Boolean).join(' · ')}`))):null;})(),
     (()=>{const lo=el('textarea',{rows:2,style:'width:100%',placeholder:'ชื่อ = เดือนที่ออก เช่น\nญ่า2 = 2026-09'});lo.value=Object.entries(cfg().leftOverride||{}).map(([k,v])=>`${k} = ${v}`).join('\n');
       return el('div',{style:'display:flex;flex-direction:column;gap:6px'},el('h3',{},'ออกแล้ว (ใส่เองเมื่อชีทยังไม่อัปเดต)'),el('div',{class:'small muted'},'ไม่นับตั้งแต่เดือนที่ใส่'),lo,
