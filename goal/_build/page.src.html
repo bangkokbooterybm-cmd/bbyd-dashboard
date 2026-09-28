@@ -5,7 +5,7 @@
 :root{
   --ground:#F1F3EF; --surface:#FFFFFF; --sunk:#E7EBE4; --line:#D5DBD1; --ink:#17211C; --ink2:#4A5750; --ink3:#6F7B73;
   --accent:#2F6B4F; --accent-soft:#DCEBE2; --brass:#8A6A1F; --brass-bg:#F3EAD2;
-  --good:#2E7D4F; --good-bg:#DDF0E3; --warn:#9A6A0C; --warn-bg:#F7EBCF; --bad:#B3412F; --bad-bg:#F6DEDA;
+  --good:#2E7D4F; --good-bg:#DDF0E3; --orng:#C2571A; --orng-bg:#FBE3D3; --ylw:#A88408; --ylw-bg:#F6EDC6; --warn:#9A6A0C; --warn-bg:#F7EBCF; --bad:#B3412F; --bad-bg:#F6DEDA;
   --shadow:0 1px 2px rgba(23,33,28,.06),0 4px 14px rgba(23,33,28,.05);
   --disp:"Chakra Petch","IBM Plex Sans Thai",system-ui,sans-serif;
   --body:"IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -14,14 +14,14 @@
   color-scheme:dark;
   --ground:#111613; --surface:#18201B; --sunk:#202A24; --line:#2E3A33; --ink:#E4EAE5; --ink2:#AEBAB2; --ink3:#8A968E;
   --accent:#6FBF95; --accent-soft:#1F3A2C; --brass:#D9B866; --brass-bg:#3A3018;
-  --good:#6FCB92; --good-bg:#1D3727; --warn:#E3B45A; --warn-bg:#3A2F17; --bad:#EE8B79; --bad-bg:#3D211C;
+  --good:#6FCB92; --good-bg:#1D3727; --orng:#F0955A; --orng-bg:#3F2616; --ylw:#E2C24E; --ylw-bg:#3A3212; --warn:#E3B45A; --warn-bg:#3A2F17; --bad:#EE8B79; --bad-bg:#3D211C;
   --shadow:0 1px 2px rgba(0,0,0,.3);
 }}
 :root[data-theme="dark"]{
   color-scheme:dark;
   --ground:#111613; --surface:#18201B; --sunk:#202A24; --line:#2E3A33; --ink:#E4EAE5; --ink2:#AEBAB2; --ink3:#8A968E;
   --accent:#6FBF95; --accent-soft:#1F3A2C; --brass:#D9B866; --brass-bg:#3A3018;
-  --good:#6FCB92; --good-bg:#1D3727; --warn:#E3B45A; --warn-bg:#3A2F17; --bad:#EE8B79; --bad-bg:#3D211C;
+  --good:#6FCB92; --good-bg:#1D3727; --orng:#F0955A; --orng-bg:#3F2616; --ylw:#E2C24E; --ylw-bg:#3A3212; --warn:#E3B45A; --warn-bg:#3A2F17; --bad:#EE8B79; --bad-bg:#3D211C;
   --shadow:0 1px 2px rgba(0,0,0,.3);
 }
 *{box-sizing:border-box}
@@ -54,9 +54,13 @@ select:focus-visible,input:focus-visible,textarea:focus-visible,button:focus-vis
 @media (max-width:420px){.score{grid-template-columns:1fr}}
 .kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 14px 12px;display:flex;flex-direction:column;gap:8px}
 .kpi .head{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
-.kpi .code{font:600 12px var(--disp);color:var(--accent)} .kpi .w{font-size:11px;color:var(--ink3)}
-.kpi .name{font:600 14px var(--disp)} .kpi .big{font:700 28px var(--disp);line-height:1.1}
-.kpi .sub{font-size:12px;color:var(--ink2);display:flex;flex-direction:column;gap:2px}
+.kpi .code{font:600 12px var(--disp);color:var(--accent)} .kpi .w{font-size:11px;color:var(--ink3);background:var(--sunk);padding:1px 7px;border-radius:99px}
+.kpi .name{font:600 14px var(--disp)} .kpi .big{font:700 30px var(--disp);line-height:1.1;color:var(--ink)}
+.kpi .big.good{color:var(--good)} .kpi .big.warn{color:var(--warn)} .kpi .big.bad{color:var(--bad)} .kpi .big.live{color:var(--ink)} .kpi .big.none{color:var(--ink3)}
+.kpi .cap{font-size:11px;color:var(--ink3);margin-top:-4px}
+.kpi .rows{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:13px;margin:0}
+.kpi .rows dt{color:var(--ink3)} .kpi .rows dd{margin:0;text-align:right;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.kpi .rows dd.note{grid-column:1/-1;text-align:left;color:var(--ink3);font-weight:500} .kpi .rows dd.good{color:var(--good)} .kpi .rows dd.warn{color:var(--warn)} .kpi .rows dd.bad{color:var(--bad)} .kpi .rows dd.mute{color:var(--ink3);font-weight:500}
 .kpi .rule{font-size:11px;color:var(--ink3);border-top:1px dashed var(--line);padding-top:6px}
 .kpi button.go{align-self:flex-start;border:0;background:none;color:var(--accent);font:600 12px var(--body);padding:0;cursor:pointer}
 .pill{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--sunk);color:var(--ink2);white-space:nowrap}
@@ -83,7 +87,12 @@ td.wrap{white-space:normal;min-width:200px}
 .key::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
 .key.good{color:var(--good)} .key.warn{color:var(--warn)} .key.bad{color:var(--bad)}
 details.au{border:1px solid var(--line);border-radius:10px;background:var(--surface)}
-details.au+details.au{margin-top:6px}
+details.au+details.au,.au+.au{margin-top:6px}
+.au.plain{border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.vis .sumrow,details.au.vis summary{display:grid;grid-template-columns:100px 80px 90px 1fr 100px;gap:10px;align-items:center;padding:9px 12px;font-size:13px}
+.vis .sumrow>:nth-child(4),details.au.vis summary>:nth-child(4){justify-self:start}
+.vis .cnt{color:var(--accent);font-weight:600;text-align:right} .vis .cnt.none{color:var(--ink3);font-weight:400}
+@media (max-width:560px){.vis .sumrow,details.au.vis summary{grid-template-columns:80px 1fr auto}.vis .hide-s{display:none}}
 details.au summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:92px minmax(90px,1.2fr) 70px minmax(70px,1fr) auto;gap:10px;align-items:center;padding:9px 12px;font-size:13px}
 details.au summary::-webkit-details-marker{display:none}
 details.au[open] summary{border-bottom:1px solid var(--line)}
@@ -100,26 +109,52 @@ details.au li b{font-family:var(--disp);min-width:18px;text-align:right}
 .stat .v{font:700 22px var(--disp)} .stat .k{font-size:12px;color:var(--ink3)}
 details.br{border:1px solid var(--line);border-radius:10px;background:var(--surface)}
 details.br+details.br{margin-top:8px}
-details.br summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:70px 60px 1fr auto;gap:10px;align-items:center;padding:10px 12px}
+details.br summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:92px 72px minmax(120px,1fr) 78px 70px 72px;gap:14px;align-items:center;padding:10px 14px}
+.fcode{display:flex;flex-direction:column;line-height:1.2} .fcode b{font:700 15px var(--disp)} .fcode small{font-size:11px;color:var(--ink3)}
+.fpct{font:700 20px var(--disp);text-align:right} .fpct.good{color:var(--good)} .fpct.warn{color:var(--warn)} .fpct.bad{color:var(--bad)}
+.fbarw{display:flex;flex-direction:column;gap:3px} .fbarw small{font-size:11px;color:var(--ink3)}
+.fbar{position:relative;height:8px;border-radius:99px;background:var(--sunk)} .fbar i{position:absolute;inset:0 auto 0 0;border-radius:99px}
+.fbar.good i{background:var(--good)} .fbar.warn i{background:var(--warn)} .fbar.bad i{background:var(--bad)}
+.fbar b{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink3);opacity:.5}
+.fmiss{justify-self:start;font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px;background:var(--bad-bg);color:var(--bad)} .fmiss.zero{background:var(--good-bg);color:var(--good)}
+
+.fgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:900px){.fgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.fcard{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:6px;padding:12px 14px;border:1px solid var(--line);border-left:4px solid var(--line);border-radius:12px;background:var(--surface)}
+.fcard.good{border-left-color:var(--good)} .fcard.warn{border-left-color:var(--warn)} .fcard.bad{border-left-color:var(--bad)}
+.fcard:hover{box-shadow:var(--shadow)} .fcard:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.fcard.sel{background:var(--accent-soft);border-color:var(--accent)}
+.fc-top{display:flex;justify-content:space-between;align-items:baseline} .fc-top b{font:700 16px var(--disp)} .fc-top small{font-size:11px;color:var(--ink3)}
+.fcard .fpct{text-align:left;font-size:26px;line-height:1.1}
+.fc-sub{font-size:12px;color:var(--ink3)} .fc-tags{display:flex;gap:8px;align-items:center}
+.fdetail{margin-top:12px;border:1px solid var(--accent);border-radius:12px;padding:12px;background:var(--surface)}
+.fdetail .body{padding:0!important;margin-top:8px}
+.key.l1,.fpct.l1{color:var(--bad)} .key.l2,.fpct.l2{color:var(--orng)} .key.l3,.fpct.l3{color:var(--ylw)} .key.l4,.fpct.l4{color:var(--good)}
+.fbar.l1 i{background:var(--bad)} .fbar.l2 i{background:var(--orng)} .fbar.l3 i{background:var(--ylw)} .fbar.l4 i{background:var(--good)}
+.fcard.l1{border-left-color:var(--bad)} .fcard.l2{border-left-color:var(--orng)} .fcard.l3{border-left-color:var(--ylw)} .fcard.l4{border-left-color:var(--good)}
+.kpi .big.l1{color:var(--bad)} .kpi .big.l2{color:var(--orng)} .kpi .big.l3{color:var(--ylw)} .kpi .big.l4{color:var(--good)} .kpi .rows dd.l1{color:var(--bad)} .kpi .rows dd.l2{color:var(--orng)} .kpi .rows dd.l3{color:var(--ylw)} .kpi .rows dd.l4{color:var(--good)}
+.fex{font-size:12px;color:var(--brass)} .fpcs{font-size:12px;color:var(--ink3);text-align:right}
+.fhead{display:grid;grid-template-columns:92px 72px minmax(120px,1fr) 78px 70px 72px;gap:14px;padding:0 14px 4px;font-size:11px;color:var(--ink3);letter-spacing:.03em}
+.fhead span:nth-child(2),.fhead span:nth-child(6){text-align:right}
 details.br summary::-webkit-details-marker{display:none}
 details.br summary .code{font:700 14px var(--disp)}
 details.br[open] summary{border-bottom:1px solid var(--line)}
-details.br .body{padding:12px;display:flex;flex-direction:column;gap:14px}
-details.br .body h4{margin:0 0 6px;font:600 12px var(--body);letter-spacing:.04em;text-transform:uppercase}
-details.br .body ul{margin:0;padding:0;list-style:none;columns:190px;column-gap:28px;font-size:13px}
-details.br .body li{display:flex;justify-content:space-between;gap:8px;break-inside:avoid;padding:2px 0;border-bottom:1px dashed var(--line)}
-details.br .body .empty{padding:0}
-details.br .grp{border-radius:10px;padding:10px 14px 12px;border-left:4px solid}
-details.br .grp h4{font-size:13px;margin-bottom:8px}
-details.br .grp .tag{font-size:12px;opacity:.8;white-space:nowrap}
-details.br .g-ex ul{columns:300px}
+:is(details.br,.fdetail) .body{padding:12px;display:flex;flex-direction:column;gap:14px}
+:is(details.br,.fdetail) .body h4{margin:0 0 6px;font:600 12px var(--body);letter-spacing:.04em;text-transform:uppercase}
+:is(details.br,.fdetail) .body ul{margin:0;padding:0;list-style:none;columns:190px;column-gap:28px;font-size:13px}
+:is(details.br,.fdetail) .body li{display:flex;justify-content:space-between;gap:8px;break-inside:avoid;padding:2px 0;border-bottom:1px dashed var(--line)}
+:is(details.br,.fdetail) .body .empty{padding:0}
+:is(details.br,.fdetail) .grp{border-radius:10px;padding:10px 14px 12px;border-left:4px solid}
+:is(details.br,.fdetail) .grp h4{font-size:13px;margin-bottom:8px}
+:is(details.br,.fdetail) .grp .tag{font-size:12px;opacity:.8;white-space:nowrap}
+:is(details.br,.fdetail) .g-ex ul{columns:300px}
 .g-miss{background:var(--bad-bg);border-color:var(--bad)!important}
 .g-ex{background:var(--brass-bg);border-color:var(--brass)!important}
 .g-have{background:var(--good-bg);border-color:var(--good)!important}
-details.br .grp li{border-bottom-color:color-mix(in srgb,currentColor 18%,transparent)}
-details.br .g-miss li{color:var(--bad);font-weight:500}
-details.br .body li .num{white-space:nowrap}
-@media (max-width:560px){details.br summary{grid-template-columns:52px 1fr auto}details.br summary>span.muted{display:none}}
+:is(details.br,.fdetail) .grp li{border-bottom-color:color-mix(in srgb,currentColor 18%,transparent)}
+:is(details.br,.fdetail) .g-miss li{color:var(--bad);font-weight:500}
+:is(details.br,.fdetail) .body li .num{white-space:nowrap}
+@media (max-width:560px){details.br summary,.fhead{grid-template-columns:60px 62px 1fr 60px}.fex,.fpcs,.fhead span:nth-child(5),.fhead span:nth-child(6){display:none}}
 .h-have{color:var(--good)} .h-miss{color:var(--bad)} .h-ex{color:var(--brass)}
 .empty{color:var(--ink3);font-size:13px;padding:8px 0}
 .admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
@@ -229,7 +264,7 @@ function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeou
 function banner(m){const b=$('#banner');b.hidden=!m;b.textContent=m||'';}
 function tone(v,g,w){if(v==null||!isFinite(v))return '';return v>=g?'good':v>=w?'warn':'bad';}
 function barEl(v){const b=el('div',{class:'bar'});const i=el('i');i.style.width=Math.max(0,Math.min(1,v||0))*100+'%';b.append(i);return b;}
-const stampTxt=(label,ts)=>el('div',{class:'stamp'},label,' ',el('b',{},ts?new Date(ts).toLocaleString('th-TH',{dateStyle:'medium',timeStyle:'short'}):'ยังไม่เคยอัปเดต'));
+const stampTxt=(label,ts)=>el('div',{class:'stamp'},label,' ',el('b',{},ts?(()=>{const d=new Date(ts);return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;})():'ยังไม่เคยอัปเดต'));
 
 /* ---------- derived data ---------- */
 function liveTarget(ymk,scope){const lt=(cfg().liveTargets||{})[ymk];const L=S.sales?.months?.[ymk];if(!lt||lt[scope]==null)return null;
@@ -277,7 +312,7 @@ function stockFor(){
 function focusStats(){
   const f=stockFor();if(!f)return null;const br=mainIn(S.scope).map(k=>({code:k,...f.s.branches[k]})).filter(b=>b.req);
   const avg=br.length?br.reduce((a,b)=>a+b.ok/b.req,0)/br.length:null;
-  return {f,br,avg,pass:br.filter(b=>b.ok/b.req>0.9).length};
+  return {f,br,avg,pass:br.filter(b=>b.ok/b.req>=0.9).length};
 }
 
 /* ---------- header / tabs ---------- */
@@ -295,28 +330,61 @@ function renderHeader(){
 function go(k){S.tab=k;store.set('gs2.tab',k);render();window.scrollTo({top:0});}
 
 /* ---------- Overview ---------- */
-function kpi(code,w,name,big,subs,rule,extra,tab){
-  return el('article',{class:'kpi'},el('div',{class:'head'},el('span',{class:'code'},code),el('span',{class:'w'},w)),el('div',{class:'name'},name),el('div',{class:'big num'},big),extra||null,
-    el('div',{class:'sub num'},...subs.filter(Boolean).map(s=>el('span',{},s))),rule?el('div',{class:'rule'},rule):null,tab?el('button',{class:'go',type:'button',onclick:()=>go(tab)},'ดูรายละเอียด →'):null);
+// o = {code, w, name, big, tone, cap, rows:[[label,value,tone?]], rule, bar, tab}
+function kpi(o){
+  const rows=(o.rows||[]).filter(Boolean);
+  return el('article',{class:'kpi'},el('div',{class:'head'},el('span',{class:'code'},o.code),el('span',{class:'w'},`น้ำหนัก ${o.w}`)),el('div',{class:'name'},o.name),
+    el('div',{class:'big num '+(o.tone||'')},o.big),o.cap?el('div',{class:'cap'},o.cap):null,o.bar||null,
+    rows.length?el('dl',{class:'rows'},...rows.flatMap(([k,v,t])=>k?[el('dt',{},k),el('dd',{class:t||null},v)]:[el('dd',{class:'note'},v)])):null,
+    // criteria text intentionally not shown: the board reports results only, no scoring
+o.tab?el('button',{class:'go',type:'button',onclick:()=>go(o.tab)},'ดูรายละเอียด →'):null);
 }
+const tn=(v,g,w)=>v==null||!isFinite(v)?'none':v>=g?'good':v>=w?'warn':'bad';
 function viewOverview(){
-  const st=salesStats(),as=auditStats(),vs=visitStats(),ds=demandStats(),fs=focusStats(),ex=examStats(),s=sup(),m=MONTHS[S.month-1];
+  const st=salesStats(),as=auditStats(),vs=visitStats(),ds=demandStats(),fs=focusStats(),ex=examStats(),s=sup(),m=MONTHS[S.month-1],ok=peopleOK();
   const per=(cfg().discountPeriods||[]).map(p=>{const xs=salesScopes().map(sc=>p[sc]).filter(Boolean),list=xs.reduce((a,x)=>a+(x.list||0),0),net=xs.reduce((a,x)=>a+(x.net||0),0);return {label:p.label,v:xs.length===salesScopes().length&&list?1-net/list:null};}).filter(p=>p.v!=null);
   const allstar=S.team[`allstar-${S.scope}-${YEAR}`];
+  const lastDisc=per.length?per[per.length-1]:null;
+  const evT=s.eventDaysTarget,noData=[['',PRE_TXT,'mute']];
   const box=el('section',{class:'score'});
   box.append(
-    kpi('1.1','40%','Sales Achievement',st.curAch!=null?pct(st.curAch):st.cur.sales!=null?'ยังไม่มีเป้า':'–',[`${m}: ${fmt(st.cur.sales)} / ${fmt(st.cur.target)}`,st.cur.live?`ยอดล่าสุดถึง ${thDate(st.cur.asOf)} (ยังไม่ปิดเดือน)`:null,`YTD${st.lastClosed?` Jan–${MONTHS[st.lastClosed-1]}`:''} (ปิดเดือนแล้ว): ${pct(st.ytdAch)} (${fmt(st.ytdS)} / ${fmt(st.ytdT)})`,`ค่าเฉลี่ยรายเดือน ${st.nMonths} เดือนที่ปิดแล้ว: ${pct(st.avgAch)}`,s.annualTarget?`ยอดรวมถึงล่าสุด ${fmt(st.ytdAll)} = ${pct(st.ytdAll/s.annualTarget)} ของเป้าทั้งปี ${fmt(s.annualTarget)}`:null],'≥105% = 5 · 100–104% = 4.5 · 90–99% = 4 · 85–90% = 3 · <85% = 2',null,'sales'),
-    kpi('1.2','10%','Discount Control',st.cur.disc!=null?pct(st.cur.disc):(per.length?pct(per[per.length-1].v):'–'),[st.cur.disc!=null?`${m}: ${pct(st.cur.disc)}`:`${m}: ยังไม่มีตัวเลขรายเดือน`,...per.map(p=>`${p.label}: ${pct(p.v)}`)],'เทียบปี 2025 · ลด ≥1% = 5 · คงที่ = 3 · เพิ่ม 1% = 1 · เพิ่ม >1% = 0',null,'sales'),
-    kpi('2.1','5%','Events Total Day',`${fmt(st.evYTD)} วัน`,[`${m}: ${st.evCur==null?'–':fmt(st.evCur)+' วัน'}`,s.eventDaysTarget?`เป้า ${s.eventDaysTarget} วัน/ปี · ทำได้ ${pct(st.evYTD/s.eventDaysTarget,0)}`:'ยังไม่ได้กำหนดเป้าวันอีเว้นท์'],'≥350 days/year = 5 · <200 days = 1',s.eventDaysTarget?barEl(st.evYTD/s.eventDaysTarget):null,'sales'),
-    kpi('2.2','5%','Product Demand',peopleOK()?`${ds.times} ครั้ง`:'–',peopleOK()?[`ขอ ${fmt(ds.qty)} ชิ้น · Done ${ds.done}/${ds.times} รายการ`,S.demand?null:'ยังไม่ได้ดึงข้อมูลจากชีท']:[PRE_TXT],'8 times/month = 5 · 1 time/month = 2',null,'demand'),
-    kpi('3.1','10%','Stock / Focus Product',fs?pct(fs.avg,0):'–',fs?[`ผ่าน >90%: ${fs.pass}/${fs.br.length} สาขา`,`สต็อก ณ ${thDate(fs.f.s.stockDate)}${fs.f.inMonth?'':' (ยังไม่มีสต็อกของเดือนนี้)'}`]:['ยังไม่มีไฟล์สต็อกของเดือนนี้'],'>90% = 5 · 85% = 4 · 80% = 3 · <80% = 0',fs?barEl(fs.avg):null,'focus'),
-    kpi('3.2','5%','Visit & Coaching',peopleOK()?`${vs.visited}/${vs.br.length} สาขา`:'–',peopleOK()?[`รวม ${vs.total} ครั้ง · เฉลี่ย ${vs.avg==null?'–':vs.avg.toFixed(1)} ครั้ง/สาขา`,`เข้าสาขาโดยไม่ได้ประเมิน ${vs.visitOnly} ครั้ง`]:[PRE_TXT],'Visit ≥3 times/branch = 5 · ≥2 = 4 · ≥1 = 1',barEl(vs.br.length?vs.visited/vs.br.length:0),'visit'),
-    kpi('3.3','5%','Audit (ประเมิน SC)',peopleOK()?`${as.c1}/${as.ro.length} คน`:'–',peopleOK()?[`ครบ 2 ครั้ง ${as.c2}/${as.ro.length} คน · รวม ${as.recs.length} ครั้ง`,`คะแนนเฉลี่ย ${as.avg==null?'–':as.avg.toFixed(2)+' / 5 ('+pct(as.avg/5,0)+')'}`]:[PRE_TXT],'≥2 ครั้ง/SC/เดือน = 5 · ≥1 = 4 · ≥0 = 1',barEl(as.ro.length?as.c1/as.ro.length:0),'audit'),
-    kpi('4.1','10%','SC Capability (SC Exam)',ex.avg!=null?ex.avg.toFixed(2):'–',[!peopleOK()?PRE_TXT:ex.people.length?`ได้ ≥4: ${ex.pass}/${ex.people.length} คน`:'ยังไม่มีคะแนนสอบเดือนนี้'],'SC Exam ≥4 ผ่าน = 5 · <3.3 ผ่าน = 3',null,'team'),
-    kpi('4.2','10%','BBY SC All Star',allstar&&allstar.value!=null?fmt(allstar.value,1)+'%':'สิ้นปี',[allstar?.note||'ประเมินปีละครั้งตอนสิ้นปี'],'เฉลี่ย >80% = 5 · >70% = 4 · 60–70% = 3 · <60 = 0',null,'team')
+    kpi({code:'1.1',w:'40%',name:'Sales Achievement',big:st.curAch!=null?pct(st.curAch):st.cur.sales!=null?'ยังไม่มีเป้า':'–',
+      tone:st.cur.live?'live':tn(st.curAch,1,.85),cap:st.cur.live?`${m} · ข้อมูลถึง ${thDate(st.cur.asOf)} ยังไม่ปิดเดือน`:m,
+      rows:[['ยอดขาย',fmt(st.cur.sales)],['เป้า',fmt(st.cur.target)],[`YTD Jan–${st.lastClosed?MONTHS[st.lastClosed-1]:''}`,pct(st.ytdAch),tn(st.ytdAch,1,.85)],['เฉลี่ยรายเดือน',pct(st.avgAch),tn(st.avgAch,1,.85)],
+        s.annualTarget?['เทียบเป้าทั้งปี',pct(st.ytdAll/s.annualTarget)]:null],
+      rule:'≥105% = 5 · 100–104% = 4.5 · 90–99% = 4 · 85–89% = 3 · <85% = 2',tab:'sales'}),
+    kpi({code:'1.2',w:'10%',name:'Discount',big:st.cur.disc!=null?pct(st.cur.disc):lastDisc?pct(lastDisc.v):'–',
+      cap:st.cur.disc!=null?m:lastDisc?lastDisc.label:'',
+      rows:[[m,st.cur.disc!=null?pct(st.cur.disc):'–',st.cur.disc!=null?null:'mute'],...per.map(p=>[p.label,pct(p.v)])],
+      rule:'เทียบปี 2025 · ส่วนลดลดลง ≥1% = 5 · เท่าเดิม = 3 · เพิ่ม 1% = 1 · เพิ่ม >1% = 0',tab:'sales'}),
+    kpi({code:'2.1',w:'5%',name:'Event Days',big:`${fmt(st.evYTD)} วัน`,tone:evT?tn(st.evYTD/(evT*S.month/12),1,.85):'none',cap:`สะสม Jan–${m}`,
+      bar:evT?barEl(st.evYTD/evT):null,
+      rows:[[m,st.evCur==null?'–':`${fmt(st.evCur)} วัน`],evT?['เป้าทั้งปี',`${fmt(evT)} วัน`]:['เป้าทั้งปี','ยังไม่ได้ตั้ง','mute'],evT?['ทำได้',pct(st.evYTD/evT,0)]:null],
+      rule:'≥350 วัน/ปี = 5 · <200 วัน = 1',tab:'sales'}),
+    kpi({code:'2.2',w:'5%',name:'Product Demand',big:ok?`${ds.times} ครั้ง`:'–',tone:ok?tn(ds.times,8,1):'none',cap:'เป้าร่วม คุณโอ๋ + คุณเอ + คุณมิ้ว',
+      rows:ok?[['จำนวนชิ้น',fmt(ds.qty)],['Done',`${ds.done}/${ds.times}`]]:noData,
+      rule:'8 ครั้ง/เดือน = 5 · 1 ครั้ง = 2',tab:'demand'}),
+    kpi({code:'3.1',w:'10%',name:'Focus Product',big:fs?pct(fs.avg,1):'–',tone:fs?fLv(fs.avg):'none',cap:fs?`เฉลี่ย ${fs.br.length} สาขา`:'',
+      bar:fs?barEl(fs.avg):null,
+      rows:fs?[['สาขาที่ได้ 90%+',`${fs.pass}/${fs.br.length}`],['สต็อก ณ',thDate(fs.f.s.stockDate)+(fs.f.inMonth?'':' (เดือนก่อน)'),fs.f.inMonth?null:'warn']]:[['','ยังไม่มีไฟล์สต็อก','mute']],
+      rule:'>90% = 5 · 85% = 4 · 80% = 3 · <80% = 0',tab:'focus'}),
+    kpi({code:'3.2',w:'5%',name:'Visit & Coaching',big:ok?`${vs.visited}/${vs.br.length} สาขา`:'–',tone:ok&&vs.br.length?tn(vs.visited/vs.br.length,1,.5):'none',cap:ok?'สาขาที่เข้าแล้วเดือนนี้':'',
+      bar:ok?barEl(vs.br.length?vs.visited/vs.br.length:0):null,
+      rows:ok?[['จำนวนครั้ง',`${vs.total}`],['เฉลี่ยต่อสาขา',vs.avg==null?'–':vs.avg.toFixed(1)],['Visit อย่างเดียว',`${vs.visitOnly}`],isSr()&&vs.extra.length?['UPC (ไม่นับ KPI)',`${vs.extra.length}`,'mute']:null]:noData,
+      rule:'≥3 ครั้ง/สาขา = 5 · 2 ครั้ง = 4 · 1 ครั้ง = 1',tab:'visit'}),
+    kpi({code:'3.3',w:'5%',name:'SC Audit',big:ok?`${as.c1}/${as.ro.length} คน`:'–',tone:ok&&as.ro.length?tn(as.c1/as.ro.length,1,.5):'none',cap:ok?'SC ที่ประเมินแล้วเดือนนี้':'',
+      bar:ok?barEl(as.ro.length?as.c1/as.ro.length:0):null,
+      rows:ok?[['ครบ 2 ครั้ง',`${as.c2}/${as.ro.length}`],['จำนวนครั้ง',`${as.recs.length}`],['คะแนนเฉลี่ย',as.avg==null?'–':`${as.avg.toFixed(2)} / 5`,as.avg==null?'mute':tn(as.avg/5,.8,.6)]]:noData,
+      rule:'≥2 ครั้ง/SC/เดือน = 5 · 1 ครั้ง = 4 · ไม่ได้ประเมิน = 1',tab:'audit'}),
+    kpi({code:'4.1',w:'10%',name:'SC Exam',big:ok&&ex.avg!=null?ex.avg.toFixed(2):'–',tone:ok&&ex.avg!=null?tn(ex.avg,4,3.3):'none',cap:ok&&ex.people.length?'คะแนนเฉลี่ยทีม':'',
+      rows:!ok?noData:ex.people.length?[['ได้ ≥4',`${ex.pass}/${ex.people.length} คน`]]:[['','ยังไม่มีคะแนนสอบเดือนนี้','mute']],
+      rule:'SC Exam ≥4 ผ่าน = 5 · <3.3 ผ่าน = 3',tab:'team'}),
+    kpi({code:'4.2',w:'10%',name:'BBY SC All Star',big:allstar&&allstar.value!=null?fmt(allstar.value,1)+'%':'–',tone:allstar&&allstar.value!=null?tn(allstar.value,80,60):'none',
+      rows:[['',allstar?.note||'ประเมินสิ้นปี','mute']],
+      rule:'เฉลี่ย >80% = 5 · >70% = 4 · 60–70% = 3 · <60% = 0',tab:'team'})
   );
-  return el('div',{class:'panel',style:'background:transparent;border:0;padding:0'},(!S.audit||!S.demand||!S.sales)?el('div',{class:'banner'},'ยังไม่ได้ดึงข้อมูลจาก Google Sheet ครบทุกชุด ตัวเลขบางข้อจึงยังเป็น 0'+(S.canAdmin?' · กดอัปเดตได้ที่แถบ Settings':'')):null,
-    el('div',{class:'legend'},el('span',{},`ข้อมูลเดือน${TH_M[S.month-1]} ${YEAR+543}`),stampTxt('อัปเดตจาก Google Sheet',S.audit?.updatedAt)),box);
+  return el('div',{class:'panel',style:'background:transparent;border:0;padding:0'},(!S.audit||!S.demand||!S.sales)?el('div',{class:'banner'},'ยังดึงข้อมูลจาก Google Sheet ไม่ครบ ตัวเลขบางข้อจึงยังเป็น 0'+(S.canAdmin?' · กดอัปเดตได้ที่แถบ Settings':'')):null,
+    el('div',{class:'legend'},el('span',{},`${m} ${YEAR}`),stampTxt('อัปเดต',S.audit?.updatedAt),el('span',{class:'key good'},'ถึงเกณฑ์'),el('span',{class:'key warn'},'ใกล้เกณฑ์'),el('span',{class:'key bad'},'ต่ำกว่าเกณฑ์')),box);
 }
 
 /* ---------- Sales ---------- */
@@ -370,7 +438,7 @@ function viewSales(){
 /* ---------- Audit ---------- */
 function auditCard(a){
   const ro=rosterIn(),k=canonOf(a.sc,ro),r=ro.find(x=>nameKey(x.name)===k);
-  const who=r&&nameKey(r.name)!==nameKey(a.sc)?`${r.name} (กรอกว่า ${a.sc})`:(r?r.name:a.sc);
+  const who=r?r.name:a.sc; // show the roster name only (กุ๊บกิ๊บ -> กิ้ฟ, ญา -> ญาญ่า)
   const items=S.audit?.diag?.items||[],d=el('details',{class:'au'});
   d.append(el('summary',{},el('span',{class:'num'},thDate(a.d)),el('b',{},who),el('span',{},a.br||a.brRaw||'–'),el('span',{class:'muted small hide-s'},a.ev+(a.online?' · Online':'')),
     a.avg==null?el('span',{class:'muted'},'–'):el('span',{class:'pill '+tone(a.avg/5,.8,.6)},`${a.avg.toFixed(2)} / 5`)));
@@ -412,20 +480,36 @@ function preBox(t){return el('div',{class:'panel'},el('h2',{},`${t} · ${MONTHS[
 function stat(v,k){return el('div',{class:'stat'},el('div',{class:'v num'},v),el('div',{class:'k'},k));}
 
 /* ---------- Visit ---------- */
+function visitCard(v){
+  const type=v.x?el('span',{class:'pill ex'},v.audits?`UPC · ประเมิน ${v.audits} คน · ไม่นับ KPI`:'UPC · ไม่นับ KPI'):v.audits?el('span',{class:'pill good'},`Visit + ประเมิน ${v.audits} คน`):el('span',{class:'pill'},'Visit อย่างเดียว');
+  const notes=v.notes||[],ro=rosterIn();
+  const sum=[el('span',{class:'num'},thDate(v.d)),el('b',{},v.br||v.brRaw),el('span',{class:'muted small hide-s'},v.ev),type,
+    el('span',{class:'small cnt hide-s'+(notes.length?'':' none')},notes.length?`ความเห็น ${notes.length} ▾`:'–')];
+  if(!notes.length){const d=el('div',{class:'au plain vis'});d.append(el('div',{class:'sumrow'},...sum));return d;}
+  const d=el('details',{class:'au vis'});d.append(el('summary',{},...sum),
+    el('div',{class:'notes',style:'padding:12px'},...notes.map(n=>{const k=n.sc?canonOf(n.sc,ro):null,r=k?ro.find(x=>nameKey(x.name)===k):null;
+      return el('div',{},n.sc?el('span',{class:'muted'},`ประเมิน ${r?r.name:n.sc}: `):null,n.t);})));
+  return d;
+}
 function viewVisit(){
+  if(!peopleOK())return preBox('Visit');
   const st=visitStats(),chips=el('div',{class:'chips'});
   st.br.forEach(b=>{const n=st.by[b]||0;chips.append(el('span',{class:'chip '+(n>=3?'good':n>=1?'warn':'bad')},b,el('b',{},String(n))));});
-  const tb=el('tbody');st.all.slice().sort((a,b)=>b.d.localeCompare(a.d)).forEach(v=>tb.append(el('tr',{},el('td',{},thDate(v.d)),el('td',{class:'l'},v.br||v.brRaw),el('td',{class:'l'},v.ev),el('td',{class:'l'},v.x?el('span',{class:'pill ex'},v.audits?`UPC · ประเมิน ${v.audits} คน · ไม่นับ KPI`:'UPC · ไม่นับ KPI'):v.audits?el('span',{class:'pill good'},`Visit + ประเมิน ${v.audits} คน`):el('span',{class:'pill'},'Visit Store')))));
-  if(!peopleOK())return preBox('Visit');
+  const list=el('div',{});st.all.slice().sort((a,b)=>b.d.localeCompare(a.d)).forEach(v=>list.append(visitCard(v)));
+  const logs=(S.audit?.logs||[]).filter(l=>l.scope===team()&&l.ym===curYM()&&evOK(l.ev)).sort((a,b)=>b.d.localeCompare(a.d));
   return el('div',{class:'panel'},el('h2',{},`Visit · ${MONTHS[S.month-1]} ${YEAR}`),needSync('audit'),stampTxt('ข้อมูลจากชีทประเมิน SC อัปเดต',S.audit?.updatedAt),
-    el('div',{class:'stats'},stat(`${st.visited}/${st.br.length}`,'สาขาที่เข้าแล้ว'),stat(String(st.total),'จำนวนครั้งรวม (สาขาหลัก)'),stat(st.avg==null?'–':st.avg.toFixed(1),'เฉลี่ยครั้ง/สาขา'),stat(String(st.visitOnly),'เข้าสาขาโดยไม่ได้ประเมิน')),
+    el('div',{class:'stats'},stat(`${st.visited}/${st.br.length}`,'สาขาที่เข้าแล้ว'),stat(String(st.total),'จำนวนครั้ง'),stat(st.avg==null?'–':st.avg.toFixed(1),'เฉลี่ยต่อสาขา'),stat(String(st.visitOnly),'Visit อย่างเดียว')),
     el('div',{class:'legend'},el('span',{class:'key good'},'≥3 ครั้ง'),el('span',{class:'key warn'},'1–2 ครั้ง'),el('span',{class:'key bad'},'ยังไม่เข้า')),chips,
-    el('div',{class:'small muted'},'1 Visit = ผู้เยี่ยม 1 คน + สาขา 1 แห่ง + 1 วัน · นับทุกรายการ Onsite ในชีทประเมิน ทั้งที่ประเมินและไม่ได้ประเมิน SC'),
-    isSr()?el('div',{class:'small muted'},`KPI นับเฉพาะสาขา BKK ที่คุณโอ๋เข้า · การลงพื้นที่ UPC แสดงในตารางแต่ไม่นับ KPI${st.extra.length?` (เดือนนี้ ${st.extra.length} ครั้ง)`:''}`):null,
-    st.all.length?el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},...['Date','Branch','Visitor','Type'].map((h,i)=>el('th',{class:i?'l':null},h)))),tb)):el('div',{class:'empty'},'ยังไม่มี Visit ในเดือนนี้'));
+    el('div',{class:'small muted'},'1 Visit = คนเดียว สาขาเดียว วันเดียว · นับทุกรายการ Onsite ในชีทประเมิน'+(isSr()?' · การลงพื้นที่ UPC แสดงไว้แต่ไม่นับ KPI':'')),
+    el('h3',{},'รายการ Visit'),el('div',{class:'small muted'},'กดที่รายการที่มีความเห็นเพื่ออ่าน'),
+    st.all.length?list:el('div',{class:'empty'},'ยังไม่มี Visit ในเดือนนี้'),
+    logs.length?el('h3',{},'บันทึกวันที่ไม่ได้ระบุสาขา'):null,
+    logs.length?el('div',{class:'diag'},...logs.map(l=>el('span',{},el('b',{},thDate(l.d)),` · ${l.ev} · ${l.t}`))):null);
 }
 
 /* ---------- Focus ---------- */
+// Focus levels: <80 red · 80–84 orange · 85–89 yellow · 90+ green
+const fLv=v=>v>=0.9?'l4':v>=0.85?'l3':v>=0.8?'l2':'l1';
 function viewFocus(){
   const fs=focusStats();
   if(!fs)return el('div',{class:'panel'},el('h2',{},'Focus Product'),el('div',{class:'empty'},'ยังไม่มีไฟล์สต็อกของเดือนนี้หรือก่อนหน้า'));
@@ -433,23 +517,28 @@ function viewFocus(){
   const poolOf=i=>fs.f.s.pool?fs.f.s.pool[i]:(shMap[i]?shMap[i].pool:null);
   const tag=(t)=>el('span',{class:'num tag'},t);
   const lbl=i=>i==='All Model'?'Sunglass':i; // focus list names the sunglass group 'All Model'
-  const list=el('div',{});
-  fs.br.slice().sort((a,b)=>a.ok/a.req-b.ok/b.req).forEach(b=>{
-    const v=b.ok/b.req,d=el('details',{class:'br',open:S.openBr[b.code]||null});
-    d.addEventListener('toggle',()=>{S.openBr[b.code]=d.open;});
-    d.append(el('summary',{},el('span',{class:'code'},b.code),el('span',{class:'muted small'},TYPE_LABEL[MAIN[b.code].t]),
-      el('div',{},el('div',{class:'row small'},el('span',{class:'num'},`มี ${b.have.length}`),b.exempt.length?el('span',{class:'num h-ex'},`ยกเว้น ${b.exempt.length}`):null,el('span',{class:'num h-miss'},`ขาด ${b.missing.length}`),el('span',{class:'muted num'},`${fmt(b.pcs)} ชิ้น`)),barEl(v)),
-      el('span',{class:'pill '+(v>0.9?'good':v>=0.85?'warn':'bad')},`${b.ok}/${b.req} · ${pct(v,0)}`)),
-      el('div',{class:'body'},
+  const sorted=fs.br.slice().sort((a,b)=>a.ok/a.req-b.ok/b.req);
+  if(S.focusSel&&!sorted.some(b=>b.code===S.focusSel))S.focusSel=null;
+  const detail=b=>el('div',{class:'body'},
         el('div',{class:'grp g-miss'},el('h4',{class:'h-miss'},`ขาด (${b.missing.length})`),b.missing.length?el('ul',{},...b.missing.map(i=>{const p=poolOf(i);return el('li',{},el('span',{},lbl(i)),p==null?null:tag(p?`ในระบบ ${p} ชิ้น`:'ในระบบ 0'));})):el('div',{class:'empty'},'ไม่มี')),
         el('div',{class:'grp g-ex'},el('h4',{class:'h-ex'},`ยกเว้น · ของในระบบไม่พอ (${b.exempt.length})`),b.exempt.length?el('ul',{},...b.exempt.map(i=>{const x=shMap[i];return el('li',{},el('span',{},lbl(i)),x?tag(`มี ${x.pool} ชิ้น / ต้อง ${x.need} สาขา`):null);})):el('div',{class:'empty'},'ไม่มี'),b.exempt.length?el('div',{class:'small muted',style:'margin-top:6px'},'ของทั้งระบบไม่พอให้ทุกสาขา · สาขาที่ได้ยกเว้นเรียงจาก Tier C ก่อน แล้ว B และ A'):null),
-        el('div',{class:'grp g-have'},el('h4',{class:'h-have'},`มี (${b.have.length})`),el('ul',{},...b.have.map(([i,q])=>el('li',{},el('span',{},lbl(i)),el('span',{class:'num muted'},`${q} ชิ้น`)))))));
-    list.append(d);
+        el('div',{class:'grp g-have'},el('h4',{class:'h-have'},`มี (${b.have.length})`),el('ul',{},...b.have.map(([i,q])=>el('li',{},el('span',{},lbl(i)),el('span',{class:'num muted'},`${q} ชิ้น`))))));
+  const grid=el('div',{class:'fgrid'});
+  sorted.forEach(b=>{
+    const v=b.ok/b.req,t=fLv(v),bar=el('div',{class:'fbar '+t});bar.append(el('i',{style:`width:${Math.min(100,v*100)}%`}),el('b',{style:'left:90%'}));
+    grid.append(el('button',{type:'button',class:'fcard '+t+(S.focusSel===b.code?' sel':''),'aria-pressed':String(S.focusSel===b.code),onclick:()=>{S.focusSel=S.focusSel===b.code?null:b.code;render();if(S.focusSel)setTimeout(()=>document.getElementById('fdetail')?.scrollIntoView({behavior:'smooth',block:'start'}),0);}},
+      el('span',{class:'fc-top'},el('b',{},b.code),el('small',{},TYPE_LABEL[MAIN[b.code].t]+(isSr()?` · ${MAIN[b.code].s}`:''))),
+      el('span',{class:'fpct num '+t},pct(v,1)),bar,
+      el('span',{class:'fc-sub num'},`${b.ok}/${b.req} รุ่น · ${fmt(b.pcs)} ชิ้น`),
+      el('span',{class:'fc-tags'},el('span',{class:'fmiss num'+(b.missing.length?'':' zero')},b.missing.length?`ขาด ${b.missing.length}`:'ครบ'),b.exempt.length?el('span',{class:'fex num'},`ยกเว้น ${b.exempt.length}`):null)));
   });
+  const selB=sorted.find(b=>b.code===S.focusSel);
+  const list=el('div',{},grid,selB?el('div',{class:'fdetail',id:'fdetail'},el('div',{class:'row',style:'justify-content:space-between'},el('h3',{},`${selB.code} · ${TYPE_LABEL[MAIN[selB.code].t]}`),el('button',{class:'btn ghost small',type:'button',onclick:()=>{S.focusSel=null;render();}},'ปิด')),detail(selB)):null);
   return el('div',{class:'panel'},el('h2',{},'Focus Product'),
     el('div',{class:'legend'},el('span',{},`สต็อก ณ `,el('b',{},thDate(fs.f.s.stockDate))),fs.f.inMonth?null:el('span',{class:'pill warn'},'ยังไม่มีสต็อกของเดือนนี้ ใช้ไฟล์ล่าสุดก่อนหน้า')),
-    el('div',{class:'stats'},stat(pct(fs.avg,0),`เฉลี่ย ${fs.br.length} สาขา`),stat(`${fs.pass}/${fs.br.length}`,'สาขาที่ผ่าน >90%')),
-    el('div',{class:'small muted'},'มี = มีรุ่นนั้นอย่างน้อย 1 ชิ้น (ทุก version) · Lady 41 / Men 39 / Shop 51 รุ่น · กดที่สาขาเพื่อดูรายละเอียด'),
+    el('div',{class:'stats'},stat(pct(fs.avg,1),`เฉลี่ย ${fs.br.length} สาขา`),stat(`${fs.pass}/${fs.br.length}`,'สาขาที่ได้ 90%+')),
+    el('div',{class:'legend'},el('span',{class:'key l4'},'90%+'),el('span',{class:'key l3'},'85–89%'),el('span',{class:'key l2'},'80–84%'),el('span',{class:'key l1'},'ต่ำกว่า 80%'),el('span',{},'เส้นขีดบนแถบ = 90%')),
+    el('div',{class:'small muted'},'มี = มีรุ่นนั้นอย่างน้อย 1 ชิ้น (ทุก version) · Lady 41 / Men 39 / Shop 51 รุ่น · กดที่กล่องสาขาเพื่อดูรุ่นที่ขาด / ยกเว้น / มี'),
     list);
 }
 
@@ -488,10 +577,10 @@ async function syncSheets(btn,out){
   if(!S.mcp){out.replaceChildren(el('span',{class:'warn'},'หน้านี้ยังเชื่อม Google Drive ไม่ได้ ลองรีเฟรชหน้าแล้วกดใหม่ ถ้ายังไม่ได้ ให้ตรวจว่ามี Google Drive ใน claude.ai Settings → Connectors'));return;}
   btn.disabled=true;const now=Date.now(),lines=[];
   const step=async(label,fn)=>{out.replaceChildren(...lines.map(l=>el('span',{},l)),el('span',{},`กำลังดึง${label}…`));try{lines.push(`${label}: `+await fn());}catch(e){lines.push(`${label}: `+mcpMsg(e));}};
-  await step('รายชื่อพนักงาน',async()=>{const r=GSProc.parseStaff(await driveXlsx(SHEETS.staff));await S.db.doc('sync/staff').set({updatedAt:now,people:r.people,diag:r.diag});return `${r.diag.people} คน`;});
-  await step('ยอดขายรายวัน',async()=>{const r=GSProc.parseSales(await driveXlsx(SHEETS.sales));await S.db.doc('sync/sales').set({updatedAt:now,months:r.months,diag:r.diag});const ks=Object.keys(r.months).sort(),l=ks[ks.length-1];return `ข้อมูลถึง ${thDate(r.months[l].lastDate)}`;});
-  await step('ชีทประเมิน SC',async()=>{const r=GSProc.parseAudit(await driveXlsx(SHEETS.audit));await S.db.doc('sync/audit').set({updatedAt:now,audits:r.audits,visits:r.visits,diag:r.diag});lastDiag.audit=r.diag;return `ปี 2569 ${r.diag.inYear} แถว · ประเมิน ${r.diag.audits} · Visit ${r.diag.visits}`;});
-  await step('ชีทแจ้งความต้องการสินค้า',async()=>{const r=GSProc.parseDemand(await driveXlsx(SHEETS.demand));await S.db.doc('sync/demand').set({updatedAt:now,rows:r.rows,diag:r.diag});lastDiag.demand=r.diag;return `ปี 2026 ${r.diag.inYear} แถว · นับ ${r.diag.counted}`;});
+  await step('รายชื่อพนักงาน',async()=>{const r=GSProc.parseStaff(await driveXlsx(SHEETS.staff));await S.db.doc('sync/staff').set(JSON.parse(JSON.stringify(Object.assign({updatedAt:now},r))));return `${r.diag.people} คน`;});
+  await step('ยอดขายรายวัน',async()=>{const r=GSProc.parseSales(await driveXlsx(SHEETS.sales));await S.db.doc('sync/sales').set(JSON.parse(JSON.stringify(Object.assign({updatedAt:now},r))));const ks=Object.keys(r.months).sort(),l=ks[ks.length-1];return `ข้อมูลถึง ${thDate(r.months[l].lastDate)}`;});
+  await step('ชีทประเมิน SC',async()=>{const r=GSProc.parseAudit(await driveXlsx(SHEETS.audit));await S.db.doc('sync/audit').set(JSON.parse(JSON.stringify(Object.assign({updatedAt:now},r))));lastDiag.audit=r.diag;return `ปี 2569 ${r.diag.inYear} แถว · ประเมิน ${r.diag.audits} · Visit ${r.diag.visits}`;});
+  await step('ชีทแจ้งความต้องการสินค้า',async()=>{const r=GSProc.parseDemand(await driveXlsx(SHEETS.demand));await S.db.doc('sync/demand').set(JSON.parse(JSON.stringify(Object.assign({updatedAt:now},r))));lastDiag.demand=r.diag;return `ปี 2026 ${r.diag.inYear} แถว · นับ ${r.diag.counted}`;});
   btn.disabled=false;out.replaceChildren(...lines.map(l=>el('span',{},l)));toast('อัปเดตเสร็จ');render();
 }
 async function uploadStock(file,out){

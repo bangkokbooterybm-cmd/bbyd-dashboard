@@ -120,7 +120,7 @@ var GSProc = (function () {
       else if (x.indexOf('ข้อเสนอแนะ') >= 0) { noteCols.push(i); noteFrom.push(/Director/i.test(x) ? 'Director' : /พนักงาน/.test(x) ? 'SC' : ''); }
     });
     var diag = { sheet: t.name, total: 0, inYear: 0, audits: 0, visitOnly: 0, otherEvaluator: 0, crossScope: 0, unknownEvaluators: {}, unknownBranches: {}, monthDateMismatch: 0, scoreCols: scoreCols.length, examCols: examCols.length, items: items };
-    var audits = [], visitMap = {};
+    var audits = [], visitMap = {}, logs = [];
     t.rows.forEach(function (r) {
       if (!r || r.every(function (v) { return v == null || v === ''; })) return;
       diag.total++;
@@ -160,13 +160,18 @@ var GSProc = (function () {
         var k = scope + '|' + evName + '|' + (br || brRaw) + '|' + ymd(d);
         var v = visitMap[k] || (visitMap[k] = { d: ymd(d), ym: ymd(d).slice(0, 7), br: br, brRaw: br ? undefined : brRaw, ev: evName, scope: scope, x: cross ? 1 : undefined, audits: 0 });
         if (isAudit) v.audits++;
+        notes.forEach(function (n) { var t = n.t.slice(0, 300); v.notes = v.notes || []; if (!v.notes.some(function (o) { return o.t === t; })) v.notes.push({ f: n.f, t: t, sc: isAudit ? sc : undefined }); });
+      } else if (!online && d && notes.length) {
+        // a Sup's work day with no branch (head office, meeting, other site): keep the note as a log line
+        logs.push({ d: ymd(d), ym: ymd(d).slice(0, 7), ev: evName, scope: scope, t: notes.map(function (n) { return n.t; }).join(' / ').slice(0, 300) });
       }
     });
     var visits = Object.keys(visitMap).map(function (k) { return visitMap[k]; });
     visits.forEach(function (v) { Object.keys(v).forEach(function (k) { if (v[k] === undefined) delete v[k]; }); });
     audits.forEach(function (v) { Object.keys(v).forEach(function (k) { if (v[k] === undefined) delete v[k]; }); });
     diag.visits = visits.length;
-    return { audits: audits, visits: visits, diag: diag };
+    visits.forEach(function (v) { (v.notes || []).forEach(function (n) { if (n.sc === undefined) delete n.sc; }); });
+    return { audits: audits, visits: visits, logs: logs, diag: diag };
   }
 
   /* ---------- Product demand sheet ---------- */
