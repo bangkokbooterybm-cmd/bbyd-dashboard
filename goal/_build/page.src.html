@@ -123,6 +123,12 @@ details.br summary{list-style:none;cursor:pointer;display:grid;grid-template-col
 .ftier:first-child{padding-top:0}
 .ftier h3{font-size:15px}
 .fpct-s.l1{color:var(--bad)} .fpct-s.l2{color:var(--orng)} .fpct-s.l3{color:var(--ylw)} .fpct-s.l4{color:var(--good)}
+.tcov{display:flex;flex-direction:column;gap:10px;background:var(--sunk);border-radius:12px;padding:14px}
+.tcov .stat{background:var(--surface)}
+.tcgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:6px}
+.tc{background:var(--surface);border:1px solid var(--line);border-left:3px solid;border-radius:8px;padding:4px 8px;display:grid;grid-template-columns:1fr auto;gap:0 6px;align-items:baseline;line-height:1.35}
+.tc b{font-size:13px} .tc .tcn{font:700 15px var(--disp)} .tc .tcby{grid-column:1/-1;color:var(--ink3);font-size:11px}
+.tc.good{border-left-color:var(--good)} .tc.good .tcn{color:var(--good)} .tc.warn{border-left-color:var(--warn)} .tc.warn .tcn{color:var(--warn)} .tc.bad{border-left-color:var(--bad);background:var(--bad-bg)} .tc.bad .tcn{color:var(--bad)}
 .fgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 @media (max-width:900px){.fgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .fcard{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:6px;padding:12px 14px;border:1px solid var(--line);border-left:4px solid var(--line);border-radius:12px;background:var(--surface)}
@@ -285,6 +291,17 @@ function salesStats(){
   const rows=salesRows(),upto=rows.filter(r=>r.m<=S.month),have=upto.filter(r=>r.sales!=null&&r.target&&!r.live); // YTD / average use closed months only
   const ytdS=have.reduce((a,r)=>a+r.sales,0),ytdT=have.reduce((a,r)=>a+r.target,0),achs=have.map(r=>r.sales/r.target),cur=rows[S.month-1];
   return {rows,cur,ytdAll:upto.reduce((x,r)=>x+(r.sales||0),0),lastClosed:have.length?have[have.length-1].m:null,curAch:cur.sales!=null&&cur.target?cur.sales/cur.target:null,ytdS,ytdT,ytdAch:ytdT?ytdS/ytdT:null,avgAch:achs.length?achs.reduce((a,b)=>a+b,0)/achs.length:null,nMonths:achs.length,evYTD:upto.reduce((a,r)=>a+(r.eventDays||0),0),evCur:cur.eventDays};
+}
+// Every Sup's audits of this team's SCs (company rule: coverage counts whoever evaluated)
+function auditsTeamAll(){if(!peopleOK())return [];const mine=new Set(rosterIn().flatMap(rosterKeys)),other=new Set(rosterFor(otherScope(),curYM()).flatMap(rosterKeys));
+  return (S.audit?.audits||[]).filter(a=>a.scope===team()&&a.ym===curYM()&&!a.x&&!(other.has(nameKey(a.sc))&&!mine.has(nameKey(a.sc))));}
+const evShort=ev=>String(ev||'').replace(/^คุณ/,'');
+function teamCoverage(){
+  const recs=auditsTeamAll(),ro=rosterIn(),evs=[...new Set(recs.map(a=>evShort(a.ev)))].sort();
+  const rows=ro.map(r=>{const k=nameKey(r.name),mine=recs.filter(a=>canonOf(a.sc,ro)===k),by={};mine.forEach(a=>{const e=evShort(a.ev);by[e]=(by[e]||0)+1;});return {name:r.name,n:mine.length,by};});
+  rows.sort((a,b)=>a.n-b.n||a.name.localeCompare(b.name,'th'));
+  const cnt=f=>rows.filter(f).length;
+  return {recs,rows,evs,z:cnt(r=>!r.n),one:cnt(r=>r.n===1),two:cnt(r=>r.n===2),three:cnt(r=>r.n>=3)};
 }
 function auditsMonth(){if(!peopleOK())return [];const mine=new Set(rosterIn().flatMap(rosterKeys)),other=new Set(rosterFor(otherScope(),curYM()).flatMap(rosterKeys));
   return (S.audit?.audits||[]).filter(a=>a.scope===team()&&a.ym===curYM()&&!a.x&&evOK(a.ev)&&!(other.has(nameKey(a.sc))&&!mine.has(nameKey(a.sc))));} // skip SCs of the other team
@@ -464,8 +481,17 @@ function viewAudit(){
   const chips=el('div',{class:'chips'});st.ro.forEach(r=>{const n=(st.by[nameKey(r.name)]||[]).length;chips.append(el('span',{class:'chip '+(n>=2?'good':n===1?'warn':'bad')},r.name,el('b',{},String(n))));});
   if(!st.ro.length)chips.append(el('span',{class:'empty'},'ยังไม่มีรายชื่อ SC ของทีมนี้'));
   const list=el('div',{});st.recs.slice().sort((a,b)=>(b.d||'').localeCompare(a.d||'')).forEach(a=>list.append(auditCard(a)));
+  const tc=teamCoverage(),multi=tc.evs.length>1||team()==='BKK';
+  const tcBox=multi?el('section',{class:'tcov'},
+    el('h3',{},`ภาพรวมทีม ${team()} · ประเมินโดย Sup ทุกคนรวมกัน`),
+    el('div',{class:'stats'},stat(String(tc.z),'ยังไม่ถูกประเมิน'),stat(String(tc.one),'1 ครั้ง'),stat(String(tc.two),'2 ครั้ง'),stat(String(tc.three),'3 ครั้งขึ้นไป')),
+    el('div',{class:'legend'},el('span',{class:'key bad'},'ยังไม่ถูกประเมิน'),el('span',{class:'key warn'},'1 ครั้ง'),el('span',{class:'key good'},'2 ครั้งขึ้นไป'),el('span',{},`รวม ${tc.recs.length} ครั้ง · ${tc.rows.length} คน`)),
+    (()=>{const ro=rosterIn(),known=new Set(ro.map(r=>nameKey(r.name))),miss=[...new Set(tc.recs.filter(x=>!known.has(canonOf(x.sc,ro))).map(x=>x.sc))];return miss.length?el('div',{class:'diag'},el('span',{class:'warn'},`ชื่อที่จับคู่กับรายชื่อไม่ได้ (ไม่อยู่ในการ์ด): ${miss.join(', ')}`)):null;})(),
+    el('div',{class:'tcgrid'},...tc.rows.map(r=>el('div',{class:'tc '+(r.n>=2?'good':r.n===1?'warn':'bad')},el('b',{},r.name),el('span',{class:'tcn num'},String(r.n)),
+      el('span',{class:'tcby small'},r.n?Object.entries(r.by).map(([e,c])=>`Sup${e} ${c}`).join(' · '):'ยังไม่ประเมิน'))))):null;
   return el('div',{class:'panel'},
     el('h2',{},`SC Audit · ${m} ${YEAR}`),needSync('audit'),stampTxt('ข้อมูลจากชีทประเมิน SC อัปเดต',S.audit?.updatedAt),
+    tcBox,multi?el('h3',{style:'margin-top:6px'},`เฉพาะที่ ${isSr()?'Supโอ๋':team()==='BKK'?'Supเอ':'Supมิ้ว'} ประเมิน`):null,
     el('div',{class:'stats'},stat(`${st.c1}/${st.ro.length}`,'SC ที่ประเมินแล้ว ≥1 ครั้ง'),stat(`${st.c2}/${st.ro.length}`,'SC ที่ครบ 2 ครั้ง'),stat(String(st.recs.length),'จำนวนครั้งที่ประเมิน'),stat(st.avg==null?'–':st.avg.toFixed(2),'คะแนนเฉลี่ย (เต็ม 5)')),
     el('h3',{},'ความครอบคลุมรายคน'),el('div',{class:'legend'},el('span',{class:'key good'},'≥2 ครั้ง'),el('span',{class:'key warn'},'1 ครั้ง'),el('span',{class:'key bad'},'ยังไม่ประเมิน')),chips,
     el('div',{class:'small muted'},S.staff?`รายชื่อจากชีทข้อมูลพนักงาน BBYD ประกอบกับฟอร์มส่งยอดขาย · คนที่ออกไม่นับตั้งแต่เดือนที่ออก · พนักงานใหม่นับเมื่อครบ 14 วัน`:'ยังไม่ได้ดึงรายชื่อจากชีทข้อมูลพนักงาน ใช้รายชื่อเดิมไปก่อน'),
