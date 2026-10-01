@@ -114,6 +114,9 @@ details.au li b{font-family:var(--disp);min-width:18px;text-align:right}
 .vcal .dn{font:600 12px var(--disp);color:var(--ink3)} .vcal .day.has .dn{color:var(--accent)}
 .vcal .vb{font:600 11px var(--disp);padding:1px 5px;border-radius:5px;background:var(--surface);color:var(--ink);border:1px solid var(--line);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .vcal .vb.ok{border-color:var(--good);color:var(--good)} .vcal .vb.ex{border-color:var(--brass);color:var(--brass);background:var(--brass-bg)}
+.vcal .day.off{background:var(--bad-bg);border-color:color-mix(in srgb,var(--bad) 45%,var(--line))}
+.vcal .day.off .dn{color:var(--bad)}
+.vcal .offt{font-size:10px;font-weight:600;color:var(--bad);letter-spacing:.02em}
 .vcal .vb.oth{border-style:dashed;border-color:var(--ink3);color:var(--ink2);background:var(--sunk)}
 @media (max-width:560px){.vcal{gap:2px}.vcal .day{min-height:58px;padding:3px 2px;gap:2px}.vcal .vb{font-size:9px;padding:0 1px;border-width:0 0 0 2px;border-radius:2px;text-overflow:clip;letter-spacing:-.02em}.vcal .dn{font-size:11px}}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
@@ -538,17 +541,22 @@ function visitCard(v){
 // rows with no branch picked: the place is typed in the note (SEM = office, PDPS, TTVS…). Show the first known code, else the note itself
 const OTHER_PLACES=['SEM','PDPS','TTVS','HHNS','TMTS','TMTE','TMNE','ZENE','ICDE','JCPE','PKCE','EMPL','EMPM'];
 function logPlace(t){const known=new Set([...Object.keys(MAIN),...OTHER_PLACES]),m=(String(t).toUpperCase().match(/[A-Z0-9]{3,5}/g)||[]).find(x=>known.has(x));if(m)return m;const x=String(t).trim();return x.length>12?x.slice(0,12)+'…':x;}
+// Sup days off, kept in config/main.dayoff[YYYY-MM][scope] = {off:[day numbers], sick:[day numbers]}
+function dayOffFor(scope,ymk){const x=((cfg().dayoff||{})[ymk]||{})[scope]||{};return {off:x.off||[],sick:x.sick||[]};}
 function visitCal(st,logs){
   const [y,m]=curYM().split('-').map(Number),days=new Date(y,m,0).getDate(),lead=(new Date(y,m-1,1).getDay()+6)%7;
   const t=new Date(),todayK=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
   const by={};st.all.forEach(v=>(by[v.d]=by[v.d]||[]).push(v));
   const lg={};logs.forEach(l=>(lg[l.d]=lg[l.d]||[]).push(l));
+  const dof=dayOffFor(S.scope,curYM()),offSet=new Set(dof.off),sickSet=new Set(dof.sick);
   const g=el('div',{class:'vcal',role:'grid','aria-label':'Visit calendar'});
   ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach((d,i)=>g.append(el('div',{class:'dow'+(i>4?' we':'')},d)));
   for(let i=0;i<lead;i++)g.append(el('div',{class:'day blank'}));
   for(let d=1;d<=days;d++){
     const k=`${curYM()}-${String(d).padStart(2,'0')}`,vs=(by[k]||[]).slice().sort((a,b)=>String(a.br||a.brRaw).localeCompare(String(b.br||b.brRaw)));
-    const c=el('div',{class:'day'+(vs.length||lg[k]?' has':'')+(k===todayK?' today':'')},el('div',{class:'dn num'},String(d)));
+    const isOff=offSet.has(d)||sickSet.has(d);
+    const c=el('div',{class:'day'+(isOff?' off':vs.length||lg[k]?' has':'')+(k===todayK?' today':'')},el('div',{class:'dn num'},String(d)));
+    if(isOff)c.append(el('div',{class:'offt'},sickSet.has(d)?'Sick Leave':'Day Off'));
     vs.forEach(v=>c.append(el('div',{class:'vb'+(v.x?' ex':v.audits?' ok':''),title:`${v.br||v.brRaw}${v.audits?` · ประเมิน ${v.audits} คน`:' · Visit อย่างเดียว'}${v.x?' · ไม่นับ KPI':''}`},v.br||v.brRaw)));
     (lg[k]||[]).forEach(l=>c.append(el('div',{class:'vb oth',title:`${l.t} · นอก KPI`},logPlace(l.t))));
     g.append(c);
@@ -571,7 +579,7 @@ function viewVisit(){
     logs.length?el('h3',{},'บันทึกวันที่ไม่ได้ระบุสาขา'):null,
     logs.length?el('div',{class:'diag'},...logs.map(l=>el('span',{},el('b',{},thDate(l.d)),` · ${l.ev} · ${l.t}`))):null,
     el('h3',{},`Visit Calendar · ${sup().title||'Supervisor'} (${SUP_NAME[S.scope]||''}) · ${MONTHS[S.month-1]} ${YEAR}`),
-    el('div',{class:'legend'},el('span',{class:'key good'},'Visit + ประเมิน'),el('span',{class:'key'},'Visit อย่างเดียว'),isSr()?el('span',{class:'key',style:'color:var(--brass)'},'UPC (ไม่นับ KPI)'):null,logs.length?el('span',{class:'key',style:'color:var(--ink2)'},'Office / นอกสาขาที่ดูแล (ไม่นับ KPI)'):null),
+    el('div',{class:'legend'},el('span',{class:'key good'},'Visit + ประเมิน'),el('span',{class:'key'},'Visit อย่างเดียว'),isSr()?el('span',{class:'key',style:'color:var(--brass)'},'UPC (ไม่นับ KPI)'):null,logs.length?el('span',{class:'key',style:'color:var(--ink2)'},'Office / นอกสาขาที่ดูแล (ไม่นับ KPI)'):null,(()=>{const o=dayOffFor(S.scope,curYM());return o.off.length||o.sick.length?el('span',{class:'key bad'},`Day Off ${o.off.length} วัน`+(o.sick.length?` · ลาป่วย ${o.sick.length} วัน`:'')):null;})()),
     el('div',{class:'tscroll'},visitCal(st,logs)));
 }
 
@@ -712,6 +720,11 @@ function viewSettings(){
     closed?el('div',{class:'small muted'},'เดือนนี้ปิดแล้ว ใช้เป้าจากไฟล์ยอดขาย'):el('div',{class:'small muted'},'ใส่ตามแดชบอร์ดยอดขายหลัก · เป้าอีเว้นท์รวมจะหารเท่ากันตามจำนวนอีเว้นท์ที่มียอดในเดือนนั้น แล้วบวกเข้าทีมเจ้าของอีเว้นท์'),
     el('label',{class:'row small'},'BKK (สาขา)',tB),el('label',{class:'row small'},'UPC (สาขา)',tU),el('label',{class:'row small'},'Event รวม',tE),
     el('button',{class:'btn small',type:'button',disabled:closed||null,onclick:()=>saveCfg(c=>{c.liveTargets=c.liveTargets||{};const n=v=>v.value===''?null:+v.value;c.liveTargets[id]={BKK:n(tB),UPC:n(tU),event:n(tE)};})},'บันทึกเป้า')));
+  {const ymk=curYM(),rows=cfg().supervisors.map(sv=>{const o=dayOffFor(sv.scope,ymk);return {sv,off:el('input',{type:'text',value:o.off.join(' '),placeholder:'เช่น 1 2 7 8'}),sick:el('input',{type:'text',value:o.sick.join(' '),placeholder:'เช่น 17'})};});
+    const days=v=>[...new Set(v.split(/[\s,]+/).map(Number).filter(n=>Number.isInteger(n)&&n>=1&&n<=31))].sort((a,b)=>a-b);
+    wrap.append(el('div',{class:'panel'},el('h3',{},`Day Off · ${MONTHS[S.month-1]} ${YEAR}`),el('div',{class:'small muted'},'ใส่วันที่ เว้นวรรคหรือคั่นด้วย , · แสดงเป็นช่องสีแดงอ่อนในปฏิทิน Visit'),
+      ...rows.map(r=>el('div',{style:'display:flex;flex-direction:column;gap:4px'},el('b',{class:'small'},`${r.sv.title} (${SUP_NAME[r.sv.scope]||''})`),el('label',{class:'row small'},'Day Off',r.off),el('label',{class:'row small'},'ลาป่วย',r.sick))),
+      el('button',{class:'btn small',type:'button',onclick:()=>saveCfg(c=>{c.dayoff=c.dayoff||{};const m={};rows.forEach(r=>{const off=days(r.off.value),sick=days(r.sick.value);if(off.length||sick.length)m[r.sv.scope]={off,sick};});c.dayoff[ymk]=m;})},'บันทึกวันหยุด')));}
   const ro=rosterIn(),am=cfg().aliases||{};
   const ta=el('textarea',{rows:4,style:'width:100%',placeholder:'ชื่อในรายชื่อ = ชื่ออื่นที่กรอกในชีท เช่น\nกิ้ฟ = กุ๊บกิ๊บ, กิ๊ฟ'});
   ta.value=Object.entries(am).map(([k,v])=>`${k} = ${v.join(', ')}`).join('\n');
