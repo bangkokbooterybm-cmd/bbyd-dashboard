@@ -112,13 +112,14 @@ details.au li b{font-family:var(--disp);min-width:18px;text-align:right}
 .vcal .day.has{background:var(--accent-soft);border-color:var(--accent)}
 .vcal .day.today{outline:2px solid var(--accent);outline-offset:-1px}
 .vcal .dn{font:600 12px var(--disp);color:var(--ink3)} .vcal .day.has .dn{color:var(--accent)}
-.vcal .vb{font:600 11px var(--disp);padding:1px 5px;border-radius:5px;background:var(--surface);color:var(--ink);border:1px solid var(--line);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.vcal .vb.ok{border-color:var(--good);color:var(--good)} .vcal .vb.ex{border-color:var(--brass);color:var(--brass);background:var(--brass-bg)}
+:is(.vcal,.vlg) .vb{font:600 11px var(--disp);padding:1px 5px;border-radius:5px;background:var(--surface);color:var(--ink);border:1px solid var(--line);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+:is(.vcal,.vlg) .vb.ok{background:var(--good);border-color:var(--good);color:var(--surface)} :is(.vcal,.vlg) .vb.ok::after{content:' ✓'} :is(.vcal,.vlg) .vb.ex{border-color:var(--brass);color:var(--brass);background:var(--brass-bg)}
 .vcal .day.off{background:var(--bad-bg);border-color:color-mix(in srgb,var(--bad) 45%,var(--line))}
 .vcal .day.off .dn{color:var(--bad)}
 .vcal .offt{font-size:10px;font-weight:600;color:var(--bad);letter-spacing:.02em}
-.vcal .vb.oth{border-style:dashed;border-color:var(--ink3);color:var(--ink2);background:var(--sunk)}
-@media (max-width:560px){.vcal{gap:2px}.vcal .day{min-height:58px;padding:3px 2px;gap:2px}.vcal .vb{font-size:9px;padding:0 1px;border-width:0 0 0 2px;border-radius:2px;text-overflow:clip;letter-spacing:-.02em}.vcal .dn{font-size:11px}}
+.vlg .vli{display:inline-flex;align-items:center;gap:6px}
+:is(.vcal,.vlg) .vb.oth{border-style:dashed;border-color:var(--ink3);color:var(--ink2);background:var(--sunk)}
+@media (max-width:560px){.vcal .vb.ok::after{content:none}.vcal{gap:2px}.vcal .day{min-height:58px;padding:3px 2px;gap:2px}.vcal .vb{font-size:9px;padding:0 1px;border-width:0 0 0 2px;border-radius:2px;text-overflow:clip;letter-spacing:-.02em}.vcal .dn{font-size:11px}}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
 .stat{background:var(--sunk);border-radius:10px;padding:10px 12px}
 .stat .v{font:700 22px var(--disp)} .stat .k{font-size:12px;color:var(--ink3)}
@@ -579,7 +580,7 @@ function viewVisit(){
     logs.length?el('h3',{},'บันทึกวันที่ไม่ได้ระบุสาขา'):null,
     logs.length?el('div',{class:'diag'},...logs.map(l=>el('span',{},el('b',{},thDate(l.d)),` · ${l.ev} · ${l.t}`))):null,
     el('h3',{},`Visit Calendar · ${sup().title||'Supervisor'} (${SUP_NAME[S.scope]||''}) · ${MONTHS[S.month-1]} ${YEAR}`),
-    el('div',{class:'legend'},el('span',{class:'key good'},'Visit + ประเมิน'),el('span',{class:'key'},'Visit อย่างเดียว'),isSr()?el('span',{class:'key',style:'color:var(--brass)'},'UPC (ไม่นับ KPI)'):null,logs.length?el('span',{class:'key',style:'color:var(--ink2)'},'Office / นอกสาขาที่ดูแล (ไม่นับ KPI)'):null,(()=>{const o=dayOffFor(S.scope,curYM());return o.off.length||o.sick.length?el('span',{class:'key bad'},`Day Off ${o.off.length} วัน`+(o.sick.length?` · ลาป่วย ${o.sick.length} วัน`:'')):null;})()),
+    el('div',{class:'legend vlg'},el('span',{class:'vli'},el('span',{class:'vb ok'},'CODE'),'Visit + ประเมิน SC'),el('span',{class:'vli'},el('span',{class:'vb'},'CODE'),'Visit อย่างเดียว'),isSr()?el('span',{class:'key',style:'color:var(--brass)'},'UPC (ไม่นับ KPI)'):null,logs.length?el('span',{class:'key',style:'color:var(--ink2)'},'Office / นอกสาขาที่ดูแล (ไม่นับ KPI)'):null,(()=>{const o=dayOffFor(S.scope,curYM());return o.off.length||o.sick.length?el('span',{class:'key bad'},`Day Off ${o.off.length} วัน`+(o.sick.length?` · ลาป่วย ${o.sick.length} วัน`:'')):null;})()),
     el('div',{class:'tscroll'},visitCal(st,logs)));
 }
 
