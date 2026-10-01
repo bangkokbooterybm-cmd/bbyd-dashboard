@@ -246,6 +246,7 @@ const team=()=>isSr()?'BKK':S.scope;
 const SR_KEY='โอ'; // nameKey of คุณโอ๋
 // whose audits/visits count on each board: Supervisor = คุณโอ๋, Supervisor BKK = คุณเอ, Supervisor UPC = คุณมิ้ว (only UPC evaluator kept by the parser)
 const EV_KEY={SENIOR:'โอ',BKK:'เอ'};
+const SUP_NAME={SENIOR:'คุณโอ๋',BKK:'คุณเอ',UPC:'คุณมิ้ว'};
 const evOK=ev=>!EV_KEY[S.scope]||nameKey(ev)===EV_KEY[S.scope];
 const salesScopes=()=>isSr()?['BKK','UPC']:[S.scope];
 // Who is on a team in a month: from the HR sheet (nickname + work location). Out from the month they resign, whatever the day.
@@ -566,7 +567,7 @@ function viewVisit(){
     st.all.length?list:el('div',{class:'empty'},'ยังไม่มี Visit ในเดือนนี้'),
     logs.length?el('h3',{},'บันทึกวันที่ไม่ได้ระบุสาขา'):null,
     logs.length?el('div',{class:'diag'},...logs.map(l=>el('span',{},el('b',{},thDate(l.d)),` · ${l.ev} · ${l.t}`))):null,
-    el('h3',{},`Visit Calendar · ${MONTHS[S.month-1]} ${YEAR}`),
+    el('h3',{},`Visit Calendar · ${sup().title||'Supervisor'} (${SUP_NAME[S.scope]||''}) · ${MONTHS[S.month-1]} ${YEAR}`),
     el('div',{class:'legend'},el('span',{class:'key good'},'Visit + ประเมิน'),el('span',{class:'key'},'Visit อย่างเดียว'),isSr()?el('span',{class:'key',style:'color:var(--brass)'},'UPC (ไม่นับ KPI)'):null),
     el('div',{class:'tscroll'},visitCal(st,logs)));
 }
