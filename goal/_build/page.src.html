@@ -114,8 +114,8 @@ details.au li b{font-family:var(--disp);min-width:18px;text-align:right}
 .vcal .dn{font:600 12px var(--disp);color:var(--ink3)} .vcal .day.has .dn{color:var(--accent)}
 .vcal .vb{font:600 11px var(--disp);padding:1px 5px;border-radius:5px;background:var(--surface);color:var(--ink);border:1px solid var(--line);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .vcal .vb.ok{border-color:var(--good);color:var(--good)} .vcal .vb.ex{border-color:var(--brass);color:var(--brass);background:var(--brass-bg)}
-.vcal .vlog{font-size:10px;color:var(--ink3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-@media (max-width:560px){.vcal{gap:2px}.vcal .day{min-height:58px;padding:3px 2px;gap:2px}.vcal .vb{font-size:9px;padding:0 1px;border-width:0 0 0 2px;border-radius:2px;text-overflow:clip;letter-spacing:-.02em}.vcal .dn{font-size:11px}.vcal .vlog{font-size:8px}}
+.vcal .vb.oth{border-style:dashed;border-color:var(--ink3);color:var(--ink2);background:var(--sunk)}
+@media (max-width:560px){.vcal{gap:2px}.vcal .day{min-height:58px;padding:3px 2px;gap:2px}.vcal .vb{font-size:9px;padding:0 1px;border-width:0 0 0 2px;border-radius:2px;text-overflow:clip;letter-spacing:-.02em}.vcal .dn{font-size:11px}}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
 .stat{background:var(--sunk);border-radius:10px;padding:10px 12px}
 .stat .v{font:700 22px var(--disp)} .stat .k{font-size:12px;color:var(--ink3)}
@@ -535,19 +535,22 @@ function visitCard(v){
       return el('div',{},n.sc?el('span',{class:'muted'},`ประเมิน ${r?r.name:n.sc}: `):null,n.t);})));
   return d;
 }
+// rows with no branch picked: the place is typed in the note (SEM = office, PDPS, TTVS…). Show the first known code, else the note itself
+const OTHER_PLACES=['SEM','PDPS','TTVS','HHNS','TMTS','TMTE','TMNE','ZENE','ICDE','JCPE','PKCE','EMPL','EMPM'];
+function logPlace(t){const known=new Set([...Object.keys(MAIN),...OTHER_PLACES]),m=(String(t).toUpperCase().match(/[A-Z0-9]{3,5}/g)||[]).find(x=>known.has(x));if(m)return m;const x=String(t).trim();return x.length>12?x.slice(0,12)+'…':x;}
 function visitCal(st,logs){
   const [y,m]=curYM().split('-').map(Number),days=new Date(y,m,0).getDate(),lead=(new Date(y,m-1,1).getDay()+6)%7;
   const t=new Date(),todayK=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
   const by={};st.all.forEach(v=>(by[v.d]=by[v.d]||[]).push(v));
-  const lg={};logs.forEach(l=>{lg[l.d]=(lg[l.d]||0)+1;});
+  const lg={};logs.forEach(l=>(lg[l.d]=lg[l.d]||[]).push(l));
   const g=el('div',{class:'vcal',role:'grid','aria-label':'Visit calendar'});
   ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach((d,i)=>g.append(el('div',{class:'dow'+(i>4?' we':'')},d)));
   for(let i=0;i<lead;i++)g.append(el('div',{class:'day blank'}));
   for(let d=1;d<=days;d++){
     const k=`${curYM()}-${String(d).padStart(2,'0')}`,vs=(by[k]||[]).slice().sort((a,b)=>String(a.br||a.brRaw).localeCompare(String(b.br||b.brRaw)));
-    const c=el('div',{class:'day'+(vs.length?' has':'')+(k===todayK?' today':'')},el('div',{class:'dn num'},String(d)));
+    const c=el('div',{class:'day'+(vs.length||lg[k]?' has':'')+(k===todayK?' today':'')},el('div',{class:'dn num'},String(d)));
     vs.forEach(v=>c.append(el('div',{class:'vb'+(v.x?' ex':v.audits?' ok':''),title:`${v.br||v.brRaw}${v.audits?` · ประเมิน ${v.audits} คน`:' · Visit อย่างเดียว'}${v.x?' · ไม่นับ KPI':''}`},v.br||v.brRaw)));
-    if(lg[k])c.append(el('div',{class:'vlog'},'ไม่ระบุสาขา'));
+    (lg[k]||[]).forEach(l=>c.append(el('div',{class:'vb oth',title:`${l.t} · นอก KPI`},logPlace(l.t))));
     g.append(c);
   }
   const tail=(lead+days)%7;if(tail)for(let i=tail;i<7;i++)g.append(el('div',{class:'day blank'}));
@@ -568,7 +571,7 @@ function viewVisit(){
     logs.length?el('h3',{},'บันทึกวันที่ไม่ได้ระบุสาขา'):null,
     logs.length?el('div',{class:'diag'},...logs.map(l=>el('span',{},el('b',{},thDate(l.d)),` · ${l.ev} · ${l.t}`))):null,
     el('h3',{},`Visit Calendar · ${sup().title||'Supervisor'} (${SUP_NAME[S.scope]||''}) · ${MONTHS[S.month-1]} ${YEAR}`),
-    el('div',{class:'legend'},el('span',{class:'key good'},'Visit + ประเมิน'),el('span',{class:'key'},'Visit อย่างเดียว'),isSr()?el('span',{class:'key',style:'color:var(--brass)'},'UPC (ไม่นับ KPI)'):null),
+    el('div',{class:'legend'},el('span',{class:'key good'},'Visit + ประเมิน'),el('span',{class:'key'},'Visit อย่างเดียว'),isSr()?el('span',{class:'key',style:'color:var(--brass)'},'UPC (ไม่นับ KPI)'):null,logs.length?el('span',{class:'key',style:'color:var(--ink2)'},'Office / นอกสาขาที่ดูแล (ไม่นับ KPI)'):null),
     el('div',{class:'tscroll'},visitCal(st,logs)));
 }
 
