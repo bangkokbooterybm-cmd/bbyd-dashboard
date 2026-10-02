@@ -307,7 +307,7 @@ var GSProc = (function () {
     if (!ws) throw new Error('ไม่พบชีท Sales_Normalized');
     var rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null });
     var h = (rows[0] || []).map(norm);
-    var cD = h.indexOf('ยอดขายวันที่'), cB = h.indexOf('สาขา'), cP = h.indexOf('พนักงานขาย'), who = {}, cT = col(h, function (x) { return x.indexOf('ยอดขายประจำสาขาวันนี้') === 0; });
+    var cD = h.indexOf('ยอดขายวันที่'), cB = h.indexOf('สาขา'), cP = h.indexOf('พนักงานขาย'), cS = h.indexOf('Status'), who = {}, conflict = {}, allVals = {}, cT = col(h, function (x) { return x.indexOf('ยอดขายประจำสาขาวันนี้') === 0; });
     if (cD < 0 || cB < 0 || cT < 0) throw new Error('ไม่พบหัวคอลัมน์ ยอดขายวันที่ / สาขา / ยอดขายประจำสาขาวันนี้ ในชีท Sales_Normalized');
     var diag = { rows: 0, unknown: {}, wholesale: 0 }, day = {}, lastDate = {};
     rows.slice(1).forEach(function (r) {
@@ -323,12 +323,15 @@ var GSProc = (function () {
       }
       var k = ymd(d) + '|' + code, v = +r[cT] || 0;
       (day[k] = day[k] || {})[v] = 1; // same shop total typed by every SC -> count each distinct value once
+      (allVals[k] = allVals[k] || []).push(v); if (cS >= 0 && /conflict/i.test(norm(r[cS]))) conflict[k] = 1;
       var ymk = ymd(d).slice(0, 7); if (!lastDate[ymk] || ymd(d) > lastDate[ymk]) lastDate[ymk] = ymd(d);
     });
     var months = {};
     Object.keys(day).forEach(function (k) {
       var p = k.split('|'), d = p[0], code = p[1], ymk = d.slice(0, 7);
       var amt = Object.keys(day[k]).reduce(function (a, x) { return a + Number(x); }, 0);
+      // the form marks CONFLICT when SCs typed different shop totals for the same day: use the value most of them typed (ties -> the larger), not the sum
+      if (conflict[k]) { var cnt = {}; allVals[k].forEach(function (x) { if (x) cnt[x] = (cnt[x] || 0) + 1; }); var best = null; Object.keys(cnt).forEach(function (x) { x = +x; if (best == null || cnt[x] > cnt[best] || (cnt[x] === cnt[best] && x > best)) best = x; }); var fixed = best == null ? 0 : best; if (fixed !== amt) { diag.conflicts = diag.conflicts || []; diag.conflicts.push({ k: k, summed: amt, used: fixed }); } amt = fixed; }
       var M = months[ymk] || (months[ymk] = { lastDate: lastDate[ymk], wholesale: 0, BKK: { sales: 0, branches: {}, events: {} }, UPC: { sales: 0, branches: {}, events: {} } });
       if (code === 'WHOLESALE') { M.wholesale += amt; return; }
       var sc = salesScope(code);

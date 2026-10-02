@@ -787,7 +787,7 @@ function diagBox(d,kind){
     if(d.monthDateMismatch)L.push(['warn',`${d.monthDateMismatch} รายการ เดือนที่เลือกไม่ตรงกับวันที่ประเมิน (นับตามเดือนที่เลือก)`]);}
   else if(kind==='staff'){L.push(`อ่าน ${d.total} คน · นับ ${d.people} คน`);if(d.notSales.length)L.push(`ไม่ใช่พนักงานขาย: ${d.notSales.join(', ')}`);if(d.leftNoDate.length)L.push(`ลาออกแต่ไม่มีวันที่ (ใช้วันส่งยอดล่าสุดแทน): ${d.leftNoDate.join(', ')}`);
     const u=Object.entries(d.unknownLoc||{});if(u.length)L.push(['warn',`สถานที่ปฏิบัติงานที่แยกทีมไม่ได้: ${u.map(([k,v])=>`${k} (${v})`).join(', ')}`]);}
-  else if(kind==='sales'){L.push(`อ่าน ${fmt(d.rows)} แถว ปี 2026`);const u=Object.entries(d.unknown||{});if(u.length)L.push(['warn',`รหัสสาขาที่ไม่รู้ว่าเป็นทีมไหน (ไม่นับ): ${u.map(([k,v])=>`${k} (${v} วัน)`).join(', ')}`]);}
+  else if(kind==='sales'){L.push(`อ่าน ${fmt(d.rows)} แถว ปี 2026`);(d.conflicts||[]).forEach(c=>L.push(['warn',`${c.k.replace('|',' ')}: พนักงานกรอกยอดร้านไม่ตรงกัน (CONFLICT) ใช้ ${fmt(c.used)} แทนผลรวม ${fmt(c.summed)}`]));const u=Object.entries(d.unknown||{});if(u.length)L.push(['warn',`รหัสสาขาที่ไม่รู้ว่าเป็นทีมไหน (ไม่นับ): ${u.map(([k,v])=>`${k} (${v} วัน)`).join(', ')}`]);}
   else{L.push(`ชีท "${d.sheet}" · ${d.total} แถว · ปี 2026 ${d.inYear} แถว · นับ ${d.counted}`);const o=Object.entries(d.otherRequester||{});if(o.length)L.push(`ผู้แจ้งที่ไม่นับ: ${o.map(([k,v])=>`${k} (${v})`).join(', ')}`);}
   return el('div',{class:'diag'},...L.map(x=>Array.isArray(x)?el('span',{class:x[0]},x[1]):el('span',{},x)));
 }
