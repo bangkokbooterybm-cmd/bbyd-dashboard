@@ -7,6 +7,7 @@
   --accent:#2F6B4F; --accent-soft:#DCEBE2; --brass:#8A6A1F; --brass-bg:#F3EAD2;
   --good:#2E7D4F; --good-bg:#DDF0E3; --orng:#C2571A; --orng-bg:#FBE3D3; --ylw:#A88408; --ylw-bg:#F6EDC6; --warn:#9A6A0C; --warn-bg:#F7EBCF; --bad:#B3412F; --bad-bg:#F6DEDA;
   --shadow:0 1px 2px rgba(23,33,28,.06),0 4px 14px rgba(23,33,28,.05);
+  --c-sales:#2E7D4F; --c-event:#B07A0A; --c-demand:#13867F; --c-focus:#C2571A; --c-visit:#2F6FB0; --c-audit:#7A4FB5; --c-exam:#B8860B; --c-mgr:#8A6A1F;
   --disp:"Chakra Petch","IBM Plex Sans Thai",system-ui,sans-serif;
   --body:"IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;
 }
@@ -16,6 +17,7 @@
   --accent:#6FBF95; --accent-soft:#1F3A2C; --brass:#D9B866; --brass-bg:#3A3018;
   --good:#6FCB92; --good-bg:#1D3727; --orng:#F0955A; --orng-bg:#3F2616; --ylw:#E2C24E; --ylw-bg:#3A3212; --warn:#E3B45A; --warn-bg:#3A2F17; --bad:#EE8B79; --bad-bg:#3D211C;
   --shadow:0 1px 2px rgba(0,0,0,.3);
+  --c-sales:#6FCB92; --c-event:#E2C24E; --c-demand:#4FC7BE; --c-focus:#F0955A; --c-visit:#7FB2EE; --c-audit:#B79AE8; --c-exam:#E2C24E; --c-mgr:#D9B866;
 }}
 :root[data-theme="dark"]{
   color-scheme:dark;
@@ -23,6 +25,7 @@
   --accent:#6FBF95; --accent-soft:#1F3A2C; --brass:#D9B866; --brass-bg:#3A3018;
   --good:#6FCB92; --good-bg:#1D3727; --orng:#F0955A; --orng-bg:#3F2616; --ylw:#E2C24E; --ylw-bg:#3A3212; --warn:#E3B45A; --warn-bg:#3A2F17; --bad:#EE8B79; --bad-bg:#3D211C;
   --shadow:0 1px 2px rgba(0,0,0,.3);
+  --c-sales:#6FCB92; --c-event:#E2C24E; --c-demand:#4FC7BE; --c-focus:#F0955A; --c-visit:#7FB2EE; --c-audit:#B79AE8; --c-exam:#E2C24E; --c-mgr:#D9B866;
 }
 *{box-sizing:border-box}
 body{background:var(--ground);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.55;padding-inline:16px;padding-block:0 48px}
@@ -171,6 +174,25 @@ tr.ltop td{background:color-mix(in srgb,var(--brass-bg) 60%,transparent)} tr.lbo
 .hof{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
 .hofc{all:unset;box-sizing:border-box;cursor:pointer;display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:var(--sunk)} .hofc.cur{background:var(--brass-bg);outline:1px solid var(--brass)}
 @media (max-width:560px){.podium{grid-template-columns:repeat(3,1fr);width:100%}.lh-l{width:100%}.trophy{width:84px}.champ{font-size:24px}.tbattle{grid-template-columns:1fr}.vs{text-align:center}}
+/* ---- colour per section (League style) ---- */
+#view{--tc:var(--accent)}
+#view[data-tab=sales]{--tc:var(--c-sales)} #view[data-tab=audit]{--tc:var(--c-audit)} #view[data-tab=visit]{--tc:var(--c-visit)} #view[data-tab=focus]{--tc:var(--c-focus)}
+#view[data-tab=demand]{--tc:var(--c-demand)} #view[data-tab=team]{--tc:var(--c-exam)} #view[data-tab=league]{--tc:var(--c-exam)} #view[data-tab=manager]{--tc:var(--c-mgr)} #view[data-tab=settings]{--tc:var(--ink3)}
+#view .panel:not(.lhero):not([style*="transparent"]){border-top:4px solid var(--tc);background:linear-gradient(165deg,color-mix(in srgb,var(--tc) 11%,var(--surface)) 0,var(--surface) 160px)}
+#view .panel>h2:first-child::before,#view section>h2:first-child::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--tc);margin-right:8px;vertical-align:1px}
+#view .stat{background:color-mix(in srgb,var(--tc) 9%,var(--sunk));border-left:4px solid var(--tc)}
+#view .stat .v{color:color-mix(in srgb,var(--tc) 55%,var(--ink))}
+#view .tcov .stat{background:var(--surface)}
+#view th{background:color-mix(in srgb,var(--tc) 10%,var(--sunk))}
+#view .seg button[aria-pressed="true"]{color:var(--tc);box-shadow:inset 0 -2px 0 var(--tc),var(--shadow)}
+.tabs button[aria-selected="true"]{color:var(--tc,var(--accent));border-bottom-color:var(--tc,var(--accent))}
+.tabs button::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--tc,var(--accent));margin-right:6px;vertical-align:1px;opacity:.75}
+.kpi{border-top:4px solid var(--tc,var(--line));background:linear-gradient(170deg,color-mix(in srgb,var(--tc) 12%,var(--surface)) 0,var(--surface) 130px)}
+.kpi .code{color:var(--tc)} .kpi .w{background:color-mix(in srgb,var(--tc) 14%,var(--sunk));color:color-mix(in srgb,var(--tc) 60%,var(--ink2))}
+.kpi button.go{color:var(--tc)} .kpi .bar i{background:var(--tc)}
+.tcard{border-top:3px solid var(--tc,var(--line));background:color-mix(in srgb,var(--tc) 8%,var(--sunk))}
+.sheet{border-top:4px solid var(--tc,var(--accent))} .sh-head{background:linear-gradient(135deg,color-mix(in srgb,var(--tc,var(--accent)) 14%,var(--surface)),var(--surface))}
+.top{background:linear-gradient(180deg,var(--ground) 70%,color-mix(in srgb,var(--brass-bg) 40%,var(--ground)))}
 .sortb{all:unset;cursor:pointer;font:inherit;letter-spacing:inherit;text-transform:inherit;color:inherit;white-space:nowrap} .sortb .arr{opacity:.5} .sortb.on{color:var(--accent)} .sortb.on .arr{opacity:1} .sortb:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 tr.click{cursor:pointer} tr.click:hover td{background:var(--accent-soft)} tr.click:focus-visible{outline:2px solid var(--accent)}
 .items tr.more{display:none} .items.all tr.more{display:table-row}
@@ -417,6 +439,8 @@ function focusStats(){
 
 /* ---------- header / tabs ---------- */
 const PRE_TXT='เริ่มบันทึกตั้งแต่ มิ.ย. 2569';
+const TAB_C={overview:'--accent',sales:'--c-sales',audit:'--c-audit',visit:'--c-visit',focus:'--c-focus',demand:'--c-demand',team:'--c-exam',league:'--c-exam',manager:'--c-mgr',settings:'--ink3'};
+const tcVar=k=>`var(${TAB_C[k]||'--accent'})`;
 const TABS=[['overview','Overview'],['sales','Sales & Events'],['audit','SC Audit'],['visit','Visit'],['focus','Focus Product'],['demand','Product Demand'],['team','SC Exam / All Star'],['league','League']];
 function renderHeader(){
   const seg=$('#scopeSeg');seg.replaceChildren();
@@ -425,7 +449,7 @@ function renderHeader(){
   sel.value=S.month;$('#title').textContent=sup().title||'Supervisor';
   const t=$('#tabs');t.replaceChildren();const list=TABS.slice();if(S.canAdmin)list.push(['manager','Manager'],['settings','Settings']);
   const cur=list.some(x=>x[0]===S.tab)?S.tab:'overview'; // settings appears once admin rights are known; keep the saved tab meanwhile
-  list.forEach(([k,l])=>t.append(el('button',{role:'tab','aria-selected':String(k===cur),onclick:()=>go(k)},l)));
+  list.forEach(([k,l])=>t.append(el('button',{style:`--tc:${tcVar(k)}`,role:'tab','aria-selected':String(k===cur),onclick:()=>go(k)},l)));
 }
 function go(k){S.tab=k;store.set('gs2.tab',k);render();window.scrollTo({top:0});}
 
@@ -433,7 +457,7 @@ function go(k){S.tab=k;store.set('gs2.tab',k);render();window.scrollTo({top:0});
 // o = {code, w, name, big, tone, cap, rows:[[label,value,tone?]], rule, bar, tab}
 function kpi(o){
   const rows=(o.rows||[]).filter(Boolean);
-  return el('article',{class:'kpi'},el('div',{class:'head'},el('span',{class:'code'},o.code),el('span',{class:'w'},`น้ำหนัก ${o.w}`)),el('div',{class:'name'},o.name),
+  return el('article',{class:'kpi',style:`--tc:${tcVar(o.tab)}`},el('div',{class:'head'},el('span',{class:'code'},o.code),el('span',{class:'w'},`น้ำหนัก ${o.w}`)),el('div',{class:'name'},o.name),
     el('div',{class:'big num '+(o.tone||'')},o.big),o.cap?el('div',{class:'cap'},o.cap):null,o.bar||null,
     rows.length?el('dl',{class:'rows'},...rows.flatMap(([k,v,t])=>k?[el('dt',{},k),el('dd',{class:t||null},v)]:[el('dd',{class:'note'},v)])):null,
     // criteria text intentionally not shown: the board reports results only, no scoring
@@ -819,6 +843,7 @@ function viewSettings(){
 function sheet(title,...kids){
   let d=$('#sheet');
   if(!d){d=el('dialog',{id:'sheet',class:'sheet','aria-label':'Detail'});document.body.append(d);d.addEventListener('click',e=>{if(e.target===d)d.close();});}
+  d.style.setProperty('--tc',tcVar(S.tab));
   d.replaceChildren(el('div',{class:'sh-head'},el('h2',{},title),el('button',{class:'btn ghost small',type:'button',onclick:()=>d.close()},'ปิด')),el('div',{class:'sh-body'},...kids.flat().filter(Boolean)));
   if(!d.open)d.showModal();d.scrollTop=0;
 }
@@ -1140,9 +1165,9 @@ function trendBox(){
   const D=ms.map(m=>withMonth(m,()=>{const s=demandStats();return {m,v:s.times,label:String(s.times),tone:tn(s.times,8,1)};}));
   const L=ms.map(m=>withMonth(m,()=>{const s=lagStats([...visitsMonth(),...auditsMonth()]);return {m,v:s?s.avg:null,label:s?s.avg.toFixed(1):'–',tone:s?(s.avg<=3?'good':s.avg<=LATE?'warn':'bad'):''};}));
   const AS=ms.map(m=>{const y=ym(m),a=asDoc(y)?asMonth(y):null,v=a?(isSr()?a.reported:a.teamAvg):null;return {m,v,label:v==null?'–':v.toFixed(0)+'%',tone:v==null?'':tn(v,80,70)};});
-  const card=(t,rows,max,sub)=>el('div',{class:'tcard'},el('div',{class:'small'},el('b',{},t)),sub?el('div',{class:'small muted'},sub):null,trendEl(rows,max));
+  const card=(t,rows,max,sub,tab)=>el('div',{class:'tcard',style:tab?`--tc:${tcVar(tab)}`:null},el('div',{class:'small'},el('b',{},t)),sub?el('div',{class:'small muted'},sub):null,trendEl(rows,max));
   return el('section',{class:'panel'},el('h2',{},'แนวโน้มรายเดือน'),el('div',{class:'small muted'},`ตั้งแต่ ${MONTHS[ms[0]-1]} · เดือนที่เลือกเป็นสีเข้ม`),
-    el('div',{class:'tgrid'},card('Visit · สาขาที่เข้าแล้ว',V,1),card('SC Audit · SC ที่ประเมินแล้ว',A,1),card('คะแนน Audit เฉลี่ย',Q,5,'เต็ม 5'),card('SC Exam เฉลี่ย',E,5,'เต็ม 5'),card(isSr()?'BBY SC All Star · ตามรายงาน':`BBY SC All Star · เฉลี่ยทีม ${team()}`,AS,100),card('Product Demand · ครั้ง',D,Math.max(8,...D.map(x=>x.v||0))),card('ลงฟอร์มหลังวันที่ไปจริง · วัน',L,Math.max(LATE*2,...L.map(x=>x.v||0)),'ยิ่งน้อยยิ่งดี')));
+    el('div',{class:'tgrid'},card('Visit · สาขาที่เข้าแล้ว',V,1,null,'visit'),card('SC Audit · SC ที่ประเมินแล้ว',A,1,null,'audit'),card('คะแนน Audit เฉลี่ย',Q,5,'เต็ม 5','audit'),card('SC Exam เฉลี่ย',E,5,'เต็ม 5','team'),card(isSr()?'BBY SC All Star · ตามรายงาน':`BBY SC All Star · เฉลี่ยทีม ${team()}`,AS,100,null,'league'),card('Product Demand · ครั้ง',D,Math.max(8,...D.map(x=>x.v||0)),null,'demand'),card('ลงฟอร์มหลังวันที่ไปจริง · วัน',L,Math.max(LATE*2,...L.map(x=>x.v||0)),'ยิ่งน้อยยิ่งดี','visit')));
 }
 
 /* --- demand by model --- */
