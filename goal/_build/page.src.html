@@ -72,7 +72,7 @@ th,td{padding:7px 9px;border-bottom:1px solid var(--line);text-align:right;white
 th{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink3);font-weight:600;background:var(--sunk)}
 th:first-child,td:first-child{text-align:left} td.l,th.l{text-align:left}
 tr.cur td{background:var(--accent-soft)} tr.tot td{font-weight:600;border-top:2px solid var(--line)}
-td.wrap{white-space:normal;min-width:200px}
+td.wrap{display:table-cell;max-width:none;margin:0;white-space:normal;min-width:200px}
 .chart{width:100%;height:auto;display:block}
 .chart text{fill:var(--ink3);font:11px var(--body)} .chart .lbl{fill:var(--ink2);font-weight:600}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
@@ -120,6 +120,27 @@ details.au li b{font-family:var(--disp);min-width:18px;text-align:right}
 .vlg .vli{display:inline-flex;align-items:center;gap:6px}
 :is(.vcal,.vlg) .vb.oth{border-style:dashed;border-color:var(--ink3);color:var(--ink2);background:var(--sunk)}
 @media (max-width:560px){.vcal .vb.ok::after{content:none}.vcal{gap:2px}.vcal .day{min-height:58px;padding:3px 2px;gap:2px}.vcal .vb{font-size:9px;padding:0 1px;border-width:0 0 0 2px;border-radius:2px;text-overflow:clip;letter-spacing:-.02em}.vcal .dn{font-size:11px}}
+.sheet{border:1px solid var(--line);border-radius:14px;padding:0;width:min(760px,calc(100% - 24px));max-height:86vh;background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.sheet::backdrop{background:rgba(10,16,13,.45)}
+.sh-head{position:sticky;top:0;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--line)}
+.sh-body{padding:14px 16px 18px;display:flex;flex-direction:column;gap:12px}
+.trend{display:flex;gap:6px;align-items:flex-end;min-height:64px}
+.tcol{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:34px}
+.tcol i{display:block;width:22px;border-radius:4px 4px 0 0;background:var(--ink3);opacity:.45}
+.tcol.cur i{opacity:1} .tcol i.good{background:var(--good)} .tcol i.warn{background:var(--warn)} .tcol i.bad{background:var(--bad)}
+.tcol .tv{font:600 11px var(--disp);color:var(--ink2)} .tcol .tm{font-size:10px;color:var(--ink3)} .tcol.cur .tm{color:var(--ink);font-weight:600}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.tcard{background:var(--sunk);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.act{gap:8px}
+.actrow{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:9px 12px;border-radius:10px;border-left:4px solid var(--line);background:var(--sunk)}
+.actrow>span.small{grid-column:1} .actrow .go{grid-column:2;grid-row:1/3;align-self:center;color:var(--accent);font-weight:600;font-size:12px}
+.actrow.bad{border-left-color:var(--bad);background:var(--bad-bg)} .actrow.warn{border-left-color:var(--warn);background:var(--warn-bg)}
+.actrow:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+tr.click{cursor:pointer} tr.click:hover td{background:var(--accent-soft)} tr.click:focus-visible{outline:2px solid var(--accent)}
+.items tr.more{display:none} .items.all tr.more{display:table-row}
+button.chip,button.tc{font:inherit;cursor:pointer;text-align:left;color:inherit}
+button.chip:hover,button.tc:hover{box-shadow:var(--shadow)}
+.vcal .day.tap{cursor:pointer} .vcal .day.tap:hover{box-shadow:var(--shadow)}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
 .stat{background:var(--sunk);border-radius:10px;padding:10px 12px}
 .stat .v{font:700 22px var(--disp)} .stat .k{font-size:12px;color:var(--ink3)}
@@ -362,7 +383,7 @@ function renderHeader(){
   cfg().supervisors.forEach(s=>seg.append(el('button',{type:'button','aria-pressed':String(s.scope===S.scope),onclick:()=>{S.scope=s.scope;store.set('gs2.scope',s.scope);render();}},s.title)));
   const sel=$('#monthSel');if(!sel.options.length){MONTHS.forEach((m,i)=>sel.append(el('option',{value:i+1},`${m} ${YEAR}`)));sel.addEventListener('change',()=>{S.month=+sel.value;store.set('gs2.month',sel.value);render();});}
   sel.value=S.month;$('#title').textContent=sup().title||'Supervisor';
-  const t=$('#tabs');t.replaceChildren();const list=TABS.slice();if(S.canAdmin)list.push(['settings','Settings']);
+  const t=$('#tabs');t.replaceChildren();const list=TABS.slice();if(S.canAdmin)list.push(['manager','Manager'],['settings','Settings']);
   const cur=list.some(x=>x[0]===S.tab)?S.tab:'overview'; // settings appears once admin rights are known; keep the saved tab meanwhile
   list.forEach(([k,l])=>t.append(el('button',{role:'tab','aria-selected':String(k===cur),onclick:()=>go(k)},l)));
 }
@@ -423,7 +444,7 @@ function viewOverview(){
       rule:'เฉลี่ย >80% = 5 · >70% = 4 · 60–70% = 3 · <60% = 0',tab:'team'})
   );
   return el('div',{class:'panel',style:'background:transparent;border:0;padding:0'},(!S.audit||!S.demand||!S.sales)?el('div',{class:'banner'},'ยังดึงข้อมูลจาก Google Sheet ไม่ครบ ตัวเลขบางข้อจึงยังเป็น 0'+(S.canAdmin?' · กดอัปเดตได้ที่แถบ Settings':'')):null,
-    el('div',{class:'legend'},el('span',{},`${m} ${YEAR}`),stampTxt('อัปเดต',S.audit?.updatedAt),el('span',{class:'key good'},'ถึงเกณฑ์'),el('span',{class:'key warn'},'ใกล้เกณฑ์'),el('span',{class:'key bad'},'ต่ำกว่าเกณฑ์')),box);
+    el('div',{class:'legend'},el('span',{},`${m} ${YEAR}`),stampTxt('อัปเดต',S.audit?.updatedAt),el('span',{class:'key good'},'ถึงเกณฑ์'),el('span',{class:'key warn'},'ใกล้เกณฑ์'),el('span',{class:'key bad'},'ต่ำกว่าเกณฑ์')),actionBox(),box,trendBox());
 }
 
 /* ---------- Sales ---------- */
@@ -495,7 +516,7 @@ function auditCard(a){
 function viewAudit(){
   if(!peopleOK())return preBox('SC Audit');
   const st=auditStats(),m=MONTHS[S.month-1];
-  const chips=el('div',{class:'chips'});st.ro.forEach(r=>{const n=(st.by[nameKey(r.name)]||[]).length;chips.append(el('span',{class:'chip '+(n>=2?'good':n===1?'warn':'bad')},r.name,el('b',{},String(n))));});
+  const chips=el('div',{class:'chips'});st.ro.forEach(r=>{const n=(st.by[nameKey(r.name)]||[]).length;chips.append(el('button',{type:'button',class:'chip '+(n>=2?'good':n===1?'warn':'bad'),onclick:()=>scDetail(r.name)},r.name,el('b',{},String(n))));});
   if(!st.ro.length)chips.append(el('span',{class:'empty'},'ยังไม่มีรายชื่อ SC ของทีมนี้'));
   const list=el('div',{});st.recs.slice().sort((a,b)=>(b.d||'').localeCompare(a.d||'')).forEach(a=>list.append(auditCard(a)));
   const tc=teamCoverage(),multi=tc.evs.length>1||team()==='BKK';
@@ -504,11 +525,11 @@ function viewAudit(){
     el('div',{class:'stats'},stat(String(tc.z),'ยังไม่ถูกประเมิน'),stat(String(tc.one),'1 ครั้ง'),stat(String(tc.two),'2 ครั้ง'),stat(String(tc.three),'3 ครั้งขึ้นไป')),
     el('div',{class:'legend'},el('span',{class:'key bad'},'ยังไม่ถูกประเมิน'),el('span',{class:'key warn'},'1 ครั้ง'),el('span',{class:'key good'},'2 ครั้งขึ้นไป'),el('span',{},`รวม ${tc.recs.length} ครั้ง · ${tc.rows.length} คน`)),
     (()=>{const ro=rosterIn(),known=new Set(ro.map(r=>nameKey(r.name))),miss=[...new Set(tc.recs.filter(x=>!known.has(canonOf(x.sc,ro))).map(x=>x.sc))];return miss.length?el('div',{class:'diag'},el('span',{class:'warn'},`ชื่อที่จับคู่กับรายชื่อไม่ได้ (ไม่อยู่ในการ์ด): ${miss.join(', ')}`)):null;})(),
-    el('div',{class:'tcgrid'},...tc.rows.map(r=>el('div',{class:'tc '+(r.n>=2?'good':r.n===1?'warn':'bad')},el('b',{},r.name),el('span',{class:'tcn num'},String(r.n)),
+    el('div',{class:'tcgrid'},...tc.rows.map(r=>el('button',{type:'button',onclick:()=>scDetail(r.name),class:'tc '+(r.n>=2?'good':r.n===1?'warn':'bad')},el('b',{},r.name),el('span',{class:'tcn num'},String(r.n)),
       el('span',{class:'tcby small'},r.n?Object.entries(r.by).map(([e,c])=>`Sup${e} ${c}`).join(' · '):'ยังไม่ประเมิน'))))):null;
   return el('div',{class:'panel'},
     el('h2',{},`SC Audit · ${m} ${YEAR}`),needSync('audit'),stampTxt('ข้อมูลจากชีทประเมิน SC อัปเดต',S.audit?.updatedAt),
-    tcBox,multi?el('h3',{style:'margin-top:6px'},`เฉพาะที่ ${isSr()?'Supโอ๋':team()==='BKK'?'Supเอ':'Supมิ้ว'} ประเมิน`):null,
+    tcBox,itemBox(),el('div',{class:'small muted'},'กดชื่อ SC เพื่อดูประวัติการประเมินทุกเดือน'),multi?el('h3',{style:'margin-top:6px'},`เฉพาะที่ ${isSr()?'Supโอ๋':team()==='BKK'?'Supเอ':'Supมิ้ว'} ประเมิน`):null,
     el('div',{class:'stats'},stat(`${st.c1}/${st.ro.length}`,'SC ที่ประเมินแล้ว ≥1 ครั้ง'),stat(`${st.c2}/${st.ro.length}`,'SC ที่ครบ 2 ครั้ง'),stat(String(st.recs.length),'จำนวนครั้งที่ประเมิน'),stat(st.avg==null?'–':st.avg.toFixed(2),'คะแนนเฉลี่ย (เต็ม 5)')),
     el('h3',{},'ความครอบคลุมรายคน'),el('div',{class:'legend'},el('span',{class:'key good'},'≥2 ครั้ง'),el('span',{class:'key warn'},'1 ครั้ง'),el('span',{class:'key bad'},'ยังไม่ประเมิน')),chips,
     el('div',{class:'small muted'},S.staff?`รายชื่อจากชีทข้อมูลพนักงาน BBYD ประกอบกับฟอร์มส่งยอดขาย · คนที่ออกไม่นับตั้งแต่เดือนที่ออก · พนักงานใหม่นับเมื่อครบ 14 วัน`:'ยังไม่ได้ดึงรายชื่อจากชีทข้อมูลพนักงาน ใช้รายชื่อเดิมไปก่อน'),
@@ -531,7 +552,7 @@ function stat(v,k){return el('div',{class:'stat'},el('div',{class:'v num'},v),el
 function visitCard(v){
   const type=v.x?el('span',{class:'pill ex'},v.audits?`UPC · ประเมิน ${v.audits} คน · ไม่นับ KPI`:'UPC · ไม่นับ KPI'):v.audits?el('span',{class:'pill good'},`Visit + ประเมิน ${v.audits} คน`):el('span',{class:'pill'},'Visit อย่างเดียว');
   const notes=v.notes||[],ro=rosterIn();
-  const sum=[el('span',{class:'num'},thDate(v.d)),el('b',{},v.br||v.brRaw),el('span',{class:'muted small hide-s'},v.ev),type,
+  const sum=[el('span',{class:'num'},thDate(v.d)),el('b',{},v.br||v.brRaw),el('span',{class:'muted small hide-s'},v.ev),el('span',{style:'display:flex;gap:6px;flex-wrap:wrap'},type,lagPill(v)),
     el('span',{class:'small cnt hide-s'+(notes.length?'':' none')},notes.length?`ความเห็น ${notes.length} ▾`:'–')];
   if(!notes.length){const d=el('div',{class:'au plain vis'});d.append(el('div',{class:'sumrow'},...sum));return d;}
   const d=el('details',{class:'au vis'});d.append(el('summary',{},...sum),
@@ -560,6 +581,7 @@ function visitCal(st,logs){
     if(isOff)c.append(el('div',{class:'offt'},sickSet.has(d)?'Sick Leave':'Day Off'));
     vs.forEach(v=>c.append(el('div',{class:'vb'+(v.x?' ex':v.audits?' ok':''),title:`${v.br||v.brRaw}${v.audits?` · ประเมิน ${v.audits} คน`:' · Visit อย่างเดียว'}${v.x?' · ไม่นับ KPI':''}`},v.br||v.brRaw)));
     (lg[k]||[]).forEach(l=>c.append(el('div',{class:'vb oth',title:`${l.t} · นอก KPI`},logPlace(l.t))));
+    if(vs.length||lg[k]||isOff){c.classList.add('tap');c.tabIndex=0;c.setAttribute('role','button');const off=isOff?(sickSet.has(d)?'Sick Leave':'Day Off'):null,fn=()=>dayDetail(k,vs,lg[k]||[],off);c.addEventListener('click',fn);c.addEventListener('keydown',e=>{if(e.key==='Enter')fn();});}
     g.append(c);
   }
   const tail=(lead+days)%7;if(tail)for(let i=tail;i<7;i++)g.append(el('div',{class:'day blank'}));
@@ -568,13 +590,14 @@ function visitCal(st,logs){
 function viewVisit(){
   if(!peopleOK())return preBox('Visit');
   const st=visitStats(),chips=el('div',{class:'chips'});
-  st.br.forEach(b=>{const n=st.by[b]||0;chips.append(el('span',{class:'chip '+(n>=3?'good':n>=1?'warn':'bad')},b,el('b',{},String(n))));});
+  st.br.forEach(b=>{const n=st.by[b]||0;chips.append(el('button',{type:'button',class:'chip '+(n>=3?'good':n>=1?'warn':'bad'),onclick:()=>branchDetail(b)},b,el('b',{},String(n))));});
+  const ls=lagStats([...visitsMonth(),...auditsMonth()]);
   const list=el('div',{});st.all.slice().sort((a,b)=>b.d.localeCompare(a.d)).forEach(v=>list.append(visitCard(v)));
   const logs=(S.audit?.logs||[]).filter(l=>l.scope===team()&&l.ym===curYM()&&evOK(l.ev)).sort((a,b)=>b.d.localeCompare(a.d));
   return el('div',{class:'panel'},el('h2',{},`Visit · ${MONTHS[S.month-1]} ${YEAR}`),needSync('audit'),stampTxt('ข้อมูลจากชีทประเมิน SC อัปเดต',S.audit?.updatedAt),
-    el('div',{class:'stats'},stat(`${st.visited}/${st.br.length}`,'สาขาที่เข้าแล้ว'),stat(String(st.total),'จำนวนครั้ง'),stat(st.avg==null?'–':st.avg.toFixed(1),'เฉลี่ยต่อสาขา'),stat(String(st.visitOnly),'Visit อย่างเดียว')),
+    el('div',{class:'stats'},stat(`${st.visited}/${st.br.length}`,'สาขาที่เข้าแล้ว'),stat(String(st.total),'จำนวนครั้ง'),stat(st.avg==null?'–':st.avg.toFixed(1),'เฉลี่ยต่อสาขา'),stat(String(st.visitOnly),'Visit อย่างเดียว'),stat(ls?`${ls.avg.toFixed(1)} วัน`:'–',ls?`ลงฟอร์มหลังวันที่ไปจริง (เฉลี่ย) · ช้าเกิน ${LATE} วัน ${ls.late}/${ls.n}`:'ลงฟอร์มหลังวันที่ไปจริง')),
     el('div',{class:'legend'},el('span',{class:'key good'},'≥3 ครั้ง'),el('span',{class:'key warn'},'1–2 ครั้ง'),el('span',{class:'key bad'},'ยังไม่เข้า')),chips,
-    el('div',{class:'small muted'},'1 Visit = คนเดียว สาขาเดียว วันเดียว · นับทุกรายการ Onsite ในชีทประเมิน'+(isSr()?' · การลงพื้นที่ UPC แสดงไว้แต่ไม่นับ KPI':'')),
+    el('div',{class:'small muted'},'กดสาขาเพื่อดูประวัติ Visit · 1 Visit = คนเดียว สาขาเดียว วันเดียว · นับทุกรายการ Onsite ในชีทประเมิน'+(isSr()?' · การลงพื้นที่ UPC แสดงไว้แต่ไม่นับ KPI':'')),
     el('h3',{},'รายการ Visit'),el('div',{class:'small muted'},'กดที่รายการที่มีความเห็นเพื่ออ่าน'),
     st.all.length?list:el('div',{class:'empty'},'ยังไม่มี Visit ในเดือนนี้'),
     logs.length?el('h3',{},'บันทึกวันที่ไม่ได้ระบุสาขา'):null,
@@ -631,16 +654,18 @@ function viewDemand(){
   return el('div',{class:'panel'},el('h2',{},`Product Demand · ${MONTHS[S.month-1]} ${YEAR}`),needSync('demand'),stampTxt('ข้อมูลจากชีทแจ้งความต้องการสินค้า อัปเดต',S.demand?.updatedAt),
     el('div',{class:'stats'},stat(String(st.times),'จำนวนครั้งที่แจ้ง'),stat(fmt(st.qty),'จำนวนชิ้นที่ขอ'),stat(`${st.done}/${st.times}`,'Done แล้ว')),
     el('div',{class:'small muted'},'เป้าร่วมกัน · นับทุกรายการที่คุณโอ๋ คุณเอ และคุณมิ้วแจ้ง (ตัวเลขเท่ากันทุกแถบ)'||'นับรายการที่ผู้แจ้งเป็นคุณมิ้ว'),
+    st.recs.length?el('h3',{},'สรุปตามรุ่น · กดเพื่อดูรายการ'):null,st.recs.length?demandByModel(st.recs):null,
+    st.recs.length?el('h3',{},'รายการทั้งหมด'):null,
     st.recs.length?el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},...['Date','Model','Skin','Qty','By','Status','Plan'].map((h,i)=>el('th',{class:[1,2,4,5,6].includes(i)?'l':null},h)))),tb)):el('div',{class:'empty'},'ยังไม่มีการแจ้งในเดือนนี้'));
 }
 
 /* ---------- Team ---------- */
 function viewTeam(){
   if(!peopleOK())return preBox('SC Exam');
-  const ex=examStats(),tb=el('tbody');ex.people.sort((a,b)=>b.avg-a.avg).forEach(p=>tb.append(el('tr',{},el('td',{},p.name),el('td',{},el('span',{class:'pill '+(p.avg>=4?'good':p.avg>=3.3?'warn':'bad')},p.avg.toFixed(2))),el('td',{class:'num'},p.n))));
+  const ex=examStats(),tb=el('tbody');ex.people.sort((a,b)=>b.avg-a.avg).forEach(p=>tb.append(el('tr',{class:'click',tabindex:'0',onclick:()=>examDetail(p.name)},el('td',{},p.name),el('td',{},el('span',{class:'pill '+(p.avg>=4?'good':p.avg>=3.3?'warn':'bad')},p.avg.toFixed(2))),el('td',{class:'num'},p.n))));
   const a=S.team[`allstar-${S.scope}-${YEAR}`];
   return el('div',{class:'panel'},el('h2',{},`4.1 SC Exam · ${MONTHS[S.month-1]} ${YEAR}`),needSync('audit'),stampTxt('ข้อมูลจากชีทประเมิน SC อัปเดต',S.audit?.updatedAt),
-    el('div',{class:'stats'},stat(ex.avg==null?'–':ex.avg.toFixed(2),'คะแนนเฉลี่ยทีม'),stat(`${ex.pass}/${ex.people.length}`,'SC ที่ได้ ≥4')),
+    el('div',{class:'stats'},stat(ex.avg==null?'–':ex.avg.toFixed(2),'คะแนนเฉลี่ยทีม'),stat(`${ex.pass}/${ex.people.length}`,'SC ที่ได้ ≥4')),el('div',{class:'small muted'},'กดชื่อเพื่อดูคะแนนแต่ละครั้งและแนวโน้ม'),
     ex.people.length?el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},el('th',{},'SC'),el('th',{},'Exam avg'),el('th',{},'Entries'))),tb)):el('div',{class:'empty'},'ยังไม่มีคะแนนสอบในเดือนนี้'),
     el('h2',{},`4.2 BBY SC All Star · ${YEAR}`),el('div',{},a&&a.value!=null?el('span',{class:'pill good'},`${fmt(a.value,1)}%`):el('span',{class:'muted'},'ประเมินปีละครั้งตอนสิ้นปี')),a?.note?el('div',{class:'small muted'},a.note):null);
 }
@@ -742,11 +767,195 @@ function viewSettings(){
   return wrap;
 }
 
+/* ---------- drill-down sheet ---------- */
+function sheet(title,...kids){
+  let d=$('#sheet');
+  if(!d){d=el('dialog',{id:'sheet',class:'sheet','aria-label':'Detail'});document.body.append(d);d.addEventListener('click',e=>{if(e.target===d)d.close();});}
+  d.replaceChildren(el('div',{class:'sh-head'},el('h2',{},title),el('button',{class:'btn ghost small',type:'button',onclick:()=>d.close()},'ปิด')),el('div',{class:'sh-body'},...kids.flat().filter(Boolean)));
+  if(!d.open)d.showModal();d.scrollTop=0;
+}
+const withMonth=(m,fn)=>{const o=S.month;S.month=m;try{return fn();}finally{S.month=o;}};
+const peopleMonths=()=>{const out=[];for(let m=+PEOPLE_FROM.slice(5);m<=S.month;m++)out.push(m);return out;};
+// "as of" day for gap counting: last day of the chosen month, or the data date if earlier
+function asOfDay(){const end=new Date(YEAR,S.month,0),t=new Date();const d=t<end?t:end;return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+const daysBetween=(a,b)=>Math.round((new Date(b+'T00:00:00Z')-new Date(a+'T00:00:00Z'))/864e5);
+const LATE=7; // form entered more than 7 days after the visit = late
+const lagPill=x=>x&&x.lag!=null&&x.lag>LATE?el('span',{class:'pill warn'},`ลงช้า ${x.lag} วัน`):null;
+function lagStats(list){const v=list.map(x=>x.lag).filter(x=>x!=null);if(!v.length)return null;const s=v.slice().sort((a,b)=>a-b);return {n:v.length,avg:v.reduce((a,b)=>a+b,0)/v.length,med:s[s.length>>1],late:v.filter(x=>x>LATE).length};}
+// mini month trend: [{m,v,label,tone}]
+function trendEl(rows,max){
+  const w=el('div',{class:'trend',role:'img','aria-label':'Monthly trend'});
+  rows.forEach(r=>{const h=r.v==null||!max?0:Math.max(4,Math.min(1,r.v/max)*34);
+    w.append(el('div',{class:'tcol'+(r.m===S.month?' cur':'')},el('span',{class:'tv num'},r.label??'–'),el('i',{class:r.tone||'',style:`height:${h}px`}),el('span',{class:'tm'},MONTHS[r.m-1])));});
+  return w;
+}
+
+/* --- SC detail: every audit of one SC since June, by any Sup --- */
+function scDetail(name){
+  const key=nameKey(name),ro=rosterIn();
+  const all=(S.audit?.audits||[]).filter(a=>a.scope===team()&&a.ym>=PEOPLE_FROM&&a.ym<=curYM()&&!a.x&&canonOf(a.sc,ro)===key).sort((a,b)=>(b.d||'').localeCompare(a.d||''));
+  const items=S.audit?.diag?.items||[];
+  const tb=el('tbody');
+  peopleMonths().forEach(m=>{const id=ym(m),xs=all.filter(a=>a.ym===id),sc=xs.map(a=>a.avg).filter(v=>v!=null),ex=xs.map(a=>a.exam).filter(v=>v!=null),by={};xs.forEach(a=>{const e=evShort(a.ev);by[e]=(by[e]||0)+1;});
+    const av=sc.length?sc.reduce((a,b)=>a+b,0)/sc.length:null,exv=ex.length?ex.reduce((a,b)=>a+b,0)/ex.length:null;
+    tb.append(el('tr',{class:m===S.month?'cur':null},el('td',{},MONTHS[m-1]),el('td',{class:'num'},String(xs.length)),el('td',{},av==null?'–':el('span',{class:'pill '+tone(av/5,.8,.6)},av.toFixed(2))),el('td',{},exv==null?'–':el('span',{class:'pill '+(exv>=4?'good':exv>=3.3?'warn':'bad')},exv.toFixed(2))),el('td',{class:'l muted small'},Object.entries(by).map(([e,c])=>`Sup${e} ${c}`).join(' · ')||'–')));});
+  // item averages: this month vs all months
+  const agg=(xs)=>{const o={};xs.forEach(a=>(a.s||[]).forEach((v,i)=>{if(v==null||!items[i])return;(o[i]=o[i]||[]).push(v);}));return o;};
+  const cur=agg(all.filter(a=>a.ym===curYM())),tot=agg(all);
+  const rows=Object.keys(tot).map(i=>({i:+i,c:items[i].c,l:items[i].l,all:tot[i].reduce((a,b)=>a+b,0)/tot[i].length,cur:cur[i]?cur[i].reduce((a,b)=>a+b,0)/cur[i].length:null})).sort((a,b)=>a.all-b.all);
+  const itb=el('tbody');rows.forEach(r=>itb.append(el('tr',{},el('td',{class:'l wrap'},el('span',{class:'muted small'},r.c+' · '),r.l),el('td',{},el('span',{class:'pill '+tone(r.all/5,.8,.6)},r.all.toFixed(2))),el('td',{},r.cur==null?'–':el('span',{class:'pill '+tone(r.cur/5,.8,.6)},r.cur.toFixed(2))))));
+  const list=el('div',{});all.forEach(a=>list.append(auditCard(a)));
+  sheet(`${name} · SC ทีม ${team()}`,
+    el('div',{class:'small muted'},`ทุกการประเมินตั้งแต่ ${MONTHS[+PEOPLE_FROM.slice(5)-1]} ถึง ${MONTHS[S.month-1]} ${YEAR} · ประเมินโดย Sup ทุกคน`),
+    el('h3',{},'รายเดือน'),el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},...['Month','ครั้ง','คะแนนเฉลี่ย','Exam','ผู้ประเมิน'].map((h,i)=>el('th',{class:i===4?'l':null},h)))),tb)),
+    rows.length?el('h3',{},'คะแนนรายหัวข้อ · เรียงจากต่ำไปสูง'):null,
+    rows.length?el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},el('th',{class:'l'},'หัวข้อ'),el('th',{},'เฉลี่ยทุกเดือน'),el('th',{},MONTHS[S.month-1]))),itb)):null,
+    el('h3',{},`การประเมินทั้งหมด (${all.length})`),all.length?list:el('div',{class:'empty'},'ยังไม่ถูกประเมินตั้งแต่ มิ.ย.'));
+}
+
+/* --- branch detail: this board's visits to one branch since June --- */
+function branchDetail(code){
+  const all=(S.audit?.visits||[]).filter(v=>v.scope===team()&&v.ym>=PEOPLE_FROM&&v.ym<=curYM()&&evOK(v.ev)&&(v.br||v.brRaw)===code).sort((a,b)=>b.d.localeCompare(a.d));
+  const last=all[0],gap=last?daysBetween(last.d,asOfDay()):null;
+  const tr=trendEl(peopleMonths().map(m=>{const n=all.filter(v=>v.ym===ym(m)).length;return {m,v:n,label:String(n),tone:n>=3?'good':n>=1?'warn':'bad'};}),Math.max(3,...peopleMonths().map(m=>all.filter(v=>v.ym===ym(m)).length)));
+  const scs=(S.audit?.audits||[]).filter(a=>a.scope===team()&&a.ym===curYM()&&a.br===code&&!a.x);
+  const list=el('div',{});all.forEach(v=>list.append(visitCard(v)));
+  sheet(`${code}${MAIN[code]?' · '+MAIN[code].w:''}`,
+    el('div',{class:'stats'},stat(last?thDate(last.d):'–','เข้าครั้งล่าสุด'),stat(gap==null?'–':`${gap} วัน`,'ไม่ได้เข้ามาแล้ว'),stat(String(all.filter(v=>v.ym===curYM()).length),`ครั้ง · ${MONTHS[S.month-1]}`),stat(String(scs.length),`SC ที่ประเมินที่สาขานี้ · ${MONTHS[S.month-1]}`)),
+    el('h3',{},'จำนวน Visit รายเดือน'),tr,
+    scs.length?el('div',{class:'chips'},...scs.map(a=>el('span',{class:'chip'},a.sc,el('b',{},a.avg==null?'–':a.avg.toFixed(2))))):null,
+    el('h3',{},`Visit ทั้งหมด (${all.length})`),all.length?list:el('div',{class:'empty'},'ยังไม่มี Visit ตั้งแต่ มิ.ย.'));
+}
+
+/* --- one calendar day --- */
+function dayDetail(k,vs,lgs,off){
+  const list=el('div',{});vs.forEach(v=>list.append(visitCard(v)));
+  sheet(thDate(k),off?el('div',{class:'banner',style:'background:var(--bad-bg);color:var(--bad)'},off):null,
+    vs.length?list:null,lgs.length?el('div',{class:'diag'},...lgs.map(l=>el('span',{},el('b',{},logPlace(l.t)),` · ${l.t}`,l.lag>LATE?` · ลงช้า ${l.lag} วัน`:''))):null,
+    !vs.length&&!lgs.length?el('div',{class:'empty'},'ไม่มีบันทึกวันนี้'):null);
+}
+
+/* --- exam detail --- */
+function examDetail(name){
+  const key=nameKey(name),ro=rosterIn();
+  const all=(S.audit?.audits||[]).filter(a=>a.scope===team()&&a.ym>=PEOPLE_FROM&&a.ym<=curYM()&&a.exam!=null&&evOK(a.ev)&&canonOf(a.sc,ro)===key).sort((a,b)=>(b.d||'').localeCompare(a.d||''));
+  const tr=trendEl(peopleMonths().map(m=>{const xs=all.filter(a=>a.ym===ym(m)).map(a=>a.exam),v=xs.length?xs.reduce((a,b)=>a+b,0)/xs.length:null;return {m,v,label:v==null?'–':v.toFixed(1),tone:v==null?'':v>=4?'good':v>=3.3?'warn':'bad'};}),5);
+  const tb=el('tbody');all.forEach(a=>tb.append(el('tr',{},el('td',{},thDate(a.d)),el('td',{class:'l'},a.br||a.brRaw||'–'),el('td',{class:'l muted'},a.ev),el('td',{},el('span',{class:'pill '+(a.exam>=4?'good':a.exam>=3.3?'warn':'bad')},a.exam.toFixed(2))))));
+  sheet(`${name} · SC Exam`,el('h3',{},'คะแนนเฉลี่ยรายเดือน'),tr,el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},el('th',{},'Date'),el('th',{class:'l'},'Branch'),el('th',{class:'l'},'By'),el('th',{},'Exam'))),tb)));
+}
+
+/* --- team weak points: item averages across every Sup's audits of this team --- */
+function itemStats(ymk){
+  const items=S.audit?.diag?.items||[],recs=withMonth(+ymk.slice(5),()=>auditsTeamAll()),o={};
+  recs.forEach(a=>(a.s||[]).forEach((v,i)=>{if(v==null||!items[i])return;(o[i]=o[i]||[]).push({v,a});}));
+  return Object.keys(o).map(i=>({i:+i,c:items[i].c,l:items[i].l,n:o[i].length,avg:o[i].reduce((s,x)=>s+x.v,0)/o[i].length,list:o[i]}));
+}
+function itemBox(){
+  const cur=itemStats(curYM());if(!cur.length)return null;
+  const prevM=S.month-1,prev=prevM>=+PEOPLE_FROM.slice(5)?itemStats(ym(prevM)):[],pm={};prev.forEach(p=>pm[p.i]=p.avg);
+  const rows=cur.sort((a,b)=>a.avg-b.avg),ro=rosterIn(),tb=el('tbody');
+  rows.forEach((r,j)=>{const d=pm[r.i]!=null?r.avg-pm[r.i]:null;
+    const tr=el('tr',{class:'click'+(j>=5?' more':''),tabindex:'0',onclick:()=>{const t=el('tbody');r.list.slice().sort((a,b)=>a.v-b.v).forEach(x=>{const k=canonOf(x.a.sc,ro),p=ro.find(y=>nameKey(y.name)===k);t.append(el('tr',{},el('td',{},p?p.name:x.a.sc),el('td',{class:'l'},x.a.br||x.a.brRaw||'–'),el('td',{class:'l muted'},x.a.ev),el('td',{},el('span',{class:'pill '+tone(x.v/5,.8,.6)},String(x.v)))));});
+      sheet(r.l,el('div',{class:'small muted'},`${r.c} · ${MONTHS[S.month-1]} · ${r.n} ครั้ง · เฉลี่ย ${r.avg.toFixed(2)}`),el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},el('th',{},'SC'),el('th',{class:'l'},'Branch'),el('th',{class:'l'},'By'),el('th',{},'Score'))),t)));}},
+      el('td',{class:'l wrap'},el('span',{class:'muted small'},r.c+' · '),r.l),el('td',{},el('span',{class:'pill '+tone(r.avg/5,.8,.6)},r.avg.toFixed(2))),
+      el('td',{class:'num '+(d==null?'muted':d>=0.05?'s-hi':d<=-0.05?'s-lo':'muted')},d==null?'–':(d>0?'+':'')+d.toFixed(2)),el('td',{class:'num muted'},String(r.n)));
+    tr.addEventListener('keydown',e=>{if(e.key==='Enter')tr.click();});tb.append(tr);});
+  const more=rows.length>5?el('button',{class:'btn ghost small',type:'button',onclick:e=>{e.currentTarget.closest('section').classList.toggle('all');e.currentTarget.textContent=e.currentTarget.closest('section').classList.contains('all')?'ย่อ':`ดูทั้งหมด ${rows.length} หัวข้อ`;}},`ดูทั้งหมด ${rows.length} หัวข้อ`):null;
+  return el('section',{class:'items'},el('h3',{},`หัวข้อที่ทีมยังอ่อน · ${MONTHS[S.month-1]}`),el('div',{class:'small muted'},'คะแนนเฉลี่ยรายหัวข้อจากการประเมินของ Sup ทุกคนในทีมนี้ · เทียบเดือนก่อน · กดหัวข้อเพื่อดูรายคน'),
+    el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},el('th',{class:'l'},'หัวข้อ'),el('th',{},'เฉลี่ย'),el('th',{},'vs เดือนก่อน'),el('th',{},'ครั้ง'))),tb)),more);
+}
+
+/* --- Overview: things to act on + monthly trends --- */
+function actionBox(){
+  if(!peopleOK())return null;
+  const vs=visitStats(),tc=teamCoverage(),ds=demandStats(),asOf=asOfDay(),items=[];
+  const allV=(S.audit?.visits||[]).filter(v=>v.scope===team()&&evOK(v.ev)&&v.d<=asOf);
+  const notYet=vs.br.filter(b=>!vs.by[b]);
+  if(notYet.length)items.push(['bad',`สาขาที่ยังไม่ได้เข้าเดือนนี้ ${notYet.length} สาขา`,notYet.join(' · '),()=>go('visit')]);
+  const stale=vs.br.map(b=>{const l=allV.filter(v=>v.br===b).map(v=>v.d).sort().pop();return {b,gap:l?daysBetween(l,asOf):null};}).filter(x=>x.gap!=null&&x.gap>14&&vs.by[x.b]);
+  if(stale.length)items.push(['warn',`สาขาที่ไม่ได้เข้าเกิน 14 วัน ${stale.length} สาขา`,stale.map(x=>`${x.b} ${x.gap} วัน`).join(' · '),()=>branchDetail(stale[0].b)]);
+  const zero=tc.rows.filter(r=>!r.n);
+  if(zero.length)items.push(['bad',`SC ที่ยังไม่ถูกประเมินเดือนนี้ ${zero.length} คน`,zero.map(r=>r.name).join(' · '),()=>go('audit')]);
+  const mine=[...visitsMonth(),...auditsMonth()],ls=lagStats(mine);
+  if(ls&&ls.late)items.push(['warn',`ลงฟอร์มช้าเกิน ${LATE} วัน ${ls.late} จาก ${ls.n} รายการ`,`เฉลี่ยลงหลังวันที่ไปจริง ${ls.avg.toFixed(1)} วัน`,()=>go('visit')]);
+  const open=ds.recs.filter(r=>!r.done);
+  if(open.length)items.push(['warn',`แจ้งความต้องการสินค้าที่ยังไม่ Done ${open.length} รายการ`,open.slice(0,4).map(r=>r.item).join(' · ')+(open.length>4?' …':''),()=>go('demand')]);
+  const box=el('section',{class:'panel act'},el('h2',{},`สิ่งที่ต้องดู · ${MONTHS[S.month-1]}`));
+  if(!items.length)box.append(el('div',{class:'empty'},'ไม่มีเรื่องค้างเดือนนี้'));
+  items.forEach(([t,h,d,fn])=>box.append(el('button',{type:'button',class:'actrow '+t,onclick:fn},el('b',{},h),el('span',{class:'small muted'},d),el('span',{class:'go'},'ดู →'))));
+  return box;
+}
+function trendBox(){
+  if(!peopleOK())return null;
+  const ms=peopleMonths();if(ms.length<2)return null;
+  const V=ms.map(m=>withMonth(m,()=>{const s=visitStats();return {m,v:s.br.length?s.visited/s.br.length:null,label:`${s.visited}/${s.br.length}`,tone:tn(s.br.length?s.visited/s.br.length:null,1,.5)};}));
+  const A=ms.map(m=>withMonth(m,()=>{const s=auditStats();return {m,v:s.ro.length?s.c1/s.ro.length:null,label:`${s.c1}/${s.ro.length}`,tone:tn(s.ro.length?s.c1/s.ro.length:null,1,.5)};}));
+  const Q=ms.map(m=>withMonth(m,()=>{const s=auditStats();return {m,v:s.avg,label:s.avg==null?'–':s.avg.toFixed(2),tone:s.avg==null?'':tn(s.avg/5,.8,.6)};}));
+  const E=ms.map(m=>withMonth(m,()=>{const s=examStats();return {m,v:s.avg,label:s.avg==null?'–':s.avg.toFixed(2),tone:s.avg==null?'':tn(s.avg,4,3.3)};}));
+  const D=ms.map(m=>withMonth(m,()=>{const s=demandStats();return {m,v:s.times,label:String(s.times),tone:tn(s.times,8,1)};}));
+  const L=ms.map(m=>withMonth(m,()=>{const s=lagStats([...visitsMonth(),...auditsMonth()]);return {m,v:s?s.avg:null,label:s?s.avg.toFixed(1):'–',tone:s?(s.avg<=3?'good':s.avg<=LATE?'warn':'bad'):''};}));
+  const card=(t,rows,max,sub)=>el('div',{class:'tcard'},el('div',{class:'small'},el('b',{},t)),sub?el('div',{class:'small muted'},sub):null,trendEl(rows,max));
+  return el('section',{class:'panel'},el('h2',{},'แนวโน้มรายเดือน'),el('div',{class:'small muted'},`ตั้งแต่ ${MONTHS[ms[0]-1]} · เดือนที่เลือกเป็นสีเข้ม`),
+    el('div',{class:'tgrid'},card('Visit · สาขาที่เข้าแล้ว',V,1),card('SC Audit · SC ที่ประเมินแล้ว',A,1),card('คะแนน Audit เฉลี่ย',Q,5,'เต็ม 5'),card('SC Exam เฉลี่ย',E,5,'เต็ม 5'),card('Product Demand · ครั้ง',D,Math.max(8,...D.map(x=>x.v||0))),card('ลงฟอร์มหลังวันที่ไปจริง · วัน',L,Math.max(LATE*2,...L.map(x=>x.v||0)),'ยิ่งน้อยยิ่งดี')));
+}
+
+/* --- demand by model --- */
+function demandByModel(recs){
+  const g={};recs.forEach(r=>{const k=r.item;(g[k]=g[k]||[]).push(r);});
+  const rows=Object.entries(g).map(([k,xs])=>({k,xs,times:xs.length,qty:xs.reduce((a,r)=>a+(r.qty||0),0),open:xs.filter(r=>!r.done).length})).sort((a,b)=>b.times-a.times||b.qty-a.qty);
+  const tb=el('tbody');rows.forEach(r=>{const tr=el('tr',{class:'click',tabindex:'0',onclick:()=>{const t=el('tbody');r.xs.forEach(x=>t.append(el('tr',{},el('td',{},thDate(x.d)),el('td',{class:'l'},x.size?`#${x.size}`:'–'),el('td',{class:'l wrap muted'},x.skin||''),el('td',{class:'num'},fmt(x.qty)),el('td',{class:'l'},x.by),el('td',{class:'l'},x.done?el('span',{class:'pill good'},'Done'):el('span',{class:'pill warn'},'ยังไม่ Done')))));
+      sheet(r.k,el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},...['Date','Size','Skin','Qty','By','Status'].map((h,i)=>el('th',{class:[1,2,4,5].includes(i)?'l':null},h)))),t)));}},
+    el('td',{class:'l wrap'},r.k),el('td',{class:'num'},String(r.times)),el('td',{class:'num'},fmt(r.qty)),el('td',{},r.open?el('span',{class:'pill warn'},`ค้าง ${r.open}`):el('span',{class:'pill good'},'ครบ')));
+    tr.addEventListener('keydown',e=>{if(e.key==='Enter')tr.click();});tb.append(tr);});
+  return el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},el('th',{class:'l'},'Model'),el('th',{},'ครั้ง'),el('th',{},'ชิ้น'),el('th',{},'Status'))),tb));
+}
+
+/* --- Manager (admin only): compare Sups, calibration, where field time goes --- */
+function supMonth(scope,m){
+  return withMonth(m,()=>{const o=S.scope;S.scope=scope;try{
+    const vs=visitStats(),as=auditStats(),ls=lagStats([...visitsMonth(),...auditsMonth()]),dof=dayOffFor(scope,curYM());
+    const days=new Date(YEAR,m,0).getDate(),work=days-dof.off.length-dof.sick.length,hasOff=dof.off.length||dof.sick.length;
+    const logs=(S.audit?.logs||[]).filter(l=>l.scope===team()&&l.ym===curYM()&&evOK(l.ev)).length;
+    const fieldDays=new Set(visitsMonth().map(v=>v.d)).size;
+    return {vs,as,ls,work:hasOff?work:null,fieldDays,logs};}finally{S.scope=o;}});
+}
+function viewManager(){
+  if(!S.canAdmin)return el('div',{class:'panel'},el('div',{class:'empty'},'เฉพาะผู้ดูแล'));
+  const sups=cfg().supervisors,ms=peopleMonths().filter(m=>m>=+PEOPLE_FROM.slice(5));
+  const tb=el('tbody');
+  sups.forEach(sv=>{const r=supMonth(sv.scope,S.month);
+    tb.append(el('tr',{},el('td',{},el('b',{},sv.title),el('div',{class:'small muted'},SUP_NAME[sv.scope]||'')),
+      el('td',{class:'num'},`${r.vs.visited}/${r.vs.br.length}`),el('td',{class:'num'},String(r.vs.total)),el('td',{class:'num'},String(r.as.recs.length)),
+      el('td',{},r.as.avg==null?'–':el('span',{class:'pill '+tone(r.as.avg/5,.8,.6)},r.as.avg.toFixed(2))),
+      el('td',{class:'num'},r.ls?r.ls.avg.toFixed(1):'–'),el('td',{class:'num'},r.ls?`${r.ls.late}/${r.ls.n}`:'–'),
+      el('td',{class:'num'},r.work==null?'–':String(r.work)),el('td',{class:'num'},String(r.fieldDays)),el('td',{class:'num'},String(r.logs)),
+      el('td',{class:'num'},r.work?(r.vs.total/r.work).toFixed(2):'–')));});
+  // calibration: average score each Sup gives, by month
+  const ctb=el('tbody');
+  sups.filter(sv=>sv.scope!=='UPC'||true).forEach(sv=>{ctb.append(el('tr',{},el('td',{},`${SUP_NAME[sv.scope]||sv.title}`),...ms.map(m=>{const r=supMonth(sv.scope,m);return el('td',{},r.as.avg==null?'–':el('span',{class:'pill '+tone(r.as.avg/5,.8,.6)},`${r.as.avg.toFixed(2)} · ${r.as.recs.length}`));})));});
+  // field time vs branch size: visits (all Sups) vs branch tier and share of sales
+  const L=S.sales?.months?.[curYM()],btb=el('tbody'),allV=(S.audit?.visits||[]).filter(v=>v.ym===curYM()&&v.br&&MAIN[v.br]);
+  ['BKK','UPC'].forEach(sc=>{const br=mainIn(sc),tot=br.reduce((a,b)=>a+(L?.[sc]?.branches?.[b]||0),0),vt=allV.filter(v=>MAIN[v.br].s===sc).length;
+    br.sort((a,b)=>(L?.[sc]?.branches?.[b]||0)-(L?.[sc]?.branches?.[a]||0)).forEach(b=>{const s=L?.[sc]?.branches?.[b]||0,n=allV.filter(v=>v.br===b).length,ss=tot?s/tot:null,vsh=vt?n/vt:null;
+      btb.append(el('tr',{class:'click',tabindex:'0',onclick:()=>{const o=S.scope;S.scope=sc;try{branchDetail(b);}finally{S.scope=o;}}},el('td',{},el('b',{},b)),el('td',{class:'l muted'},sc),el('td',{class:'l'},MAIN[b].tier),el('td',{class:'num'},fmt(s)),el('td',{class:'num'},pct(ss,0)),el('td',{class:'num'},String(n)),el('td',{class:'num'},pct(vsh,0)),
+        el('td',{},ss!=null&&vsh!=null&&vt?(vsh+0.08<ss?el('span',{class:'pill warn'},'Visit น้อยกว่าขนาด'):vsh>ss+0.08?el('span',{class:'pill'},'Visit มากกว่าขนาด'):el('span',{class:'pill good'},'สมดุล')):'–')));});});
+  const ev=Object.entries(S.audit?.diag?.unknownEvaluators||{});
+  return el('div',{style:'display:flex;flex-direction:column;gap:16px'},
+    el('section',{class:'panel'},el('h2',{},`Manager · เทียบ Sup · ${MONTHS[S.month-1]} ${YEAR}`),el('div',{class:'small muted'},'แถบนี้เห็นเฉพาะผู้ดูแลบอร์ด ไม่อยู่ในหน้าเว็บที่ Sup เปิด'),
+      el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},...['Sup','สาขาที่เข้า','Visit','Audit','คะแนนที่ให้','ลงช้าเฉลี่ย (วัน)',`ช้าเกิน ${LATE} วัน`,'วันทำงาน','วันที่ลงสาขา','วัน Office/อื่นๆ','Visit/วันทำงาน'].map((h,i)=>el('th',{class:i?null:'l'},h)))),tb)),
+      el('div',{class:'small muted'},'วันทำงาน = วันในเดือน − Day Off − ลาป่วย (ต้องใส่วันหยุดที่ Settings) · ลงช้า = วันที่ส่งฟอร์ม − วันที่ไปจริง'),
+      ev.length?el('div',{class:'diag'},el('span',{class:'warn'},`ผู้ประเมินในชีทที่บอร์ดไม่นับ: ${ev.map(([k,v])=>`${k} (${v})`).join(', ')}`)):null),
+    el('section',{class:'panel'},el('h2',{},'มาตรฐานการให้คะแนน (Calibration)'),el('div',{class:'small muted'},'คะแนนเฉลี่ยที่แต่ละ Sup ให้ SC · จำนวนครั้ง · ถ้าห่างกันต่อเนื่อง อาจใช้เกณฑ์ไม่ตรงกัน'),
+      el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},el('th',{},'Sup'),...ms.map(m=>el('th',{},MONTHS[m-1])))),ctb))),
+    el('section',{class:'panel'},el('h2',{},`Visit เทียบขนาดสาขา · ${MONTHS[S.month-1]}`),el('div',{class:'small muted'},'สัดส่วนยอดขายของสาขาในทีม เทียบสัดส่วน Visit ของทุก Sup · ต่างกันเกิน 8 จุดจะขึ้นป้าย · กดสาขาเพื่อดู Visit'),
+      el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},...['Branch','Team','Tier','Sales','สัดส่วนยอด','Visit','สัดส่วน Visit',''].map((h,i)=>el('th',{class:[1,2].includes(i)?'l':null},h)))),btb))));
+}
+
 /* ---------- render ---------- */
-const VIEWS={overview:viewOverview,sales:viewSales,audit:viewAudit,visit:viewVisit,focus:viewFocus,demand:viewDemand,team:viewTeam,settings:viewSettings};
+const VIEWS={manager:viewManager,overview:viewOverview,sales:viewSales,audit:viewAudit,visit:viewVisit,focus:viewFocus,demand:viewDemand,team:viewTeam,settings:viewSettings};
 function render(){renderHeader();const v=$('#view');
   if(S.tab==='settings'&&v.dataset.tab==='settings'&&v.contains(document.activeElement))return; // don't wipe inputs while typing
-  const t=S.tab==='settings'&&!S.canAdmin?'overview':S.tab;v.dataset.tab=t;v.replaceChildren((VIEWS[t]||viewOverview)());}
+  const t=(S.tab==='settings'||S.tab==='manager')&&!S.canAdmin?'overview':S.tab;v.dataset.tab=t;v.replaceChildren((VIEWS[t]||viewOverview)());}
 
 render();
 (async()=>{

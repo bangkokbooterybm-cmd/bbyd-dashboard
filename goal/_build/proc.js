@@ -125,6 +125,7 @@ var GSProc = (function () {
       if (!r || r.every(function (v) { return v == null || v === ''; })) return;
       diag.total++;
       var d = toDate(r[c.date]) || toDate(r[c.ts]);
+      var tsD = toDate(r[c.ts]), lag = tsD && d ? Math.max(0, Math.round((tsD - d) / 864e5)) : null; // days between the visit and the form entry
       var yr = firstNum(r[c.year]); if (yr > 2400) yr -= 543;
       if (!yr && d) yr = d.getFullYear();
       if (yr !== 2026) return;
@@ -153,17 +154,18 @@ var GSProc = (function () {
         audits.push({ d: d ? ymd(d) : null, ym: ymAudit, sc: sc, br: br, brRaw: br ? undefined : brRaw, ev: evName, scope: scope,
           avg: scores.length ? Math.round(scores.reduce(function (a, b) { return a + b; }, 0) / scores.length * 100) / 100 : null, n: scores.length,
           exam: exams.length ? Math.round(exams.reduce(function (a, b) { return a + b; }, 0) / exams.length * 100) / 100 : null,
-          online: online || undefined, x: cross ? 1 : undefined, note: note || undefined, s: scores.length ? sArr : undefined, notes: notes.length ? notes : undefined });
+          online: online || undefined, x: cross ? 1 : undefined, lag: lag == null ? undefined : lag, note: note || undefined, s: scores.length ? sArr : undefined, notes: notes.length ? notes : undefined });
       } else diag.visitOnly++;
       // Every onsite row is a store visit: one per evaluator + branch + day
       if (!online && d && (br || brRaw)) {
         var k = scope + '|' + evName + '|' + (br || brRaw) + '|' + ymd(d);
         var v = visitMap[k] || (visitMap[k] = { d: ymd(d), ym: ymd(d).slice(0, 7), br: br, brRaw: br ? undefined : brRaw, ev: evName, scope: scope, x: cross ? 1 : undefined, audits: 0 });
         if (isAudit) v.audits++;
+        if (lag != null && (v.lag == null || lag < v.lag)) v.lag = lag;
         notes.forEach(function (n) { var t = n.t.slice(0, 300); v.notes = v.notes || []; if (!v.notes.some(function (o) { return o.t === t; })) v.notes.push({ f: n.f, t: t, sc: isAudit ? sc : undefined }); });
       } else if (!online && d && notes.length) {
         // a Sup's work day with no branch (head office, meeting, other site): keep the note as a log line
-        logs.push({ d: ymd(d), ym: ymd(d).slice(0, 7), ev: evName, scope: scope, t: notes.map(function (n) { return n.t; }).join(' / ').slice(0, 300) });
+        logs.push({ d: ymd(d), ym: ymd(d).slice(0, 7), ev: evName, scope: scope, lag: lag == null ? undefined : lag, t: notes.map(function (n) { return n.t; }).join(' / ').slice(0, 300) });
       }
     });
     var visits = Object.keys(visitMap).map(function (k) { return visitMap[k]; });
