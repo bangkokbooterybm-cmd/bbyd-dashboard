@@ -269,9 +269,9 @@ const mainIn=scope=>Object.keys(MAIN).filter(k=>scope==='SENIOR'||MAIN[k].s===sc
 const isSr=()=>S.scope==='SENIOR';
 const team=()=>isSr()?'BKK':S.scope;
 const SR_KEY='โอ'; // nameKey of คุณโอ๋
-// whose audits/visits count on each board: Supervisor = คุณโอ๋, Supervisor BKK = คุณเอ, Supervisor UPC = คุณมิ้ว (only UPC evaluator kept by the parser)
+// whose audits/visits count on each board: Supervisor = คุณโอ๋, Supervisor BKK = คุณเอ, Supervisor UPC = คุณโบว์ (only UPC evaluator kept by the parser)
 const EV_KEY={SENIOR:'โอ',BKK:'เอ'};
-const SUP_NAME={SENIOR:'คุณโอ๋',BKK:'คุณเอ',UPC:'คุณมิ้ว'};
+const SUP_NAME={SENIOR:'คุณโอ๋',BKK:'คุณเอ',UPC:'คุณโบว์'};
 const evOK=ev=>!EV_KEY[S.scope]||nameKey(ev)===EV_KEY[S.scope];
 const salesScopes=()=>isSr()?['BKK','UPC']:[S.scope];
 // Who is on a team in a month: from the HR sheet (nickname + work location). Out from the month they resign, whatever the day.
@@ -364,7 +364,7 @@ function examStats(){
   const people=Object.values(per).map(p=>({name:p.name,avg:p.vals.reduce((a,b)=>a+b,0)/p.vals.length,n:p.vals.length}));
   return {recs,people,avg:people.length?people.reduce((a,p)=>a+p.avg,0)/people.length:null,pass:people.filter(p=>p.avg>=4).length};
 }
-function demandStats(){const recs=peopleOK()?(S.demand?.rows||[]).filter(r=>r.ym===curYM()) /* shared target: โอ๋ + เอ + มิ้ว together */:[];return {recs,times:recs.length,qty:recs.reduce((a,r)=>a+(r.qty||0),0),done:recs.filter(r=>r.done).length};}
+function demandStats(){const recs=peopleOK()?(S.demand?.rows||[]).filter(r=>r.ym===curYM()) /* shared target: โอ๋ + เอ + โบว์ together */:[];return {recs,times:recs.length,qty:recs.reduce((a,r)=>a+(r.qty||0),0),done:recs.filter(r=>r.done).length};}
 function stockFor(){
   const end=`${curYM()}-31`;const list=S.stocks.filter(s=>s.stockDate&&s.stockDate<=end).sort((a,b)=>b.stockDate.localeCompare(a.stockDate));
   const s=list[0]||null;return s?{s,inMonth:s.stockDate.startsWith(curYM())}:null;
@@ -421,7 +421,7 @@ function viewOverview(){
       bar:evT?barEl(st.evYTD/evT):null,
       rows:[[m,st.evCur==null?'–':`${fmt(st.evCur)} วัน`],evT?['เป้าทั้งปี',`${fmt(evT)} วัน`]:['เป้าทั้งปี','ยังไม่ได้ตั้ง','mute'],evT?['ทำได้',pct(st.evYTD/evT,0)]:null],
       rule:'≥350 วัน/ปี = 5 · <200 วัน = 1',tab:'sales'}),
-    kpi({code:'2.2',w:'5%',name:'Product Demand',big:ok?`${ds.times} ครั้ง`:'–',tone:ok?tn(ds.times,8,1):'none',cap:'เป้าร่วม คุณโอ๋ + คุณเอ + คุณมิ้ว',
+    kpi({code:'2.2',w:'5%',name:'Product Demand',big:ok?`${ds.times} ครั้ง`:'–',tone:ok?tn(ds.times,8,1):'none',cap:'เป้าร่วม คุณโอ๋ + คุณเอ + คุณโบว์',
       rows:ok?[['จำนวนชิ้น',fmt(ds.qty)],['Done',`${ds.done}/${ds.times}`]]:noData,
       rule:'8 ครั้ง/เดือน = 5 · 1 ครั้ง = 2',tab:'demand'}),
     kpi({code:'3.1',w:'10%',name:'Focus Product',big:fs?pct(fs.avg,1):'–',tone:fs?fLv(fs.avg):'none',cap:fs?`เฉลี่ย ${fs.br.length} สาขา`:'',
@@ -529,7 +529,7 @@ function viewAudit(){
       el('span',{class:'tcby small'},r.n?Object.entries(r.by).map(([e,c])=>`Sup${e} ${c}`).join(' · '):'ยังไม่ประเมิน'))))):null;
   return el('div',{class:'panel'},
     el('h2',{},`SC Audit · ${m} ${YEAR}`),needSync('audit'),stampTxt('ข้อมูลจากชีทประเมิน SC อัปเดต',S.audit?.updatedAt),
-    tcBox,itemBox(),el('div',{class:'small muted'},'กดชื่อ SC เพื่อดูประวัติการประเมินทุกเดือน'),multi?el('h3',{style:'margin-top:6px'},`เฉพาะที่ ${isSr()?'Supโอ๋':team()==='BKK'?'Supเอ':'Supมิ้ว'} ประเมิน`):null,
+    tcBox,itemBox(),el('div',{class:'small muted'},'กดชื่อ SC เพื่อดูประวัติการประเมินทุกเดือน'),multi?el('h3',{style:'margin-top:6px'},`เฉพาะที่ ${isSr()?'Supโอ๋':team()==='BKK'?'Supเอ':'Supโบว์'} ประเมิน`):null,
     el('div',{class:'stats'},stat(`${st.c1}/${st.ro.length}`,'SC ที่ประเมินแล้ว ≥1 ครั้ง'),stat(`${st.c2}/${st.ro.length}`,'SC ที่ครบ 2 ครั้ง'),stat(String(st.recs.length),'จำนวนครั้งที่ประเมิน'),stat(st.avg==null?'–':st.avg.toFixed(2),'คะแนนเฉลี่ย (เต็ม 5)')),
     el('h3',{},'ความครอบคลุมรายคน'),el('div',{class:'legend'},el('span',{class:'key good'},'≥2 ครั้ง'),el('span',{class:'key warn'},'1 ครั้ง'),el('span',{class:'key bad'},'ยังไม่ประเมิน')),chips,
     el('div',{class:'small muted'},S.staff?`รายชื่อจากชีทข้อมูลพนักงาน BBYD ประกอบกับฟอร์มส่งยอดขาย · คนที่ออกไม่นับตั้งแต่เดือนที่ออก · พนักงานใหม่นับเมื่อครบ 14 วัน`:'ยังไม่ได้ดึงรายชื่อจากชีทข้อมูลพนักงาน ใช้รายชื่อเดิมไปก่อน'),
@@ -653,7 +653,7 @@ function viewDemand(){
   st.recs.slice().sort((a,b)=>b.d.localeCompare(a.d)).forEach(r=>tb.append(el('tr',{},el('td',{},thDate(r.d)),el('td',{class:'l wrap'},r.item+(r.size?` #${r.size}`:'')),el('td',{class:'l wrap muted'},r.skin||''),el('td',{class:'num'},fmt(r.qty)),el('td',{class:'l'},r.by),el('td',{class:'l'},r.done?el('span',{class:'pill good'},r.status||'Done'):el('span',{class:'pill warn'},'ยังไม่ Done')),el('td',{class:'l wrap muted'},r.plan||''))));
   return el('div',{class:'panel'},el('h2',{},`Product Demand · ${MONTHS[S.month-1]} ${YEAR}`),needSync('demand'),stampTxt('ข้อมูลจากชีทแจ้งความต้องการสินค้า อัปเดต',S.demand?.updatedAt),
     el('div',{class:'stats'},stat(String(st.times),'จำนวนครั้งที่แจ้ง'),stat(fmt(st.qty),'จำนวนชิ้นที่ขอ'),stat(`${st.done}/${st.times}`,'Done แล้ว')),
-    el('div',{class:'small muted'},'เป้าร่วมกัน · นับทุกรายการที่คุณโอ๋ คุณเอ และคุณมิ้วแจ้ง (ตัวเลขเท่ากันทุกแถบ)'||'นับรายการที่ผู้แจ้งเป็นคุณมิ้ว'),
+    el('div',{class:'small muted'},'เป้าร่วมกัน · นับทุกรายการที่คุณโอ๋ คุณเอ และคุณโบว์แจ้ง (ตัวเลขเท่ากันทุกแถบ)'||''),
     st.recs.length?el('h3',{},'สรุปตามรุ่น · กดเพื่อดูรายการ'):null,st.recs.length?demandByModel(st.recs):null,
     st.recs.length?el('h3',{},'รายการทั้งหมด'):null,
     st.recs.length?el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},...['Date','Model','Skin','Qty','By','Status','Plan'].map((h,i)=>el('th',{class:[1,2,4,5,6].includes(i)?'l':null},h)))),tb)):el('div',{class:'empty'},'ยังไม่มีการแจ้งในเดือนนี้'));

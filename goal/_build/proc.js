@@ -26,14 +26,17 @@ var GSProc = (function () {
   }
   function firstNum(v) { if (typeof v === 'number') return v; var m = String(v == null ? '' : v).replace(/,/g, '').match(/-?\d+(\.\d+)?/); return m ? +m[0] : 0; }
 
-  // Who counts for which board: BKK = คุณเอ + คุณโอ๋, UPC = คุณมิ้ว only
+  // Who counts for which board: BKK = คุณเอ + คุณโอ๋, UPC = คุณโบว์ (written คุณโบ in the sheet)
   function scopeOfPerson(name) {
     var n = norm(name).replace(/^คุณ/, '').replace(/\s+/g, '');
     if (!n) return null;
     if (n === 'เอ' || n === 'โอ๋' || n === 'โอ') return 'BKK';
-    if (n === 'มิ้ว' || n === 'มิว' || n === 'มิ๊ว' || n === 'มิ้วส์') return 'UPC';
+    if (n === 'โบ' || n === 'โบว์' || n === 'โบ้' || n === 'มิ้ว' || n === 'มิว' || n === 'มิ๊ว' || n === 'มิ้วส์') return 'UPC';
     return null;
   }
+
+  // one spelling per Sup on every record
+  function supName(name) { var n = norm(name).replace(/^คุณ/, '').replace(/\s+/g, ''); return n === 'โบ' || n === 'โบว์' || n === 'โบ้' ? 'คุณโบว์' : norm(name); }
 
   // Free-text branch names in the evaluation sheet -> branch codes
   function branchCode(raw) {
@@ -130,7 +133,7 @@ var GSProc = (function () {
       if (!yr && d) yr = d.getFullYear();
       if (yr !== 2026) return;
       diag.inYear++;
-      var evName = norm(r[c.ev]), scope = scopeOfPerson(evName);
+      var evName = supName(r[c.ev]), scope = scopeOfPerson(evName);
       if (!scope) { diag.otherEvaluator++; if (evName) diag.unknownEvaluators[evName] = (diag.unknownEvaluators[evName] || 0) + 1; return; }
       var brRaw = norm(r[c.br]), br = branchCode(brRaw);
       if (!br && brRaw) diag.unknownBranches[brRaw] = (diag.unknownBranches[brRaw] || 0) + 1;
@@ -192,7 +195,7 @@ var GSProc = (function () {
       diag.total++;
       var d = toDate(r[c.ts]); if (!d || d.getFullYear() !== 2026) return;
       diag.inYear++;
-      var by = norm(r[c.by]), scope = scopeOfPerson(by);
+      var by = supName(r[c.by]), scope = scopeOfPerson(by);
       if (!scope) { var key = by || '(ว่าง)'; diag.otherRequester[key] = (diag.otherRequester[key] || 0) + 1; return; }
       var q1raw = r[c.q1], q2raw = r[c.q2];
       var qty = firstNum(q1raw) + firstNum(q2raw);
