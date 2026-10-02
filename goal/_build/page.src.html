@@ -148,6 +148,29 @@ td.cm{background:var(--accent-soft)}
 .scsum ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px;font-size:13px}
 .scsum li{display:flex;justify-content:space-between;gap:10px;align-items:center}
 tr.asb td{background:var(--bad-bg)}
+.lhero{flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px;background:linear-gradient(135deg,var(--surface),var(--brass-bg))}
+.lh-l{display:flex;gap:16px;align-items:center}
+.trophy{width:110px;flex:none} .trophy svg{width:100%;height:auto;display:block} .trophy.sm{width:44px}
+.champ{font:700 30px var(--disp);line-height:1.1} .champ-s{font:700 20px var(--disp);color:var(--brass)}
+.pill.lt{background:var(--sunk);color:var(--ink2);font-size:10px;padding:1px 6px}
+.podium{display:grid;grid-template-columns:repeat(3,110px);gap:8px;align-items:end}
+.pod{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;font-size:13px}
+.pod b{font:700 14px var(--disp)} .pod .step{width:100%;border-radius:8px 8px 0 0;margin-top:4px}
+.pod.p1 .step{height:70px;background:linear-gradient(#F6D77A,#B88A24)} .pod.p2 .step{height:48px;background:linear-gradient(#E4E7EA,#9AA3AB)} .pod.p3 .step{height:34px;background:linear-gradient(#E8B98C,#A0643A)}
+.medal{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;font:700 13px var(--disp);color:#2A1C00;background:#E2B84A;border:2px solid #8A6414}
+.pod.p2 .medal,.medal.m2{background:#D5DADF;border-color:#7E878F;color:#1F262C} .pod.p3 .medal,.medal.m3{background:#E3A877;border-color:#8A5228;color:#2C1708}
+.awards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.award{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:2px;padding:12px 14px;border-radius:12px;background:var(--sunk);border-top:4px solid var(--brass)}
+.award.off{cursor:default;opacity:.6} .aw-t{font:600 11px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--brass)} .aw-n{font:700 20px var(--disp)} .aw-v{font:600 13px var(--disp);color:var(--good)}
+.tbattle{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center}
+.tb{background:var(--sunk);border-radius:12px;padding:12px 14px;border:2px solid transparent} .tb.lead{border-color:var(--good);background:var(--good-bg)}
+.tb-h{display:flex;justify-content:space-between;align-items:center} .tb-v{font:700 26px var(--disp)} .vs{font:700 16px var(--disp);color:var(--ink3)}
+.ltable td{vertical-align:middle} .lrk{width:44px} .lsc{min-width:180px} .lsc .num{display:inline-block;width:64px;font-weight:600}
+.lbar{display:inline-block;vertical-align:middle;width:calc(100% - 72px);min-width:60px;height:8px;border-radius:99px;background:var(--sunk);overflow:hidden} .lbar i{display:block;height:100%;background:var(--accent);border-radius:99px}
+tr.ltop td{background:color-mix(in srgb,var(--brass-bg) 60%,transparent)} tr.lbot td{background:color-mix(in srgb,var(--bad-bg) 55%,transparent)} tr.lbot .lbar i{background:var(--bad)}
+.hof{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.hofc{all:unset;box-sizing:border-box;cursor:pointer;display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:var(--sunk)} .hofc.cur{background:var(--brass-bg);outline:1px solid var(--brass)}
+@media (max-width:560px){.podium{grid-template-columns:repeat(3,1fr);width:100%}.lh-l{width:100%}.trophy{width:84px}.champ{font-size:24px}.tbattle{grid-template-columns:1fr}.vs{text-align:center}}
 .sortb{all:unset;cursor:pointer;font:inherit;letter-spacing:inherit;text-transform:inherit;color:inherit;white-space:nowrap} .sortb .arr{opacity:.5} .sortb.on{color:var(--accent)} .sortb.on .arr{opacity:1} .sortb:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 tr.click{cursor:pointer} tr.click:hover td{background:var(--accent-soft)} tr.click:focus-visible{outline:2px solid var(--accent)}
 .items tr.more{display:none} .items.all tr.more{display:table-row}
@@ -394,7 +417,7 @@ function focusStats(){
 
 /* ---------- header / tabs ---------- */
 const PRE_TXT='เริ่มบันทึกตั้งแต่ มิ.ย. 2569';
-const TABS=[['overview','Overview'],['sales','Sales & Events'],['audit','SC Audit'],['visit','Visit'],['focus','Focus Product'],['demand','Product Demand'],['team','SC Exam / All Star']];
+const TABS=[['overview','Overview'],['sales','Sales & Events'],['audit','SC Audit'],['visit','Visit'],['focus','Focus Product'],['demand','Product Demand'],['team','SC Exam / All Star'],['league','League']];
 function renderHeader(){
   const seg=$('#scopeSeg');seg.replaceChildren();
   cfg().supervisors.forEach(s=>seg.append(el('button',{type:'button','aria-pressed':String(s.scope===S.scope),onclick:()=>{S.scope=s.scope;store.set('gs2.scope',s.scope);render();}},s.title)));
@@ -1020,6 +1043,73 @@ function allstarPaste(){
     el('label',{class:'row small'},'เดือน',mSel),el('label',{class:'row small'},'% ตามรายงาน',rep),ta,save,out);
 }
 
+/* ---------- League (BBY SC All Star as a monthly league) ---------- */
+const TROPHY_SVG=`<svg viewBox="0 0 200 240" role="img" aria-label="BBY All Star trophy"><defs><linearGradient id="tg" x1="0" x2="1"><stop offset="0" stop-color="#8A6414"/><stop offset=".35" stop-color="#F6D77A"/><stop offset=".55" stop-color="#FFF1B8"/><stop offset=".75" stop-color="#E2B84A"/><stop offset="1" stop-color="#8A6414"/></linearGradient><linearGradient id="tgv" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FCE79A"/><stop offset="1" stop-color="#B88A24"/></linearGradient><linearGradient id="tgb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2F3A33"/><stop offset="1" stop-color="#17211C"/></linearGradient></defs><path d="M52 40 C20 40 18 92 62 104" fill="none" stroke="url(#tgv)" stroke-width="10" stroke-linecap="round"/><path d="M148 40 C180 40 182 92 138 104" fill="none" stroke="url(#tgv)" stroke-width="10" stroke-linecap="round"/><path d="M48 24 H152 V60 C152 100 130 124 100 128 C70 124 48 100 48 60 Z" fill="url(#tg)" stroke="#8A6414" stroke-width="2"/><ellipse cx="100" cy="24" rx="52" ry="7" fill="#FFF1B8" stroke="#8A6414" stroke-width="2"/><path d="M100 44 l7 14 15 2 -11 10 3 15 -14 -7 -14 7 3 -15 -11 -10 15 -2 z" fill="#FFF8DA" stroke="#B88A24" stroke-width="1.5"/><rect x="90" y="128" width="20" height="26" fill="url(#tg)" stroke="#8A6414" stroke-width="2"/><path d="M70 154 H130 L136 172 H64 Z" fill="url(#tg)" stroke="#8A6414" stroke-width="2"/><rect x="54" y="172" width="92" height="44" rx="5" fill="url(#tgb)"/><rect x="64" y="180" width="72" height="28" rx="3" fill="url(#tg)"/><text x="100" y="193" text-anchor="middle" font-family="Chakra Petch,Arial,sans-serif" font-weight="700" font-size="13" fill="#3A2A05">BBY</text><text x="100" y="204" text-anchor="middle" font-family="Chakra Petch,Arial,sans-serif" font-weight="700" font-size="8" letter-spacing="1" fill="#3A2A05">ALL STAR</text></svg>`;
+const trophyEl=cls=>{const d=el('div',{class:cls||'trophy'});d.innerHTML=TROPHY_SVG;return d;};
+// which team a league name belongs to in a month (All Star map first, then the HR roster)
+function asTeamOf(name,ymk){const m=asMap()[name];if(m)return m[0];const k=nameKey(name);for(const sc of ['BKK','UPC']){const ro=rosterFor(sc,ymk);if(ro.some(x=>nameKey(x.name)===k||canonOf(name,ro)===nameKey(x.name)))return sc;}return null;}
+function leagueData(ymk){
+  const ms=asMonths().filter(m=>m<=ymk),cur=asMonth(ymk,'SENIOR');if(!cur)return null;
+  const byM={};ms.forEach(m=>{const a=asMonth(m,'SENIOR');byM[m]={rows:a.rows,map:Object.fromEntries(a.rows.map(r=>[nameKey(r.n),r]))};});
+  const prevM=ms[ms.indexOf(ymk)-1]||null,prev=prevM?byM[prevM]:null;
+  const top10Streak=n=>{let c=0;for(let i=ms.length-1;i>=0;i--){const r=byM[ms[i]].map[nameKey(n)];if(r&&r.r<=10)c++;else break;}return c;};
+  const best=n=>Math.min(...ms.map(m=>byM[m].map[nameKey(n)]?.r??999));
+  const rows=cur.rows.map(r=>{const p=prev?.map[nameKey(r.n)];return {...r,team:asTeamOf(r.n,ymk),prevR:p?p.r:null,prevS:p?p.s:null,prevBottom:p?p.bottom:null,move:p?p.r-r.r:null,gain:p?r.s-p.s:null,streak:top10Streak(r.n),best:best(r.n)};});
+  const champs=ms.map(m=>{const c=byM[m].rows[0];return c?{ym:m,n:c.n,s:c.s,team:asTeamOf(c.n,m)}:null;}).filter(Boolean);
+  return {ymk,prevM,cur,rows,champs,ms};
+}
+function viewLeague(){
+  const ymk=asCurYM();
+  if(!ymk)return el('div',{class:'panel'},el('h2',{},'League'),el('div',{class:'empty'},'ยังไม่มีข้อมูล BBY SC All Star'));
+  const L=leagueData(ymk),mName=MONTHS[+ymk.slice(5)-1],f=S.lgTeam||'ALL';
+  const top=L.rows.slice(0,3),champ=top[0];
+  const tPill=t=>t?el('span',{class:'pill lt'},t):null;
+  // hero + podium
+  const podium=el('div',{class:'podium'},...[1,0,2].map(i=>{const r=top[i];if(!r)return el('div',{});return el('button',{type:'button',class:`pod p${i+1}`,onclick:()=>asDetail(r.n)},
+    el('span',{class:'medal'},String(i+1)),el('b',{},r.n),el('span',{class:'num'},r.s.toFixed(2)+'%'),tPill(r.team),el('div',{class:'step'}));}));
+  const hero=el('section',{class:'panel lhero'},el('div',{class:'lh-l'},trophyEl('trophy'),
+      el('div',{},el('div',{class:'eyebrow'},`BBY SC All Star · แชมป์ ${mName} ${YEAR}`),el('div',{class:'champ'},champ.n),el('div',{class:'champ-s num'},champ.s.toFixed(2)+'%'),tPill(champ.team),
+        el('div',{class:'small muted',style:'margin-top:6px'},`ค่าเฉลี่ยตามรายงาน ${fmt(L.cur.reported,2)}% · ${L.rows.length} คนที่มีคะแนน`))),podium);
+  // awards
+  const withPrev=L.rows.filter(r=>r.move!=null);
+  // one award per person where possible, so more people get recognised
+  const used=new Set(),pick=xs=>{const x=xs.find(r=>!used.has(r.n))||xs[0];if(x)used.add(x.n);return x;};
+  const mi=pick(withPrev.filter(r=>r.move>0).sort((a,b)=>b.move-a.move));
+  const cons=pick(L.rows.filter(r=>r.streak>=2).sort((a,b)=>b.streak-a.streak||a.r-b.r));
+  const gain=pick(withPrev.filter(r=>r.gain>0).sort((a,b)=>b.gain-a.gain));
+  const comeback=pick(withPrev.filter(r=>r.prevBottom&&!r.bottom).sort((a,b)=>b.move-a.move));
+  const award=(t,sub,r,val)=>r?el('button',{type:'button',class:'award',onclick:()=>asDetail(r.n)},el('div',{class:'aw-t'},t),el('div',{class:'aw-n'},r.n),el('div',{class:'aw-v num'},val),el('div',{class:'small muted'},sub)):el('div',{class:'award off'},el('div',{class:'aw-t'},t),el('div',{class:'small muted'},'เดือนนี้ไม่มี'));
+  const awards=el('section',{class:'panel'},el('h2',{},`รางวัลประจำเดือน · ${mName}`),el('div',{class:'awards'},
+    award('Most Improved','ขึ้นอันดับมากที่สุด',mi||null,mi?`▲ ขึ้น ${mi.move} อันดับ`:''),
+    award('Top Score Gain','% เพิ่มขึ้นมากที่สุด',gain||null,gain?`+${gain.gain.toFixed(2)}%`:''),
+    award('Consistent Star','ติด Top 10 ต่อเนื่อง',cons||null,cons?`Top 10 · ${cons.streak} เดือนติด`:''),
+    award('Comeback','ออกจากกลุ่มรั้งท้ายได้',comeback||null,comeback?`▲ ${comeback.prevR} → ${comeback.r}`:'')));
+  // team battle
+  const tavg=t=>{const xs=L.rows.filter(r=>r.team===t);return {n:xs.length,avg:xs.length?xs.reduce((a,r)=>a+r.s,0)/xs.length:null,top10:xs.filter(r=>r.r<=10).length,crowns:L.champs.filter(c=>c.team===t).length};};
+  const B=tavg('BKK'),U=tavg('UPC'),lead=B.avg!=null&&U.avg!=null?(B.avg>=U.avg?'BKK':'UPC'):null;
+  const tcard=(t,x)=>el('div',{class:'tb'+(lead===t?' lead':'')},el('div',{class:'tb-h'},el('b',{},t),lead===t?el('span',{class:'pill good'},'นำ'):null),el('div',{class:'tb-v num'},x.avg==null?'–':x.avg.toFixed(2)+'%'),
+    el('div',{class:'small muted'},`${x.n} คน · ติด Top 10 ${x.top10} คน · แชมป์ ${x.crowns} เดือน`));
+  const battle=el('section',{class:'panel'},el('h2',{},'ทีมต่อทีม · ค่าเฉลี่ย % Score'),el('div',{class:'tbattle'},tcard('BKK',B),el('div',{class:'vs'},'VS'),tcard('UPC',U)));
+  // league table
+  const list=L.rows.filter(r=>f==='ALL'||r.team===f),tb=el('tbody');
+  list.forEach(r=>{const mv=r.move==null?el('span',{class:'muted small'},'–'):rankEl(r.move);
+    const bar=el('div',{class:'lbar'},el('i',{style:`width:${Math.min(100,r.s)}%`}));
+    const tr=el('tr',{class:'click'+(r.bottom?' lbot':'')+(r.r<=3?' ltop':''),tabindex:'0',onclick:()=>asDetail(r.n)},
+      el('td',{class:'num lrk'},r.r<=3?el('span',{class:`medal m${r.r}`},String(r.r)):String(r.r)),el('td',{},mv),
+      el('td',{class:'l'},el('b',{},r.n),' ',tPill(r.team),r.streak>=3?el('span',{class:'pill good',style:'margin-left:4px'},`Top 10 × ${r.streak}`):null),
+      el('td',{class:'l lsc'},el('span',{class:'num'},r.s.toFixed(2)+'%'),bar));
+    tr.addEventListener('keydown',e=>{if(e.key==='Enter')tr.click();});tb.append(tr);});
+  const nb=asBottomN(L.rows.length);
+  const table=el('section',{class:'panel'},el('div',{class:'row',style:'justify-content:space-between'},el('h2',{},`ตารางลีก · ${mName}`),
+      el('div',{class:'seg'},...[['ALL','ทั้งหมด'],['BKK','BKK'],['UPC','UPC']].map(([k,l])=>el('button',{type:'button','aria-pressed':String(f===k),onclick:()=>{S.lgTeam=k;render();}},l)))),
+    el('div',{class:'small muted'},`อันดับรวมทั้งบริษัท · ▲▼ เทียบ ${L.prevM?MONTHS[+L.prevM.slice(5)-1]:'เดือนก่อน'} · แถบอ่อน = กลุ่มที่ต้องเร่ง ${nb} อันดับล่าง (${AS_BOTTOM_PCT()}%) · กดชื่อเพื่อดูประวัติของตัวเอง`),
+    el('div',{class:'tscroll'},el('table',{class:'ltable'},el('thead',{},el('tr',{},el('th',{},'#'),el('th',{},'+/-'),el('th',{class:'l'},'SC'),el('th',{class:'l'},'% Score'))),tb)));
+  // hall of fame
+  const hof=el('section',{class:'panel'},el('h2',{},'Hall of Fame · แชมป์รายเดือน'),el('div',{class:'hof'},...L.champs.slice().reverse().map(c=>el('button',{type:'button',class:'hofc'+(c.ym===ymk?' cur':''),onclick:()=>asDetail(c.n)},
+    trophyEl('trophy sm'),el('div',{},el('div',{class:'small muted'},`${MONTHS[+c.ym.slice(5)-1]} ${YEAR}`),el('b',{},c.n),el('div',{class:'num small'},c.s.toFixed(2)+'%'),tPill(c.team))))));
+  return el('div',{style:'display:flex;flex-direction:column;gap:16px'},ymk!==curYM()?el('div',{class:'banner'},`ยังไม่มีอันดับของ ${MONTHS[S.month-1]} แสดงของ ${mName} แทน`):null,hero,awards,table,battle,hof);
+}
+
 /* --- Overview: things to act on + monthly trends --- */
 function actionBox(){
   if(!peopleOK())return null;
@@ -1108,7 +1198,7 @@ function viewManager(){
 }
 
 /* ---------- render ---------- */
-const VIEWS={manager:viewManager,overview:viewOverview,sales:viewSales,audit:viewAudit,visit:viewVisit,focus:viewFocus,demand:viewDemand,team:viewTeam,settings:viewSettings};
+const VIEWS={league:viewLeague,manager:viewManager,overview:viewOverview,sales:viewSales,audit:viewAudit,visit:viewVisit,focus:viewFocus,demand:viewDemand,team:viewTeam,settings:viewSettings};
 function render(){renderHeader();const v=$('#view');
   if(S.tab==='settings'&&v.dataset.tab==='settings'&&v.contains(document.activeElement))return; // don't wipe inputs while typing
   const t=(S.tab==='settings'||S.tab==='manager')&&!S.canAdmin?'overview':S.tab;v.dataset.tab=t;v.replaceChildren((VIEWS[t]||viewOverview)());}
