@@ -235,12 +235,17 @@ var GSProc = (function () {
   // excl = { BRANCH: [focus item names the branch does not carry] } (e.g. Paragon has no sunglass)
   function parseStock(wb, focus, excl) {
     excl = excl || {}; var skip = function (k, item) { return (excl[k] || []).indexOf(item) >= 0; };
-    var t = sheetRows(wb, ['Barcode', 'Model', 'Branch']);
-    if (!t) throw new Error('ไม่พบชีทที่มีหัวคอลัมน์ "Barcode", "Model", "Branch" (ชีท Main Stock)');
-    var sheet = wb.Sheets[t.name], a1 = sheet.A1 ? String(sheet.A1.v) : '';
-    var md = a1.match(/(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{2,4})/), stockDate = null;
-    if (md) { var y = +md[3]; if (y < 100) y += 2500; if (y > 2400) y -= 543; stockDate = y + '-' + pad(+md[2]) + '-' + pad(+md[1]); }
-    var h = t.header, cB = h.indexOf('Barcode'), cM = h.indexOf('Model'), cG = h.indexOf('Prod.Group'), cBr = h.indexOf('Branch'), cQ = h.indexOf('Qty.');
+    // two layouts: "Main Stock" (Barcode / Prod.Group / Qty., date in A1 "Stock: 25.09.69")
+    // and "Stock Card" (Serial No. / Product Category / QTY, date in B1, sheet named "Stock 30.09.69")
+    var t = sheetRows(wb, ['Barcode', 'Model', 'Branch']) || sheetRows(wb, ['Serial No', 'Model', 'Branch']);
+    if (!t) throw new Error('ไม่พบชีทที่มีหัวคอลัมน์ "Barcode" หรือ "Serial No.", "Model", "Branch"');
+    var sheet = wb.Sheets[t.name], a1 = sheet.A1 ? String(sheet.A1.v) : '', stockDate = null;
+    var dmy = function (txt) { var md = String(txt || '').match(/(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{2,4})/); if (!md) return null; var y = +md[3]; if (y < 100) y += 2500; if (y > 2400) y -= 543; return y + '-' + pad(+md[2]) + '-' + pad(+md[1]); };
+    stockDate = dmy(a1) || dmy(t.name);
+    if (!stockDate) { for (var ci = 0; ci < 6 && !stockDate; ci++) { var cell = sheet[XLSX.utils.encode_cell({ r: 0, c: ci })]; if (cell && typeof cell.v === 'number') { var dd = toDate(cell.v); if (dd) stockDate = ymd(dd); } } }
+    var h = t.header, find = function (names) { for (var i = 0; i < names.length; i++) { var k = h.indexOf(names[i]); if (k >= 0) return k; } return -1; };
+    var cB = find(['Barcode', 'Serial No.', 'Serial No']), cM = h.indexOf('Model'), cG = find(['Prod.Group', 'Product Category']), cBr = h.indexOf('Branch'), cQ = find(['Qty.', 'QTY', 'Qty']);
+    if (!/stock/i.test(a1) || !/\d/.test(a1)) a1 = stockDate ? 'Stock: ' + stockDate : a1;
     var match = makeMatcher(focus);
     var wToCode = {}; Object.keys(MAIN).forEach(function (k) { wToCode[MAIN[k].w] = k; });
     var poolSet = {}; POOL_EXTRA.forEach(function (w) { poolSet[w] = 1; }); Object.keys(MAIN).forEach(function (k) { poolSet[MAIN[k].w] = 1; });
