@@ -955,7 +955,8 @@ function itemMonthBox(){
 }
 /* ---------- BBY SC All Star (monthly ranking sent as an image, keyed in by the admin) ---------- */
 // team/allstar-m-YYYY-MM = {ym, reported (the % on the report), rows:[{r,n,s}], left:[names]}
-const AS_BOTTOM=6; // bottom 6 = the "รั้งท้าย" group under the red line
+const AS_BOTTOM_PCT=()=>cfg().allstarBottomPct??20; // "รั้งท้าย" group = bottom 20% of SCs with a score, rounded
+const asBottomN=n=>Math.round(n*AS_BOTTOM_PCT()/100);
 // names on the All Star report that differ from the HR nickname, or a nickname used in both teams: [team, roster name]
 const AS_MAP_DEFAULT={'เมย์ ชฎาพร':['UPC','เมย์'],'เมย์':['BKK','เมย์'],'ญ่า ธันวลัย':['BKK','ญ่า2']};
 const asMap=()=>Object.assign({},AS_MAP_DEFAULT,cfg().allstarMap||{});
@@ -963,7 +964,7 @@ const asDoc=ymk=>S.team[`allstar-m-${ymk}`]||null;
 const asMonths=()=>Object.keys(S.team).filter(k=>k.startsWith('allstar-m-')).map(k=>k.slice(10)).sort();
 function asMonth(ymk,scope=S.scope){
   const d=asDoc(ymk);if(!d)return null;
-  const rows=(d.rows||[]).filter(r=>r.s>0).sort((a,b)=>a.r-b.r),cut=Math.max(0,rows.length-AS_BOTTOM);
+  const rows=(d.rows||[]).filter(r=>r.s>0).sort((a,b)=>a.r-b.r),cut=Math.max(0,rows.length-asBottomN(rows.length));
   rows.forEach((r,i)=>{r.bottom=i>=cut;});
   const mine=scope==='SENIOR'?null:new Set(rosterFor(scope,ymk).flatMap(rosterKeys));
   const ro=scope==='SENIOR'?null:rosterFor(scope,ymk);
@@ -980,7 +981,7 @@ function asDetail(name){
   const pts=ms.map(m=>{const x=(asDoc(m).rows||[]).find(r=>nameKey(r.n)===k);return {ym:m,s:x&&x.s>0?x.s:null,r:x&&x.s>0?x.r:null,n:(asDoc(m).rows||[]).filter(r=>r.s>0).length};});
   const tr=trendEl(pts.map(p=>({m:+p.ym.slice(5),v:p.s,label:p.s==null?'–':p.s.toFixed(0)+'%',tone:p.s==null?'':tn(p.s,80,70)})),100);
   const tb=el('tbody');pts.slice().reverse().forEach((p,i,a)=>{const prev=a[i+1];tb.append(el('tr',{class:+p.ym.slice(5)===S.month?'cur':null},el('td',{},MONTHS[+p.ym.slice(5)-1]),el('td',{},p.s==null?'–':el('span',{class:'pill '+tn(p.s,80,70)},p.s.toFixed(2)+'%')),
-    el('td',{class:'num'},p.r==null?'–':`${p.r}/${p.n}`),el('td',{},p.r!=null&&prev&&prev.r!=null?rankEl(prev.r-p.r):'–'),el('td',{},p.r!=null&&p.r>p.n-AS_BOTTOM?el('span',{class:'pill bad'},'รั้งท้าย'):'')));});
+    el('td',{class:'num'},p.r==null?'–':`${p.r}/${p.n}`),el('td',{},p.r!=null&&prev&&prev.r!=null?rankEl(prev.r-p.r):'–'),el('td',{},p.r!=null&&p.r>p.n-asBottomN(p.n)?el('span',{class:'pill bad'},'รั้งท้าย'):'')));});
   sheet(`${name} · BBY SC All Star`,el('h3',{},'% Score รายเดือน'),tr,el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},el('th',{},'Month'),el('th',{},'% Score'),el('th',{},'อันดับ'),el('th',{},'เทียบเดือนก่อน'),el('th',{},''))),tb)));
 }
 const rankEl=d=>d>0?el('span',{class:'dl up'},`▲ ขึ้น ${d}`):d<0?el('span',{class:'dl down'},`▼ ลง ${-d}`):el('span',{class:'dl flat'},'● คงที่');
@@ -997,10 +998,10 @@ function allstarBox(){
   return el('div',{style:'display:flex;flex-direction:column;gap:10px'},
     late?el('div',{class:'banner'},`ยังไม่มีอันดับของ ${MONTHS[S.month-1]} แสดงของ ${MONTHS[+ymk.slice(5)-1]} แทน`):null,
     el('div',{class:'stats'},stat(fmt(a.reported,2)+'%',`ตามรายงาน · ${MONTHS[+ymk.slice(5)-1]} (ไม่นับกลุ่มรั้งท้าย)`),stat(fmt(a.all,2)+'%',`เฉลี่ยทุกคนที่มีคะแนน (${a.rows.length} คน)`),
-      isSr()?null:stat(a.teamAvg==null?'–':fmt(a.teamAvg,2)+'%',`เฉลี่ยทีม ${team()} (${a.team.length} คน)`),isSr()?null:stat(String(a.teamBottom),`คนในทีมที่อยู่กลุ่มรั้งท้าย ${AS_BOTTOM} อันดับ`)),
-    a.cut6!=null&&Math.abs(a.cut6-a.reported)>=0.01?el('div',{class:'small muted'},`ถ้าตัด ${AS_BOTTOM} อันดับล่างสุดพอดี จะได้ ${fmt(a.cut6,2)}% (รายงานเดือนนี้ตัด ${a.rows.length-(a.d.line||a.rows.length)} คน)`):null,
+      isSr()?null:stat(a.teamAvg==null?'–':fmt(a.teamAvg,2)+'%',`เฉลี่ยทีม ${team()} (${a.team.length} คน)`),isSr()?null:stat(String(a.teamBottom),`คนในทีมที่อยู่กลุ่มรั้งท้าย ${asBottomN(a.rows.length)} อันดับ (${AS_BOTTOM_PCT()}%)`)),
+    a.cut6!=null&&Math.abs(a.cut6-a.reported)>=0.01?el('div',{class:'small muted'},`ถ้าตัดกลุ่มรั้งท้าย ${AS_BOTTOM_PCT()}% (${asBottomN(a.rows.length)} จาก ${a.rows.length} คน) จะได้ ${fmt(a.cut6,2)}% · รายงานเดือนนี้ตัด ${a.rows.length-(a.d.line||a.rows.length)} คน`):null,
     isSr()?null:el('div',{class:'seg',style:'align-self:flex-start'},...[[false,`เฉพาะทีม ${team()}`],[true,'ทั้งหมด']].map(([v,l])=>el('button',{type:'button','aria-pressed':String(!!S.asAll===v),onclick:()=>{S.asAll=v;render();}},l))),
-    el('div',{class:'small muted'},'กดชื่อเพื่อดู % Score และอันดับทุกเดือน · แถวสีแดง = กลุ่มรั้งท้าย 6 อันดับล่างสุด'),
+    el('div',{class:'small muted'},`กดชื่อเพื่อดู % Score และอันดับทุกเดือน · แถวสีแดง = กลุ่มรั้งท้าย ${AS_BOTTOM_PCT()}% ล่างสุดของคนที่มีคะแนน`),
     list.length?el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},el('th',{},'Rank'),el('th',{class:'l'},'SC'),el('th',{},'% Score'),el('th',{},'เทียบเดือนก่อน'),el('th',{},''))),tb)):el('div',{class:'empty'},'ไม่มี SC ของทีมนี้ในอันดับ'),
     (a.d.left||[]).length?el('div',{class:'small muted'},`ลาออกแล้ว (0%): ${a.d.left.join(', ')}`):null);
 }
@@ -1013,9 +1014,9 @@ function allstarPaste(){
   const save=el('button',{class:'btn small',type:'button',onclick:async()=>{
     const rows=[],left=[];ta.value.split('\n').map(l=>l.trim()).filter(Boolean).forEach(l=>{const m=l.replace(/%/g,'').match(/^(?:\d+[\s.)]+)?(.+?)\s+(-?\d+(?:\.\d+)?)$/);if(!m)return;const s=+m[2],n=m[1].trim();if(s>0)rows.push({r:rows.length+1,n,s});else left.push(n);});
     if(!rows.length){out.textContent='อ่านรายการไม่ได้ ต้องเป็น "ชื่อ คะแนน" บรรทัดละคน';return;}
-    const sc=rows.map(r=>r.s),cut=Math.max(0,sc.length-AS_BOTTOM),calc=sc.slice(0,cut).reduce((a,b)=>a+b,0)/(cut||1);
-    try{await S.db.doc(`team/allstar-m-${mSel.value}`).set({ym:mSel.value,reported:rep.value===''?Math.round(calc*100)/100:+rep.value,rows,left,src:'paste',updatedAt:Date.now()});toast('บันทึก All Star แล้ว');out.textContent=`บันทึก ${rows.length} คน · ลาออก ${left.length} · ตัด ${AS_BOTTOM} อันดับล่างได้ ${calc.toFixed(2)}%`;}catch(e){out.textContent='บันทึกไม่สำเร็จ';}}},'บันทึก All Star');
-  return el('div',{class:'panel'},el('h3',{},'BBY SC All Star รายเดือน'),el('div',{class:'small muted'},'ใส่ตามรูปที่ได้รับ · % ตามรายงานคือตัวเลขบนหัวตาราง (เว้นว่าง = คำนวณจากการตัด 6 อันดับล่าง)'),
+    const sc=rows.map(r=>r.s),cut=Math.max(0,sc.length-asBottomN(sc.length)),calc=sc.slice(0,cut).reduce((a,b)=>a+b,0)/(cut||1);
+    try{await S.db.doc(`team/allstar-m-${mSel.value}`).set({ym:mSel.value,reported:rep.value===''?Math.round(calc*100)/100:+rep.value,rows,left,src:'paste',updatedAt:Date.now()});toast('บันทึก All Star แล้ว');out.textContent=`บันทึก ${rows.length} คน · ลาออก ${left.length} · ตัดกลุ่มรั้งท้ายได้ ${calc.toFixed(2)}%`;}catch(e){out.textContent='บันทึกไม่สำเร็จ';}}},'บันทึก All Star');
+  return el('div',{class:'panel'},el('h3',{},'BBY SC All Star รายเดือน'),el('div',{class:'small muted'},'ใส่ตามรูปที่ได้รับ · % ตามรายงานคือตัวเลขบนหัวตาราง (เว้นว่าง = คำนวณจากการตัดกลุ่มรั้งท้าย)'),
     el('label',{class:'row small'},'เดือน',mSel),el('label',{class:'row small'},'% ตามรายงาน',rep),ta,save,out);
 }
 
