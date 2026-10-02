@@ -147,6 +147,7 @@ td.cm{background:var(--accent-soft)}
 .scsum h4{margin:0 0 6px;font:600 13px var(--body)}
 .scsum ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px;font-size:13px}
 .scsum li{display:flex;justify-content:space-between;gap:10px;align-items:center}
+tr.asb td{background:var(--bad-bg)}
 .sortb{all:unset;cursor:pointer;font:inherit;letter-spacing:inherit;text-transform:inherit;color:inherit;white-space:nowrap} .sortb .arr{opacity:.5} .sortb.on{color:var(--accent)} .sortb.on .arr{opacity:1} .sortb:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 tr.click{cursor:pointer} tr.click:hover td{background:var(--accent-soft)} tr.click:focus-visible{outline:2px solid var(--accent)}
 .items tr.more{display:none} .items.all tr.more{display:table-row}
@@ -455,9 +456,9 @@ function viewOverview(){
     kpi({code:'4.1',w:'10%',name:'SC Exam',big:ok&&ex.avg!=null?ex.avg.toFixed(2):'–',tone:ok&&ex.avg!=null?tn(ex.avg,4,3.3):'none',cap:ok&&ex.people.length?'คะแนนเฉลี่ยทีม':'',
       rows:!ok?noData:ex.people.length?[['ได้ ≥4',`${ex.pass}/${ex.people.length} คน`]]:[['','ยังไม่มีคะแนนสอบเดือนนี้','mute']],
       rule:'SC Exam ≥4 ผ่าน = 5 · <3.3 ผ่าน = 3',tab:'team'}),
-    kpi({code:'4.2',w:'10%',name:'BBY SC All Star',big:allstar&&allstar.value!=null?fmt(allstar.value,1)+'%':'–',tone:allstar&&allstar.value!=null?tn(allstar.value,80,60):'none',
-      rows:[['',allstar?.note||'ประเมินสิ้นปี','mute']],
-      rule:'เฉลี่ย >80% = 5 · >70% = 4 · 60–70% = 3 · <60% = 0',tab:'team'})
+    (()=>{const y=asCurYM(),a=y?asMonth(y):null,ps=asMonths().filter(m=>y&&m<y),p=ps.length?asMonth(ps[ps.length-1]):null;return kpi({code:'4.2',w:'10%',name:'BBY SC All Star',big:a?fmt(a.reported,2)+'%':'–',tone:a?tn(a.reported,80,70):'none',cap:a?`${MONTHS[+y.slice(5)-1]} · ตามรายงาน`+(y!==curYM()?' (ยังไม่มีของเดือนนี้)':''):'',
+      rows:a?[p?['เทียบเดือนก่อน',`${a.reported-p.reported>=0?'+':''}${(a.reported-p.reported).toFixed(2)}`,a.reported-p.reported>=0?'good':'bad']:null,['เฉลี่ยทุกคน',fmt(a.all,2)+'%'],isSr()?null:[`ทีม ${team()} (${a.team.length} คน)`,a.teamAvg==null?'–':fmt(a.teamAvg,2)+'%'],isSr()?null:['ในกลุ่มรั้งท้าย',`${a.teamBottom} คน`,a.teamBottom?'bad':'good']]:[['','ยังไม่มีข้อมูล','mute']],
+      rule:'เฉลี่ย >80% = 5 · >70% = 4 · 60–70% = 3 · <60% = 0',tab:'team'});})()
   );
   return el('div',{class:'panel',style:'background:transparent;border:0;padding:0'},(!S.audit||!S.demand||!S.sales)?el('div',{class:'banner'},'ยังดึงข้อมูลจาก Google Sheet ไม่ครบ ตัวเลขบางข้อจึงยังเป็น 0'+(S.canAdmin?' · กดอัปเดตได้ที่แถบ Settings':'')):null,
     el('div',{class:'legend'},el('span',{},`${m} ${YEAR}`),stampTxt('อัปเดต',S.audit?.updatedAt),el('span',{class:'key good'},'ถึงเกณฑ์'),el('span',{class:'key warn'},'ใกล้เกณฑ์'),el('span',{class:'key bad'},'ต่ำกว่าเกณฑ์')),box,trendBox(),actionBox());
@@ -690,7 +691,7 @@ function viewTeam(){
   return el('div',{class:'panel'},el('h2',{},`4.1 SC Exam · ${MONTHS[S.month-1]} ${YEAR}`),needSync('audit'),stampTxt('ข้อมูลจากชีทประเมิน SC อัปเดต',S.audit?.updatedAt),
     el('div',{class:'stats'},stat(ex.avg==null?'–':ex.avg.toFixed(2),'คะแนนเฉลี่ยทีม'),stat(`${ex.pass}/${ex.people.length}`,'SC ที่ได้ ≥4')),el('div',{class:'small muted'},'กดชื่อเพื่อดูคะแนนแต่ละครั้งและแนวโน้ม'),
     ex.people.length?el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},el('th',{},'SC'),el('th',{},'Exam avg'),el('th',{},'Entries'))),tb)):el('div',{class:'empty'},'ยังไม่มีคะแนนสอบในเดือนนี้'),
-    el('h2',{},`4.2 BBY SC All Star · ${YEAR}`),el('div',{},a&&a.value!=null?el('span',{class:'pill good'},`${fmt(a.value,1)}%`):el('span',{class:'muted'},'ประเมินปีละครั้งตอนสิ้นปี')),a?.note?el('div',{class:'small muted'},a.note):null);
+    el('h2',{},`4.2 BBY SC All Star · ${MONTHS[S.month-1]} ${YEAR}`),allstarBox());
 }
 
 /* ---------- Settings (admin) ---------- */
@@ -769,6 +770,7 @@ function viewSettings(){
     closed?el('div',{class:'small muted'},'เดือนนี้ปิดแล้ว ใช้เป้าจากไฟล์ยอดขาย'):el('div',{class:'small muted'},'ใส่ตามแดชบอร์ดยอดขายหลัก · เป้าอีเว้นท์รวมจะหารเท่ากันตามจำนวนอีเว้นท์ที่มียอดในเดือนนั้น แล้วบวกเข้าทีมเจ้าของอีเว้นท์'),
     el('label',{class:'row small'},'BKK (สาขา)',tB),el('label',{class:'row small'},'UPC (สาขา)',tU),el('label',{class:'row small'},'Event รวม',tE),
     el('button',{class:'btn small',type:'button',disabled:closed||null,onclick:()=>saveCfg(c=>{c.liveTargets=c.liveTargets||{};const n=v=>v.value===''?null:+v.value;c.liveTargets[id]={BKK:n(tB),UPC:n(tU),event:n(tE)};})},'บันทึกเป้า')));
+  wrap.append(allstarPaste());
   {const ymk=curYM(),rows=cfg().supervisors.map(sv=>{const o=dayOffFor(sv.scope,ymk);return {sv,off:el('input',{type:'text',value:o.off.join(' '),placeholder:'เช่น 1 2 7 8'}),sick:el('input',{type:'text',value:o.sick.join(' '),placeholder:'เช่น 17'})};});
     const days=v=>[...new Set(v.split(/[\s,]+/).map(Number).filter(n=>Number.isInteger(n)&&n>=1&&n<=31))].sort((a,b)=>a-b);
     wrap.append(el('div',{class:'panel'},el('h3',{},`Day Off · ${MONTHS[S.month-1]} ${YEAR}`),el('div',{class:'small muted'},'ใส่วันที่ เว้นวรรคหรือคั่นด้วย , · แสดงเป็นช่องสีแดงอ่อนในปฏิทิน Visit'),
@@ -951,6 +953,72 @@ function itemMonthBox(){
   return el('section',{},el('h3',{},`คะแนนรายหัวข้อย้อนหลัง · ${MONTHS[ms[0]-1]}–${MONTHS[S.month-1]}`),el('div',{class:'small muted'},'คะแนนเฉลี่ยของทีมรายเดือน · เปลี่ยนแปลง = เดือนล่าสุดที่มีข้อมูล − เดือนแรก · ค่าเริ่มต้นเรียงหัวข้อที่แย่ลงมากที่สุดก่อน'),
     el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},th('l','หัวข้อ','l'),...ms.map((m,i)=>th(i,MONTHS[m-1])),th('chg','เปลี่ยนแปลง'))),tb)));
 }
+/* ---------- BBY SC All Star (monthly ranking sent as an image, keyed in by the admin) ---------- */
+// team/allstar-m-YYYY-MM = {ym, reported (the % on the report), rows:[{r,n,s}], left:[names]}
+const AS_BOTTOM=6; // bottom 6 = the "รั้งท้าย" group under the red line
+// names on the All Star report that differ from the HR nickname, or a nickname used in both teams: [team, roster name]
+const AS_MAP_DEFAULT={'เมย์ ชฎาพร':['UPC','เมย์'],'เมย์':['BKK','เมย์'],'ญ่า ธันวลัย':['BKK','ญ่า2']};
+const asMap=()=>Object.assign({},AS_MAP_DEFAULT,cfg().allstarMap||{});
+const asDoc=ymk=>S.team[`allstar-m-${ymk}`]||null;
+const asMonths=()=>Object.keys(S.team).filter(k=>k.startsWith('allstar-m-')).map(k=>k.slice(10)).sort();
+function asMonth(ymk,scope=S.scope){
+  const d=asDoc(ymk);if(!d)return null;
+  const rows=(d.rows||[]).filter(r=>r.s>0).sort((a,b)=>a.r-b.r),cut=Math.max(0,rows.length-AS_BOTTOM);
+  rows.forEach((r,i)=>{r.bottom=i>=cut;});
+  const mine=scope==='SENIOR'?null:new Set(rosterFor(scope,ymk).flatMap(rosterKeys));
+  const ro=scope==='SENIOR'?null:rosterFor(scope,ymk);
+  const map=asMap();
+  const inTeam=r=>{if(!mine)return true;const m=map[r.n];if(m)return m[0]===scope&&ro.some(x=>nameKey(x.name)===nameKey(m[1]));return mine.has(nameKey(r.n))||ro.some(x=>canonOf(r.n,ro)===nameKey(x.name));};
+  const team=rows.filter(inTeam),avg=xs=>xs.length?xs.reduce((a,r)=>a+r.s,0)/xs.length:null;
+  return {d,rows,team,reported:d.reported??avg(rows.slice(0,cut)),cut6:avg(rows.slice(0,cut)),all:avg(rows),teamAvg:avg(team),teamBottom:team.filter(r=>r.bottom).length};
+}
+// latest All Star month at or before the selected month
+const asCurYM=()=>asMonths().filter(m=>m<=curYM()).pop()||null;
+function asPrevRank(name,ymk){const ms=asMonths().filter(m=>m<ymk),p=ms[ms.length-1];if(!p)return null;const x=(asDoc(p).rows||[]).find(r=>r.s>0&&nameKey(r.n)===nameKey(name));return x?x.r:null;}
+function asDetail(name){
+  const ms=asMonths(),k=nameKey(name);
+  const pts=ms.map(m=>{const x=(asDoc(m).rows||[]).find(r=>nameKey(r.n)===k);return {ym:m,s:x&&x.s>0?x.s:null,r:x&&x.s>0?x.r:null,n:(asDoc(m).rows||[]).filter(r=>r.s>0).length};});
+  const tr=trendEl(pts.map(p=>({m:+p.ym.slice(5),v:p.s,label:p.s==null?'–':p.s.toFixed(0)+'%',tone:p.s==null?'':tn(p.s,80,70)})),100);
+  const tb=el('tbody');pts.slice().reverse().forEach((p,i,a)=>{const prev=a[i+1];tb.append(el('tr',{class:+p.ym.slice(5)===S.month?'cur':null},el('td',{},MONTHS[+p.ym.slice(5)-1]),el('td',{},p.s==null?'–':el('span',{class:'pill '+tn(p.s,80,70)},p.s.toFixed(2)+'%')),
+    el('td',{class:'num'},p.r==null?'–':`${p.r}/${p.n}`),el('td',{},p.r!=null&&prev&&prev.r!=null?rankEl(prev.r-p.r):'–'),el('td',{},p.r!=null&&p.r>p.n-AS_BOTTOM?el('span',{class:'pill bad'},'รั้งท้าย'):'')));});
+  sheet(`${name} · BBY SC All Star`,el('h3',{},'% Score รายเดือน'),tr,el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},el('th',{},'Month'),el('th',{},'% Score'),el('th',{},'อันดับ'),el('th',{},'เทียบเดือนก่อน'),el('th',{},''))),tb)));
+}
+const rankEl=d=>d>0?el('span',{class:'dl up'},`▲ ขึ้น ${d}`):d<0?el('span',{class:'dl down'},`▼ ลง ${-d}`):el('span',{class:'dl flat'},'● คงที่');
+function allstarBox(){
+  const ymk=asCurYM();
+  if(!ymk)return el('div',{class:'empty'},'ยังไม่มีข้อมูล All Star');
+  const a=asMonth(ymk),showAll=isSr()||S.asAll;
+  const list=showAll?a.rows:a.team,tb=el('tbody');
+  list.forEach(r=>{const p=asPrevRank(r.n,ymk),inT=a.team.includes(r);
+    const tr=el('tr',{class:'click'+(r.bottom?' asb':''),tabindex:'0',onclick:()=>asDetail(r.n)},el('td',{class:'num'},String(r.r)),el('td',{class:'l'},el('b',{},r.n),!isSr()&&showAll&&inT?el('span',{class:'pill',style:'margin-left:6px'},team()):null),
+      el('td',{},el('span',{class:'pill '+tn(r.s,80,70)},r.s.toFixed(2)+'%')),el('td',{},p==null?el('span',{class:'muted small',title:'เดือนก่อนไม่มีอันดับ'},'–'):rankEl(p-r.r)),el('td',{},r.bottom?el('span',{class:'pill bad'},'รั้งท้าย'):''));
+    tr.addEventListener('keydown',e=>{if(e.key==='Enter')tr.click();});tb.append(tr);});
+  const late=ymk!==curYM();
+  return el('div',{style:'display:flex;flex-direction:column;gap:10px'},
+    late?el('div',{class:'banner'},`ยังไม่มีอันดับของ ${MONTHS[S.month-1]} แสดงของ ${MONTHS[+ymk.slice(5)-1]} แทน`):null,
+    el('div',{class:'stats'},stat(fmt(a.reported,2)+'%',`ตามรายงาน · ${MONTHS[+ymk.slice(5)-1]} (ไม่นับกลุ่มรั้งท้าย)`),stat(fmt(a.all,2)+'%',`เฉลี่ยทุกคนที่มีคะแนน (${a.rows.length} คน)`),
+      isSr()?null:stat(a.teamAvg==null?'–':fmt(a.teamAvg,2)+'%',`เฉลี่ยทีม ${team()} (${a.team.length} คน)`),isSr()?null:stat(String(a.teamBottom),`คนในทีมที่อยู่กลุ่มรั้งท้าย ${AS_BOTTOM} อันดับ`)),
+    a.cut6!=null&&Math.abs(a.cut6-a.reported)>=0.01?el('div',{class:'small muted'},`ถ้าตัด ${AS_BOTTOM} อันดับล่างสุดพอดี จะได้ ${fmt(a.cut6,2)}% (รายงานเดือนนี้ตัด ${a.rows.length-(a.d.line||a.rows.length)} คน)`):null,
+    isSr()?null:el('div',{class:'seg',style:'align-self:flex-start'},...[[false,`เฉพาะทีม ${team()}`],[true,'ทั้งหมด']].map(([v,l])=>el('button',{type:'button','aria-pressed':String(!!S.asAll===v),onclick:()=>{S.asAll=v;render();}},l))),
+    el('div',{class:'small muted'},'กดชื่อเพื่อดู % Score และอันดับทุกเดือน · แถวสีแดง = กลุ่มรั้งท้าย 6 อันดับล่างสุด'),
+    list.length?el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},el('th',{},'Rank'),el('th',{class:'l'},'SC'),el('th',{},'% Score'),el('th',{},'เทียบเดือนก่อน'),el('th',{},''))),tb)):el('div',{class:'empty'},'ไม่มี SC ของทีมนี้ในอันดับ'),
+    (a.d.left||[]).length?el('div',{class:'small muted'},`ลาออกแล้ว (0%): ${a.d.left.join(', ')}`):null);
+}
+function allstarPaste(){
+  // admin: paste the ranking as "ชื่อ คะแนน" one per line (rank = line order)
+  const mSel=el('select',{},...MONTHS.map((m,i)=>el('option',{value:ym(i+1),selected:i+1===S.month?true:null},`${m} ${YEAR}`)));
+  const rep=el('input',{type:'number',step:'0.01',placeholder:'เช่น 81.06'}),ta=el('textarea',{rows:8,style:'width:100%',placeholder:'วางตามลำดับอันดับ บรรทัดละคน เช่น\nหนิง 95.15\nกิ้ฟ 92.80\n...\nคนที่ลาออก (0%) ใส่ 0'});
+  const fill=()=>{const d=asDoc(mSel.value);rep.value=d?.reported??'';ta.value=d?[...(d.rows||[]).map(r=>`${r.n} ${r.s}`),...(d.left||[]).map(n=>`${n} 0`)].join('\n'):'';};fill();mSel.addEventListener('change',fill);
+  const out=el('div',{class:'small muted'});
+  const save=el('button',{class:'btn small',type:'button',onclick:async()=>{
+    const rows=[],left=[];ta.value.split('\n').map(l=>l.trim()).filter(Boolean).forEach(l=>{const m=l.replace(/%/g,'').match(/^(?:\d+[\s.)]+)?(.+?)\s+(-?\d+(?:\.\d+)?)$/);if(!m)return;const s=+m[2],n=m[1].trim();if(s>0)rows.push({r:rows.length+1,n,s});else left.push(n);});
+    if(!rows.length){out.textContent='อ่านรายการไม่ได้ ต้องเป็น "ชื่อ คะแนน" บรรทัดละคน';return;}
+    const sc=rows.map(r=>r.s),cut=Math.max(0,sc.length-AS_BOTTOM),calc=sc.slice(0,cut).reduce((a,b)=>a+b,0)/(cut||1);
+    try{await S.db.doc(`team/allstar-m-${mSel.value}`).set({ym:mSel.value,reported:rep.value===''?Math.round(calc*100)/100:+rep.value,rows,left,src:'paste',updatedAt:Date.now()});toast('บันทึก All Star แล้ว');out.textContent=`บันทึก ${rows.length} คน · ลาออก ${left.length} · ตัด ${AS_BOTTOM} อันดับล่างได้ ${calc.toFixed(2)}%`;}catch(e){out.textContent='บันทึกไม่สำเร็จ';}}},'บันทึก All Star');
+  return el('div',{class:'panel'},el('h3',{},'BBY SC All Star รายเดือน'),el('div',{class:'small muted'},'ใส่ตามรูปที่ได้รับ · % ตามรายงานคือตัวเลขบนหัวตาราง (เว้นว่าง = คำนวณจากการตัด 6 อันดับล่าง)'),
+    el('label',{class:'row small'},'เดือน',mSel),el('label',{class:'row small'},'% ตามรายงาน',rep),ta,save,out);
+}
+
 /* --- Overview: things to act on + monthly trends --- */
 function actionBox(){
   if(!peopleOK())return null;
@@ -980,9 +1048,10 @@ function trendBox(){
   const E=ms.map(m=>withMonth(m,()=>{const s=examStats();return {m,v:s.avg,label:s.avg==null?'–':s.avg.toFixed(2),tone:s.avg==null?'':tn(s.avg,4,3.3)};}));
   const D=ms.map(m=>withMonth(m,()=>{const s=demandStats();return {m,v:s.times,label:String(s.times),tone:tn(s.times,8,1)};}));
   const L=ms.map(m=>withMonth(m,()=>{const s=lagStats([...visitsMonth(),...auditsMonth()]);return {m,v:s?s.avg:null,label:s?s.avg.toFixed(1):'–',tone:s?(s.avg<=3?'good':s.avg<=LATE?'warn':'bad'):''};}));
+  const AS=ms.map(m=>{const y=ym(m),a=asDoc(y)?asMonth(y):null,v=a?(isSr()?a.reported:a.teamAvg):null;return {m,v,label:v==null?'–':v.toFixed(0)+'%',tone:v==null?'':tn(v,80,70)};});
   const card=(t,rows,max,sub)=>el('div',{class:'tcard'},el('div',{class:'small'},el('b',{},t)),sub?el('div',{class:'small muted'},sub):null,trendEl(rows,max));
   return el('section',{class:'panel'},el('h2',{},'แนวโน้มรายเดือน'),el('div',{class:'small muted'},`ตั้งแต่ ${MONTHS[ms[0]-1]} · เดือนที่เลือกเป็นสีเข้ม`),
-    el('div',{class:'tgrid'},card('Visit · สาขาที่เข้าแล้ว',V,1),card('SC Audit · SC ที่ประเมินแล้ว',A,1),card('คะแนน Audit เฉลี่ย',Q,5,'เต็ม 5'),card('SC Exam เฉลี่ย',E,5,'เต็ม 5'),card('Product Demand · ครั้ง',D,Math.max(8,...D.map(x=>x.v||0))),card('ลงฟอร์มหลังวันที่ไปจริง · วัน',L,Math.max(LATE*2,...L.map(x=>x.v||0)),'ยิ่งน้อยยิ่งดี')));
+    el('div',{class:'tgrid'},card('Visit · สาขาที่เข้าแล้ว',V,1),card('SC Audit · SC ที่ประเมินแล้ว',A,1),card('คะแนน Audit เฉลี่ย',Q,5,'เต็ม 5'),card('SC Exam เฉลี่ย',E,5,'เต็ม 5'),card(isSr()?'BBY SC All Star · ตามรายงาน':`BBY SC All Star · เฉลี่ยทีม ${team()}`,AS,100),card('Product Demand · ครั้ง',D,Math.max(8,...D.map(x=>x.v||0))),card('ลงฟอร์มหลังวันที่ไปจริง · วัน',L,Math.max(LATE*2,...L.map(x=>x.v||0)),'ยิ่งน้อยยิ่งดี')));
 }
 
 /* --- demand by model --- */
