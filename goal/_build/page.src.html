@@ -414,7 +414,10 @@ function auditStats(){
 function visitStats(){
   const all=visitsMonth(),recs=all.filter(v=>!v.x),extra=all.filter(v=>v.x),br=mainIn(team()),by={};recs.forEach(v=>{const k=v.br||v.brRaw;by[k]=(by[k]||0)+1;});
   const total=br.reduce((a,b)=>a+(by[b]||0),0);
-  return {recs,all,extra,br,by,visited:br.filter(b=>by[b]).length,total,avg:br.length?total/br.length:null,visitOnly:recs.filter(v=>!v.audits).length,other:recs.filter(v=>!v.br||!MAIN[v.br]).length};
+  const full=br.filter(b=>(by[b]||0)>=3).length;
+  // KPI rule is per branch (≥3 visits = 5): green only when every branch has 3, amber when every branch has at least 1
+  const tone=!br.length?'none':full===br.length?'good':br.every(b=>by[b])?'warn':'bad';
+  return {full,tone,recs,all,extra,br,by,visited:br.filter(b=>by[b]).length,total,avg:br.length?total/br.length:null,visitOnly:recs.filter(v=>!v.audits&&MAIN[v.br]&&br.includes(v.br)).length,other:recs.filter(v=>!v.br||!MAIN[v.br]).length};
 }
 function examStats(){
   const recs=auditsMonth().filter(a=>a.exam!=null);const per={};
@@ -492,9 +495,9 @@ function viewOverview(){
       bar:fs?barEl(fs.avg):null,
       rows:fs?[['สาขาที่ได้ 90%+',`${fs.pass}/${fs.br.length}`],['สต็อก ณ',thDate(fs.f.s.stockDate)+(fs.f.inMonth?'':' (เดือนก่อน)'),fs.f.inMonth?null:'warn']]:[['','ยังไม่มีไฟล์สต็อก','mute']],
       rule:'>90% = 5 · 85% = 4 · 80% = 3 · <80% = 0',tab:'focus'}),
-    kpi({code:'3.2',w:'5%',name:'Visit & Coaching',big:ok?`${vs.visited}/${vs.br.length} สาขา`:'–',tone:ok&&vs.br.length?tn(vs.visited/vs.br.length,1,.5):'none',cap:ok?'สาขาที่เข้าแล้วเดือนนี้':'',
+    kpi({code:'3.2',w:'5%',name:'Visit & Coaching',big:ok?`${vs.visited}/${vs.br.length} สาขา`:'–',tone:ok?vs.tone:'none',cap:ok?'สาขาที่เข้าแล้วเดือนนี้':'',
       bar:ok?barEl(vs.br.length?vs.visited/vs.br.length:0):null,
-      rows:ok?[['จำนวนครั้ง',`${vs.total}`],['เฉลี่ยต่อสาขา',vs.avg==null?'–':vs.avg.toFixed(1)],['Visit อย่างเดียว',`${vs.visitOnly}`],isSr()&&vs.extra.length?['UPC (ไม่นับ KPI)',`${vs.extra.length}`,'mute']:null]:noData,
+      rows:ok?[['สาขาที่ครบ 3 ครั้ง',`${vs.full}/${vs.br.length}`,vs.full===vs.br.length?'good':'warn'],['จำนวนครั้ง',`${vs.total}`],['เฉลี่ยต่อสาขา',vs.avg==null?'–':vs.avg.toFixed(1)],['Visit อย่างเดียว',`${vs.visitOnly}`],isSr()&&vs.extra.length?['UPC (ไม่นับ KPI)',`${vs.extra.length}`,'mute']:null]:noData,
       rule:'≥3 ครั้ง/สาขา = 5 · 2 ครั้ง = 4 · 1 ครั้ง = 1',tab:'visit'}),
     kpi({code:'3.3',w:'5%',name:'SC Audit',big:ok?`${as.c1}/${as.ro.length} คน`:'–',tone:ok&&as.ro.length?tn(as.c1/as.ro.length,1,.5):'none',cap:ok?'SC ที่ประเมินแล้วเดือนนี้':'',
       bar:ok?barEl(as.ro.length?as.c1/as.ro.length:0):null,
@@ -665,7 +668,7 @@ function viewVisit(){
   const list=el('div',{});st.all.slice().sort((a,b)=>b.d.localeCompare(a.d)).forEach(v=>list.append(visitCard(v)));
   const logs=(S.audit?.logs||[]).filter(l=>l.scope===team()&&l.ym===curYM()&&evOK(l.ev)).sort((a,b)=>b.d.localeCompare(a.d));
   return el('div',{class:'panel'},el('h2',{},`Visit · ${MONTHS[S.month-1]} ${YEAR}`),needSync('audit'),stampTxt('ข้อมูลจากชีทประเมิน SC อัปเดต',S.audit?.updatedAt),
-    el('div',{class:'stats'},stat(`${st.visited}/${st.br.length}`,'สาขาที่เข้าแล้ว'),stat(String(st.total),'จำนวนครั้ง'),stat(st.avg==null?'–':st.avg.toFixed(1),'เฉลี่ยต่อสาขา'),stat(String(st.visitOnly),'Visit อย่างเดียว'),stat(ls?`${ls.avg.toFixed(1)} วัน`:'–',ls?`ลงฟอร์มหลังวันที่ไปจริง (เฉลี่ย) · ช้าเกิน ${LATE} วัน ${ls.late}/${ls.n}`:'ลงฟอร์มหลังวันที่ไปจริง')),
+    el('div',{class:'stats'},stat(`${st.visited}/${st.br.length}`,'สาขาที่เข้าแล้ว'),stat(String(st.total),'จำนวนครั้ง'),stat(st.avg==null?'–':st.avg.toFixed(1),'เฉลี่ยต่อสาขา'),stat(`${st.full}/${st.br.length}`,'สาขาที่ครบ 3 ครั้ง (เกณฑ์ KPI)'),stat(String(st.visitOnly),'Visit อย่างเดียว'),stat(ls?`${ls.avg.toFixed(1)} วัน`:'–',ls?`ลงฟอร์มหลังวันที่ไปจริง (เฉลี่ย) · ช้าเกิน ${LATE} วัน ${ls.late}/${ls.n}`:'ลงฟอร์มหลังวันที่ไปจริง')),
     el('div',{class:'legend'},el('span',{class:'key good'},'≥3 ครั้ง'),el('span',{class:'key warn'},'1–2 ครั้ง'),el('span',{class:'key bad'},'ยังไม่เข้า')),chips,
     el('div',{class:'small muted'},'กดสาขาเพื่อดูประวัติ Visit · 1 Visit = คนเดียว สาขาเดียว วันเดียว · นับทุกรายการ Onsite ในชีทประเมิน'+(isSr()?' · การลงพื้นที่ UPC แสดงไว้แต่ไม่นับ KPI':'')),
     el('h3',{},'รายการ Visit'),el('div',{class:'small muted'},'กดที่รายการที่มีความเห็นเพื่ออ่าน'),
@@ -1073,7 +1076,9 @@ function allstarPaste(){
 const TROPHY_SVG=`<svg viewBox="0 0 200 240" role="img" aria-label="BBY All Star trophy"><defs><linearGradient id="tg" x1="0" x2="1"><stop offset="0" stop-color="#8A6414"/><stop offset=".35" stop-color="#F6D77A"/><stop offset=".55" stop-color="#FFF1B8"/><stop offset=".75" stop-color="#E2B84A"/><stop offset="1" stop-color="#8A6414"/></linearGradient><linearGradient id="tgv" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FCE79A"/><stop offset="1" stop-color="#B88A24"/></linearGradient><linearGradient id="tgb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2F3A33"/><stop offset="1" stop-color="#17211C"/></linearGradient></defs><path d="M52 40 C20 40 18 92 62 104" fill="none" stroke="url(#tgv)" stroke-width="10" stroke-linecap="round"/><path d="M148 40 C180 40 182 92 138 104" fill="none" stroke="url(#tgv)" stroke-width="10" stroke-linecap="round"/><path d="M48 24 H152 V60 C152 100 130 124 100 128 C70 124 48 100 48 60 Z" fill="url(#tg)" stroke="#8A6414" stroke-width="2"/><ellipse cx="100" cy="24" rx="52" ry="7" fill="#FFF1B8" stroke="#8A6414" stroke-width="2"/><path d="M100 44 l7 14 15 2 -11 10 3 15 -14 -7 -14 7 3 -15 -11 -10 15 -2 z" fill="#FFF8DA" stroke="#B88A24" stroke-width="1.5"/><rect x="90" y="128" width="20" height="26" fill="url(#tg)" stroke="#8A6414" stroke-width="2"/><path d="M70 154 H130 L136 172 H64 Z" fill="url(#tg)" stroke="#8A6414" stroke-width="2"/><rect x="54" y="172" width="92" height="44" rx="5" fill="url(#tgb)"/><rect x="64" y="180" width="72" height="28" rx="3" fill="url(#tg)"/><text x="100" y="193" text-anchor="middle" font-family="Chakra Petch,Arial,sans-serif" font-weight="700" font-size="13" fill="#3A2A05">BBY</text><text x="100" y="204" text-anchor="middle" font-family="Chakra Petch,Arial,sans-serif" font-weight="700" font-size="8" letter-spacing="1" fill="#3A2A05">ALL STAR</text></svg>`;
 const trophyEl=cls=>{const d=el('div',{class:cls||'trophy'});d.innerHTML=TROPHY_SVG;return d;};
 // which team a league name belongs to in a month (All Star map first, then the HR roster)
-function asTeamOf(name,ymk){const m=asMap()[name];if(m)return m[0];const k=nameKey(name);for(const sc of ['BKK','UPC']){const ro=rosterFor(sc,ymk);if(ro.some(x=>nameKey(x.name)===k||canonOf(name,ro)===nameKey(x.name)))return sc;}return null;}
+function asTeamOf(name,ymk){const m=asMap()[name];if(m)return m[0];const k=nameKey(name);for(const sc of ['BKK','UPC']){const ro=rosterFor(sc,ymk);if(ro.some(x=>nameKey(x.name)===k||canonOf(name,ro)===nameKey(x.name)))return sc;}
+  // not on the roster that month (e.g. still inside the 14-day grace): fall back to the HR sheet when the nickname is unique
+  const hr=[...new Set((S.staff?.people||[]).filter(p=>nameKey(p.name)===k).map(p=>p.scope))];return hr.length===1?hr[0]:null;}
 function leagueData(ymk){
   const ms=asMonths().filter(m=>m<=ymk),cur=asMonth(ymk,'SENIOR');if(!cur)return null;
   const byM={};ms.forEach(m=>{const a=asMonth(m,'SENIOR');byM[m]={rows:a.rows,map:Object.fromEntries(a.rows.map(r=>[nameKey(r.n),r]))};});
@@ -1168,7 +1173,7 @@ function actionBox(){
 function trendBox(){
   if(!peopleOK())return null;
   const ms=peopleMonths();if(ms.length<2)return null;
-  const V=ms.map(m=>withMonth(m,()=>{const s=visitStats();return {m,v:s.br.length?s.visited/s.br.length:null,label:`${s.visited}/${s.br.length}`,tone:tn(s.br.length?s.visited/s.br.length:null,1,.5)};}));
+  const V=ms.map(m=>withMonth(m,()=>{const s=visitStats();return {m,v:s.br.length?s.visited/s.br.length:null,label:`${s.visited}/${s.br.length}`,tone:s.tone==='none'?'':s.tone};}));
   const A=ms.map(m=>withMonth(m,()=>{const s=auditStats();return {m,v:s.ro.length?s.c1/s.ro.length:null,label:`${s.c1}/${s.ro.length}`,tone:tn(s.ro.length?s.c1/s.ro.length:null,1,.5)};}));
   const Q=ms.map(m=>withMonth(m,()=>{const s=auditStats();return {m,v:s.avg,label:s.avg==null?'–':s.avg.toFixed(2),tone:s.avg==null?'':tn(s.avg/5,.8,.6)};}));
   const E=ms.map(m=>withMonth(m,()=>{const s=examStats();return {m,v:s.avg,label:s.avg==null?'–':s.avg.toFixed(2),tone:s.avg==null?'':tn(s.avg,4,3.3)};}));

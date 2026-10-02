@@ -123,7 +123,7 @@ var GSProc = (function () {
       else if (x.indexOf('ข้อเสนอแนะ') >= 0) { noteCols.push(i); noteFrom.push(/Director/i.test(x) ? 'Director' : /พนักงาน/.test(x) ? 'SC' : ''); }
     });
     var diag = { sheet: t.name, total: 0, inYear: 0, audits: 0, visitOnly: 0, otherEvaluator: 0, crossScope: 0, unknownEvaluators: {}, unknownBranches: {}, monthDateMismatch: 0, scoreCols: scoreCols.length, examCols: examCols.length, items: items };
-    var audits = [], visitMap = {}, logs = [];
+    var audits = [], visitMap = {}, logs = [], auditIdx = {}; diag.resubmitted = 0;
     t.rows.forEach(function (r) {
       if (!r || r.every(function (v) { return v == null || v === ''; })) return;
       diag.total++;
@@ -152,18 +152,21 @@ var GSProc = (function () {
       var isAudit = sc && !/ไม่ได้ประเมิน|visit|^-$/i.test(sc) && (scores.length > 0 || exams.length > 0);
       var notes = noteCols.map(function (i, j) { var x = norm(r[i]); return x ? { f: noteFrom[j], t: x.slice(0, 400) } : null; }).filter(Boolean);
       var note = notes.map(function (x) { return x.t; }).join(' / ').slice(0, 240);
+      // the same SC, same day, same evaluator sent twice = a corrected resubmission: keep the later one only
+      var aKey = (d ? ymd(d) : '') + '|' + sc.replace(/\s+/g, '') + '|' + evName, resub = isAudit && auditIdx[aKey] != null;
       if (isAudit) {
-        diag.audits++;
-        audits.push({ d: d ? ymd(d) : null, ym: ymAudit, sc: sc, br: br, brRaw: br ? undefined : brRaw, ev: evName, scope: scope,
+        if (resub) diag.resubmitted++; else diag.audits++;
+        var aRec = ({ d: d ? ymd(d) : null, ym: ymAudit, sc: sc, br: br, brRaw: br ? undefined : brRaw, ev: evName, scope: scope,
           avg: scores.length ? Math.round(scores.reduce(function (a, b) { return a + b; }, 0) / scores.length * 100) / 100 : null, n: scores.length,
           exam: exams.length ? Math.round(exams.reduce(function (a, b) { return a + b; }, 0) / exams.length * 100) / 100 : null,
           online: online || undefined, x: cross ? 1 : undefined, lag: lag == null ? undefined : lag, note: note || undefined, s: scores.length ? sArr : undefined, notes: notes.length ? notes : undefined });
+        if (resub) audits[auditIdx[aKey]] = aRec; else { auditIdx[aKey] = audits.length; audits.push(aRec); }
       } else diag.visitOnly++;
       // Every onsite row is a store visit: one per evaluator + branch + day
       if (!online && d && (br || brRaw)) {
         var k = scope + '|' + evName + '|' + (br || brRaw) + '|' + ymd(d);
         var v = visitMap[k] || (visitMap[k] = { d: ymd(d), ym: ymd(d).slice(0, 7), br: br, brRaw: br ? undefined : brRaw, ev: evName, scope: scope, x: cross ? 1 : undefined, audits: 0 });
-        if (isAudit) v.audits++;
+        if (isAudit && !resub) v.audits++;
         if (lag != null && (v.lag == null || lag < v.lag)) v.lag = lag;
         notes.forEach(function (n) { var t = n.t.slice(0, 300); v.notes = v.notes || []; if (!v.notes.some(function (o) { return o.t === t; })) v.notes.push({ f: n.f, t: t, sc: isAudit ? sc : undefined }); });
       } else if (!online && d && notes.length) {
