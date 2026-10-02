@@ -382,7 +382,11 @@ function stockFor(){
   const s=list[0]||null;return s?{s,inMonth:s.stockDate.startsWith(curYM())}:null;
 }
 function focusStats(){
-  const f=stockFor();if(!f)return null;const br=mainIn(S.scope).map(k=>({code:k,...f.s.branches[k]})).filter(b=>b.req);
+  const f=stockFor();if(!f)return null;const X=cfg().focusExclude||{};
+  // drop items a branch does not carry (config focusExclude) even from stock files saved before the rule
+  const br=mainIn(S.scope).map(k=>{const b={code:k,...f.s.branches[k]},ex=X[k]||[];if(!ex.length||!b.req)return b;
+    const inHave=b.have.filter(h=>ex.includes(h[0])),inEx=b.exempt.filter(i=>ex.includes(i)),inMiss=b.missing.filter(i=>ex.includes(i)),n=inHave.length+inEx.length+inMiss.length;
+    return {...b,have:b.have.filter(h=>!ex.includes(h[0])),exempt:b.exempt.filter(i=>!ex.includes(i)),missing:b.missing.filter(i=>!ex.includes(i)),req:b.req-n,ok:b.ok-inHave.length-inEx.length,pcs:b.pcs-inHave.reduce((a,h)=>a+h[1],0),skip:ex};}).filter(b=>b.req);
   const avg=br.length?br.reduce((a,b)=>a+b.ok/b.req,0)/br.length:null;
   return {f,br,avg,pass:br.filter(b=>b.ok/b.req>=0.9).length};
 }
@@ -641,6 +645,7 @@ function viewFocus(){
   const detail=b=>el('div',{class:'body'},
         el('div',{class:'grp g-miss'},el('h4',{class:'h-miss'},`ขาด (${b.missing.length})`),b.missing.length?el('ul',{},...b.missing.map(i=>{const p=poolOf(i);return el('li',{},el('span',{},lbl(i)),p==null?null:tag(p?`ในระบบ ${p} ชิ้น`:'ในระบบ 0'));})):el('div',{class:'empty'},'ไม่มี')),
         el('div',{class:'grp g-ex'},el('h4',{class:'h-ex'},`ยกเว้น · ของในระบบไม่พอ (${b.exempt.length})`),b.exempt.length?el('ul',{},...b.exempt.map(i=>{const x=shMap[i];return el('li',{},el('span',{},lbl(i)),x?tag(`มี ${x.pool} ชิ้น / ต้อง ${x.need} สาขา`):null);})):el('div',{class:'empty'},'ไม่มี'),b.exempt.length?el('div',{class:'small muted',style:'margin-top:6px'},'ของทั้งระบบไม่พอให้ทุกสาขา · สาขาที่ได้ยกเว้นเรียงจาก Tier C ก่อน แล้ว B และ A'):null),
+        b.skip&&b.skip.length?el('div',{class:'small muted'},`ไม่ต้องวาง (ไม่นับ): ${b.skip.map(lbl).join(', ')}`):null,
         el('div',{class:'grp g-have'},el('h4',{class:'h-have'},`มี (${b.have.length})`),el('ul',{},...b.have.map(([i,q])=>el('li',{},el('span',{},lbl(i)),el('span',{class:'num muted'},`${q} ชิ้น`))))));
   const card=b=>{
     const v=b.ok/b.req,t=fLv(v),bar=el('div',{class:'fbar '+t});bar.append(el('i',{style:`width:${Math.min(100,v*100)}%`}),el('b',{style:'left:90%'}));
@@ -711,7 +716,7 @@ async function uploadStock(file,out){
   out.replaceChildren(el('span',{},'กำลังอ่านไฟล์…'));
   try{const wb=XLSX.read(await file.arrayBuffer(),{type:'array'});
     if(!cfg().focus.length)throw new Error('ยังไม่มีรายชื่อ Focus Product');
-    const r=GSProc.parseStock(wb,cfg().focus);
+    const r=GSProc.parseStock(wb,cfg().focus,cfg().focusExclude);
     if(!r.stockDate)throw new Error('อ่านวันที่สต็อกจากช่อง A1 ของชีท Main Stock ไม่ได้ (ต้องเป็นแบบ "Stock: 25.09.69")');
     await S.db.doc('stock/'+r.stockDate).set(Object.assign(r,{uploadedAt:Date.now(),fileName:file.name}));
     out.replaceChildren(el('span',{},`บันทึกสต็อก ณ ${thDate(r.stockDate)} · ${fmt(r.rowsRead)} ชิ้น`));toast('อัปโหลดสต็อกแล้ว');

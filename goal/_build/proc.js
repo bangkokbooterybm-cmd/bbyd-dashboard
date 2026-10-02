@@ -232,7 +232,9 @@ var GSProc = (function () {
       return null;
     };
   }
-  function parseStock(wb, focus) {
+  // excl = { BRANCH: [focus item names the branch does not carry] } (e.g. Paragon has no sunglass)
+  function parseStock(wb, focus, excl) {
+    excl = excl || {}; var skip = function (k, item) { return (excl[k] || []).indexOf(item) >= 0; };
     var t = sheetRows(wb, ['Barcode', 'Model', 'Branch']);
     if (!t) throw new Error('ไม่พบชีทที่มีหัวคอลัมน์ "Barcode", "Model", "Branch" (ชีท Main Stock)');
     var sheet = wb.Sheets[t.name], a1 = sheet.A1 ? String(sheet.A1.v) : '';
@@ -255,7 +257,7 @@ var GSProc = (function () {
       var code = wToCode[w]; if (code) have[code][item] = (have[code][item] || 0) + q;
     });
     var need = {}; // item -> list of main branches that must carry it
-    focus.forEach(function (f) { need[f.name] = Object.keys(MAIN).filter(function (k) { return f[MAIN[k].t]; }); });
+    focus.forEach(function (f) { need[f.name] = Object.keys(MAIN).filter(function (k) { return f[MAIN[k].t] && !skip(k, f.name); }); });
     var exempt = {}; Object.keys(MAIN).forEach(function (k) { exempt[k] = []; });
     var shortages = [];
     focus.forEach(function (f) {
@@ -269,7 +271,7 @@ var GSProc = (function () {
     });
     var branches = {};
     Object.keys(MAIN).forEach(function (k) {
-      var req = focus.filter(function (f) { return f[MAIN[k].t]; }).map(function (f) { return f.name; });
+      var req = focus.filter(function (f) { return f[MAIN[k].t] && !skip(k, f.name); }).map(function (f) { return f.name; });
       var h2 = req.filter(function (i) { return have[k][i]; }).map(function (i) { return [i, have[k][i]]; });
       var ex = exempt[k];
       var miss = req.filter(function (i) { return !have[k][i] && ex.indexOf(i) < 0; });
