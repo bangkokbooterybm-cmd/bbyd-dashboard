@@ -1006,6 +1006,7 @@ function itemMonthBox(){
 const AS_BOTTOM_PCT=()=>cfg().allstarBottomPct??20; // "รั้งท้าย" group = bottom 20% of SCs with a score, rounded
 const asBottomN=n=>Math.round(n*AS_BOTTOM_PCT()/100);
 // names on the All Star report that differ from the HR nickname, or a nickname used in both teams: [team, roster name]
+const AS_MIN_MONTHS=()=>cfg().allstarMinMonths??3; // months with a score needed to be ranked year-to-date
 const AS_MAP_DEFAULT={'เมย์ ชฎาพร':['UPC','เมย์'],'เมย์':['BKK','เมย์'],'ญ่า ธันวลัย':['BKK','ญ่า2']};
 const asMap=()=>Object.assign({},AS_MAP_DEFAULT,cfg().allstarMap||{});
 const asDoc=ymk=>S.team[`allstar-m-${ymk}`]||null;
@@ -1081,30 +1082,36 @@ function leagueData(ymk){
   const best=n=>Math.min(...ms.map(m=>byM[m].map[nameKey(n)]?.r??999));
   const rows=cur.rows.map(r=>{const p=prev?.map[nameKey(r.n)];return {...r,team:asTeamOf(r.n,ymk),prevR:p?p.r:null,prevS:p?p.s:null,prevBottom:p?p.bottom:null,move:p?p.r-r.r:null,gain:p?r.s-p.s:null,streak:top10Streak(r.n),best:best(r.n)};});
   const champs=ms.map(m=>{const c=byM[m].rows[0];return c?{ym:m,n:c.n,s:c.s,team:asTeamOf(c.n,m)}:null;}).filter(Boolean);
-  return {ymk,prevM,cur,rows,champs,ms};
+  // year to date: average % of every month with a score; ranked only with at least AS_MIN_MONTHS months
+  const ytdMap={};ms.forEach(m=>byM[m].rows.forEach(r=>{const k=nameKey(r.n);(ytdMap[k]=ytdMap[k]||{n:r.n,v:[]}).v.push(r.s);}));
+  const ytd=Object.values(ytdMap).map(x=>({n:x.n,months:x.v.length,avg:x.v.reduce((a,b)=>a+b,0)/x.v.length,team:asTeamOf(x.n,ymk)}));
+  const q=ytd.filter(x=>x.months>=AS_MIN_MONTHS()).sort((a,b)=>b.avg-a.avg);q.forEach((x,i)=>x.rank=i+1);
+  const yk={};ytd.forEach(x=>yk[nameKey(x.n)]=x);rows.forEach(r=>{const y=yk[nameKey(r.n)];r.ytd=y?y.avg:null;r.ytdN=y?y.months:0;r.ytdR=y&&y.rank?y.rank:null;});
+  return {ymk,prevM,cur,rows,champs,ms,ytd:q};
 }
 function viewLeague(){
   const ymk=asCurYM();
   if(!ymk)return el('div',{class:'panel'},el('h2',{},'League'),el('div',{class:'empty'},'ยังไม่มีข้อมูล BBY SC All Star'));
   const L=leagueData(ymk),mName=MONTHS[+ymk.slice(5)-1],f=S.lgTeam||'ALL';
-  const top=L.rows.slice(0,3),champ=top[0];
+  const top=L.ytd.slice(0,3),champ=top[0]||{n:'–',avg:0},mChamp=L.rows[0],range=`${MONTHS[+L.ms[0].slice(5)-1]}–${mName}`;
   const tPill=t=>t?el('span',{class:'pill lt'},t):null;
   // hero + podium
   const podium=el('div',{class:'podium'},...[1,0,2].map(i=>{const r=top[i];if(!r)return el('div',{});return el('button',{type:'button',class:`pod p${i+1}`,onclick:()=>asDetail(r.n)},
-    el('span',{class:'medal'},String(i+1)),el('b',{},r.n),el('span',{class:'num'},r.s.toFixed(2)+'%'),tPill(r.team),el('div',{class:'step'}));}));
+    el('span',{class:'medal'},String(i+1)),el('b',{},r.n),el('span',{class:'num'},r.avg.toFixed(2)+'%'),tPill(r.team),el('div',{class:'step'}));}));
   const hero=el('section',{class:'panel lhero'},el('div',{class:'lh-l'},trophyEl('trophy'),
-      el('div',{},el('div',{class:'eyebrow'},`BBY SC All Star · แชมป์ ${mName} ${YEAR}`),el('div',{class:'champ'},champ.n),el('div',{class:'champ-s num'},champ.s.toFixed(2)+'%'),tPill(champ.team),
-        el('div',{class:'small muted',style:'margin-top:6px'},`ค่าเฉลี่ยตามรายงาน ${fmt(L.cur.reported,2)}% · ${L.rows.length} คนที่มีคะแนน`))),podium);
+      el('div',{},el('div',{class:'eyebrow'},`BBY SC All Star ${YEAR} · ผู้นำทั้งปี (${range})`),el('div',{class:'champ'},champ.n),el('div',{class:'champ-s num'},champ.avg.toFixed(2)+'%'),tPill(champ.team),
+        el('div',{class:'small muted',style:'margin-top:6px'},`เฉลี่ย % ทุกเดือนที่มีคะแนน · นับอันดับเมื่อมีคะแนนอย่างน้อย ${AS_MIN_MONTHS()} เดือน (${L.ytd.length} คน)`))),podium);
   // awards
   const withPrev=L.rows.filter(r=>r.move!=null);
   // one award per person where possible, so more people get recognised
-  const used=new Set(),pick=xs=>{const x=xs.find(r=>!used.has(r.n))||xs[0];if(x)used.add(x.n);return x;};
+  const used=new Set([mChamp.n]),pick=xs=>{const x=xs.find(r=>!used.has(r.n))||xs[0];if(x)used.add(x.n);return x;};
   const mi=pick(withPrev.filter(r=>r.move>0).sort((a,b)=>b.move-a.move));
   const cons=pick(L.rows.filter(r=>r.streak>=2).sort((a,b)=>b.streak-a.streak||a.r-b.r));
   const gain=pick(withPrev.filter(r=>r.gain>0).sort((a,b)=>b.gain-a.gain));
   const comeback=pick(withPrev.filter(r=>r.prevBottom&&!r.bottom).sort((a,b)=>b.move-a.move));
   const award=(t,sub,r,val)=>r?el('button',{type:'button',class:'award',onclick:()=>asDetail(r.n)},el('div',{class:'aw-t'},t),el('div',{class:'aw-n'},r.n),el('div',{class:'aw-v num'},val),el('div',{class:'small muted'},sub)):el('div',{class:'award off'},el('div',{class:'aw-t'},t),el('div',{class:'small muted'},'เดือนนี้ไม่มี'));
   const awards=el('section',{class:'panel'},el('h2',{},`รางวัลประจำเดือน · ${mName}`),el('div',{class:'awards'},
+    award('Champion of the Month',`อันดับ 1 ประจำ ${mName}`,mChamp,`${mChamp.s.toFixed(2)}%`),
     award('Most Improved','ขึ้นอันดับมากที่สุด',mi||null,mi?`▲ ขึ้น ${mi.move} อันดับ`:''),
     award('Top Score Gain','% เพิ่มขึ้นมากที่สุด',gain||null,gain?`+${gain.gain.toFixed(2)}%`:''),
     award('Consistent Star','ติด Top 10 ต่อเนื่อง',cons||null,cons?`Top 10 · ${cons.streak} เดือนติด`:''),
@@ -1116,19 +1123,22 @@ function viewLeague(){
     el('div',{class:'small muted'},`${x.n} คน · ติด Top 10 ${x.top10} คน · แชมป์ ${x.crowns} เดือน`));
   const battle=el('section',{class:'panel'},el('h2',{},'ทีมต่อทีม · ค่าเฉลี่ย % Score'),el('div',{class:'tbattle'},tcard('BKK',B),el('div',{class:'vs'},'VS'),tcard('UPC',U)));
   // league table
-  const list=L.rows.filter(r=>f==='ALL'||r.team===f),tb=el('tbody');
+  const sortY=S.lgSort==='ytd',list=L.rows.filter(r=>f==='ALL'||r.team===f).sort((a,b)=>sortY?((a.ytdR??999)-(b.ytdR??999)||(b.ytd??0)-(a.ytd??0)):a.r-b.r),tb=el('tbody');
   list.forEach(r=>{const mv=r.move==null?el('span',{class:'muted small'},'–'):rankEl(r.move);
     const bar=el('div',{class:'lbar'},el('i',{style:`width:${Math.min(100,r.s)}%`}));
     const tr=el('tr',{class:'click'+(r.bottom?' lbot':'')+(r.r<=3?' ltop':''),tabindex:'0',onclick:()=>asDetail(r.n)},
       el('td',{class:'num lrk'},r.r<=3?el('span',{class:`medal m${r.r}`},String(r.r)):String(r.r)),el('td',{},mv),
       el('td',{class:'l'},el('b',{},r.n),' ',tPill(r.team),r.streak>=3?el('span',{class:'pill good',style:'margin-left:4px'},`Top 10 × ${r.streak}`):null),
-      el('td',{class:'l lsc'},el('span',{class:'num'},r.s.toFixed(2)+'%'),bar));
+      el('td',{class:'l lsc'},el('span',{class:'num'},r.s.toFixed(2)+'%'),bar),
+      el('td',{},r.ytd==null?'–':el('span',{class:'pill '+(r.ytdR?tn(r.ytd,80,70):''),title:`${r.ytdN} เดือน`},r.ytd.toFixed(2)+'%'),el('span',{class:'small muted',style:'margin-left:6px'},`${r.ytdN} ด.`)),
+      el('td',{class:'num'},r.ytdR?(r.ytdR<=3?el('span',{class:`medal m${r.ytdR}`},String(r.ytdR)):String(r.ytdR)):el('span',{class:'muted small',title:`ต้องมีคะแนนอย่างน้อย ${AS_MIN_MONTHS()} เดือน`},'ยังไม่ครบ')));
     tr.addEventListener('keydown',e=>{if(e.key==='Enter')tr.click();});tb.append(tr);});
   const nb=asBottomN(L.rows.length);
   const table=el('section',{class:'panel'},el('div',{class:'row',style:'justify-content:space-between'},el('h2',{},`ตารางลีก · ${mName}`),
-      el('div',{class:'seg'},...[['ALL','ทั้งหมด'],['BKK','BKK'],['UPC','UPC']].map(([k,l])=>el('button',{type:'button','aria-pressed':String(f===k),onclick:()=>{S.lgTeam=k;render();}},l)))),
+      el('div',{class:'row'},el('div',{class:'seg'},...[['month',`เรียงตาม ${mName}`],['ytd','เรียงทั้งปี']].map(([k,l])=>el('button',{type:'button','aria-pressed':String((S.lgSort||'month')===k),onclick:()=>{S.lgSort=k;render();}},l))),
+      el('div',{class:'seg'},...[['ALL','ทั้งหมด'],['BKK','BKK'],['UPC','UPC']].map(([k,l])=>el('button',{type:'button','aria-pressed':String(f===k),onclick:()=>{S.lgTeam=k;render();}},l))))),
     el('div',{class:'small muted'},`อันดับรวมทั้งบริษัท · ▲▼ เทียบ ${L.prevM?MONTHS[+L.prevM.slice(5)-1]:'เดือนก่อน'} · แถบอ่อน = กลุ่มที่ต้องเร่ง ${nb} อันดับล่าง (${AS_BOTTOM_PCT()}%) · กดชื่อเพื่อดูประวัติของตัวเอง`),
-    el('div',{class:'tscroll'},el('table',{class:'ltable'},el('thead',{},el('tr',{},el('th',{},'#'),el('th',{},'+/-'),el('th',{class:'l'},'SC'),el('th',{class:'l'},'% Score'))),tb)));
+    el('div',{class:'tscroll'},el('table',{class:'ltable'},el('thead',{},el('tr',{},el('th',{},`# ${mName}`),el('th',{},'+/-'),el('th',{class:'l'},'SC'),el('th',{class:'l'},`% ${mName}`),el('th',{},'เฉลี่ยทั้งปี'),el('th',{},'อันดับปี'))),tb)));
   // hall of fame
   const hof=el('section',{class:'panel'},el('h2',{},'Hall of Fame · แชมป์รายเดือน'),el('div',{class:'hof'},...L.champs.slice().reverse().map(c=>el('button',{type:'button',class:'hofc'+(c.ym===ymk?' cur':''),onclick:()=>asDetail(c.n)},
     trophyEl('trophy sm'),el('div',{},el('div',{class:'small muted'},`${MONTHS[+c.ym.slice(5)-1]} ${YEAR}`),el('b',{},c.n),el('div',{class:'num small'},c.s.toFixed(2)+'%'),tPill(c.team))))));
