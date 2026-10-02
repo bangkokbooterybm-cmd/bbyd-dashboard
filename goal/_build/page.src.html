@@ -141,6 +141,12 @@ details.au li b{font-family:var(--disp);min-width:18px;text-align:right}
 .actrow:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .subtabs{align-self:flex-start;flex-wrap:wrap}
 td.cm{background:var(--accent-soft)}
+.dl{font:600 12px var(--disp);white-space:nowrap} .dl.up{color:var(--good)} .dl.down{color:var(--bad)} .dl.flat,.dl.none{color:var(--ink3)}
+.scsum{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.scsum .grp{border-radius:10px;padding:10px 12px;border-left:4px solid}
+.scsum h4{margin:0 0 6px;font:600 13px var(--body)}
+.scsum ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px;font-size:13px}
+.scsum li{display:flex;justify-content:space-between;gap:10px;align-items:center}
 .sortb{all:unset;cursor:pointer;font:inherit;letter-spacing:inherit;text-transform:inherit;color:inherit;white-space:nowrap} .sortb .arr{opacity:.5} .sortb.on{color:var(--accent)} .sortb.on .arr{opacity:1} .sortb:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 tr.click{cursor:pointer} tr.click:hover td{background:var(--accent-soft)} tr.click:focus-visible{outline:2px solid var(--accent)}
 .items tr.more{display:none} .items.all tr.more{display:table-row}
@@ -803,25 +809,52 @@ function trendEl(rows,max){
 }
 
 /* --- SC detail: every audit of one SC since June, by any Sup --- */
+const mean=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
+// ▲ +0.50 / ▼ -0.20 / ● 0.00 with colour; small moves (<0.05) count as unchanged
+function deltaEl(d,unit=''){if(d==null)return el('span',{class:'dl none'},'–');const c=d>=0.05?'up':d<=-0.05?'down':'flat';
+  return el('span',{class:'dl '+c},(c==='up'?'▲ +':c==='down'?'▼ ':'● ')+d.toFixed(2)+unit);}
 function scDetail(name){
-  const key=nameKey(name),ro=rosterIn();
+  const key=nameKey(name),ro=rosterIn(),items=S.audit?.diag?.items||[],ms=peopleMonths();
   const all=(S.audit?.audits||[]).filter(a=>a.scope===team()&&a.ym>=PEOPLE_FROM&&a.ym<=curYM()&&!a.x&&canonOf(a.sc,ro)===key).sort((a,b)=>(b.d||'').localeCompare(a.d||''));
-  const items=S.audit?.diag?.items||[];
-  const tb=el('tbody');
-  peopleMonths().forEach(m=>{const id=ym(m),xs=all.filter(a=>a.ym===id),sc=xs.map(a=>a.avg).filter(v=>v!=null),ex=xs.map(a=>a.exam).filter(v=>v!=null),by={};xs.forEach(a=>{const e=evShort(a.ev);by[e]=(by[e]||0)+1;});
-    const av=sc.length?sc.reduce((a,b)=>a+b,0)/sc.length:null,exv=ex.length?ex.reduce((a,b)=>a+b,0)/ex.length:null;
-    tb.append(el('tr',{class:m===S.month?'cur':null},el('td',{},MONTHS[m-1]),el('td',{class:'num'},String(xs.length)),el('td',{},av==null?'–':el('span',{class:'pill '+tone(av/5,.8,.6)},av.toFixed(2))),el('td',{},exv==null?'–':el('span',{class:'pill '+(exv>=4?'good':exv>=3.3?'warn':'bad')},exv.toFixed(2))),el('td',{class:'l muted small'},Object.entries(by).map(([e,c])=>`Sup${e} ${c}`).join(' · ')||'–')));});
-  // item averages: this month vs all months
-  const agg=(xs)=>{const o={};xs.forEach(a=>(a.s||[]).forEach((v,i)=>{if(v==null||!items[i])return;(o[i]=o[i]||[]).push(v);}));return o;};
-  const cur=agg(all.filter(a=>a.ym===curYM())),tot=agg(all);
-  const rows=Object.keys(tot).map(i=>({i:+i,c:items[i].c,l:items[i].l,all:tot[i].reduce((a,b)=>a+b,0)/tot[i].length,cur:cur[i]?cur[i].reduce((a,b)=>a+b,0)/cur[i].length:null})).sort((a,b)=>a.all-b.all);
-  const itb=el('tbody');rows.forEach(r=>itb.append(el('tr',{},el('td',{class:'l wrap'},el('span',{class:'muted small'},r.c+' · '),r.l),el('td',{},el('span',{class:'pill '+tone(r.all/5,.8,.6)},r.all.toFixed(2))),el('td',{},r.cur==null?'–':el('span',{class:'pill '+tone(r.cur/5,.8,.6)},r.cur.toFixed(2))))));
+  const byM=ms.map(m=>{const xs=all.filter(a=>a.ym===ym(m));return {m,xs,avg:mean(xs.map(a=>a.avg).filter(v=>v!=null)),exam:mean(xs.map(a=>a.exam).filter(v=>v!=null))};});
+  const withData=byM.filter(x=>x.avg!=null),last=withData[withData.length-1]||null,prev=withData[withData.length-2]||null;
+  const cur=byM[byM.length-1],teamCur=mean(auditsTeamAll().map(a=>a.avg).filter(v=>v!=null));
+  // header cards
+  const cards=el('div',{class:'stats'},
+    el('div',{class:'stat'},el('div',{class:'v num'},cur.avg==null?'–':cur.avg.toFixed(2)),el('div',{class:'k'},`คะแนนเฉลี่ย ${MONTHS[S.month-1]}`),
+      cur.avg!=null&&prev&&last===cur?el('div',{class:'small'},deltaEl(cur.avg-prev.avg),el('span',{class:'muted'},` เทียบ ${MONTHS[prev.m-1]} (${prev.avg.toFixed(2)})`)):cur.avg==null?el('div',{class:'small muted'},'ยังไม่ถูกประเมินเดือนนี้'):el('div',{class:'small muted'},'ยังไม่มีเดือนก่อนให้เทียบ')),
+    el('div',{class:'stat'},el('div',{class:'v num'},teamCur==null?'–':teamCur.toFixed(2)),el('div',{class:'k'},`ค่าเฉลี่ยทีม ${team()} · ${MONTHS[S.month-1]}`),
+      cur.avg!=null&&teamCur!=null?el('div',{class:'small'},deltaEl(cur.avg-teamCur),el('span',{class:'muted'},cur.avg-teamCur>=0.05?' สูงกว่าทีม':cur.avg-teamCur<=-0.05?' ต่ำกว่าทีม':' ใกล้เคียงทีม')):null),
+    el('div',{class:'stat'},el('div',{class:'v num'},String(cur.xs.length)),el('div',{class:'k'},`ครั้งที่ถูกประเมิน · ${MONTHS[S.month-1]}`),el('div',{class:'small'},cur.xs.length>=2?el('span',{class:'dl up'},'ครบ 2 ครั้ง'):el('span',{class:'dl down'},`ขาดอีก ${2-cur.xs.length} ครั้ง`))));
+  // score trend
+  const tr=trendEl(byM.map(x=>({m:x.m,v:x.avg,label:x.avg==null?'–':x.avg.toFixed(2),tone:x.avg==null?'':tone(x.avg/5,.8,.6)})),5);
+  // item matrix: per month avg, change vs previous assessed month, team this month
+  const teamItem={};itemStats(curYM()).forEach(r=>teamItem[r.i]=r.avg);
+  const per=byM.map(x=>{const o={};x.xs.forEach(a=>(a.s||[]).forEach((v,i)=>{if(v==null||!items[i])return;(o[i]=o[i]||[]).push(v);}));const r={};Object.keys(o).forEach(i=>r[i]=mean(o[i]));return r;});
+  const idx=[...new Set(per.flatMap(o=>Object.keys(o).map(Number)))];
+  const rows=idx.map(i=>{const vals=per.map(o=>o[i]??null),seen=vals.map((v,j)=>[v,j]).filter(x=>x[0]!=null),lastV=seen[seen.length-1],prevV=seen[seen.length-2];
+    return {i,c:items[i].c,l:items[i].l,vals,now:lastV?lastV[0]:null,chg:lastV&&prevV?lastV[0]-prevV[0]:null,team:teamItem[i]??null};});
+  const up=rows.filter(r=>r.chg!=null&&r.chg>=0.05).sort((a,b)=>b.chg-a.chg),down=rows.filter(r=>r.chg!=null&&r.chg<=-0.05).sort((a,b)=>a.chg-b.chg);
+  const weak=rows.filter(r=>r.now!=null).sort((a,b)=>a.now-b.now).slice(0,3),strong=rows.filter(r=>r.now!=null).sort((a,b)=>b.now-a.now).slice(0,3);
+  const li=(r,v)=>el('li',{},el('span',{},r.l),v);
+  const sumBox=rows.length?el('div',{class:'scsum'},
+    el('div',{class:'grp g-have'},el('h4',{class:'h-have'},`ดีขึ้น (${up.length})`),up.length?el('ul',{},...up.slice(0,5).map(r=>li(r,deltaEl(r.chg)))):el('div',{class:'empty'},'ไม่มี')),
+    el('div',{class:'grp g-miss'},el('h4',{class:'h-miss'},`แย่ลง (${down.length})`),down.length?el('ul',{},...down.slice(0,5).map(r=>li(r,deltaEl(r.chg)))):el('div',{class:'empty'},'ไม่มี')),
+    el('div',{class:'grp g-ex'},el('h4',{class:'h-ex'},'ต้องพัฒนา · คะแนนล่าสุดต่ำสุด'),el('ul',{},...weak.map(r=>li(r,el('span',{class:'pill '+tone(r.now/5,.8,.6)},r.now.toFixed(2)))))),
+    el('div',{class:'grp',style:'border-color:var(--accent);background:var(--accent-soft)'},el('h4',{style:'color:var(--accent)'},'จุดแข็ง · คะแนนล่าสุดสูงสุด'),el('ul',{},...strong.map(r=>li(r,el('span',{class:'pill '+tone(r.now/5,.8,.6)},r.now.toFixed(2))))))):null;
+  rows.sort((a,b)=>(a.now??9)-(b.now??9));
+  const itb=el('tbody');rows.forEach(r=>itb.append(el('tr',{},el('td',{class:'l wrap'},el('span',{class:'muted small'},r.c+' · '),r.l),
+    ...r.vals.map((v,j)=>el('td',{class:ms[j]===S.month?'cm':null},v==null?el('span',{class:'muted'},'–'):el('span',{class:'pill '+tone(v/5,.8,.6)},v.toFixed(1)))),
+    el('td',{},deltaEl(r.chg)),el('td',{},r.team==null||r.now==null?'–':deltaEl(r.now-r.team)))));
   const list=el('div',{});all.forEach(a=>list.append(auditCard(a)));
   sheet(`${name} · SC ทีม ${team()}`,
-    el('div',{class:'small muted'},`ทุกการประเมินตั้งแต่ ${MONTHS[+PEOPLE_FROM.slice(5)-1]} ถึง ${MONTHS[S.month-1]} ${YEAR} · ประเมินโดย Sup ทุกคน`),
-    el('h3',{},'รายเดือน'),el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},...['Month','ครั้ง','คะแนนเฉลี่ย','Exam','ผู้ประเมิน'].map((h,i)=>el('th',{class:i===4?'l':null},h)))),tb)),
-    rows.length?el('h3',{},'คะแนนรายหัวข้อ · เรียงจากต่ำไปสูง'):null,
-    rows.length?el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},el('th',{class:'l'},'หัวข้อ'),el('th',{},'เฉลี่ยทุกเดือน'),el('th',{},MONTHS[S.month-1]))),itb)):null,
+    el('div',{class:'small muted'},`ทุกการประเมินตั้งแต่ ${MONTHS[ms[0]-1]} ถึง ${MONTHS[S.month-1]} ${YEAR} · ประเมินโดย Sup ทุกคน · ▲ ดีขึ้น ▼ แย่ลง ● เท่าเดิม`),
+    cards,el('h3',{},'คะแนนเฉลี่ยรายเดือน'),tr,
+    el('div',{class:'small muted'},byM.map(x=>`${MONTHS[x.m-1]} ${x.xs.length} ครั้ง${x.xs.length?' ('+[...new Set(x.xs.map(a=>'Sup'+evShort(a.ev)))].join(', ')+')':''}`).join(' · ')),
+    sumBox?el('h3',{},'สรุปรายหัวข้อ · เทียบครั้งล่าสุดกับครั้งก่อน'):null,sumBox,
+    rows.length?el('h3',{},'คะแนนรายหัวข้อทุกเดือน'):null,
+    rows.length?el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},el('th',{class:'l'},'หัวข้อ'),...ms.map(m=>el('th',{},MONTHS[m-1])),el('th',{},'เทียบครั้งก่อน'),el('th',{},'เทียบทีม'))),itb)):null,
+    rows.length?el('div',{class:'small muted'},'เทียบครั้งก่อน = เดือนล่าสุดที่ถูกประเมิน − เดือนก่อนหน้าที่ถูกประเมิน · เทียบทีม = คะแนนล่าสุด − ค่าเฉลี่ยทีมเดือนนี้'):null,
     el('h3',{},`การประเมินทั้งหมด (${all.length})`),all.length?list:el('div',{class:'empty'},'ยังไม่ถูกประเมินตั้งแต่ มิ.ย.'));
 }
 
