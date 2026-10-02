@@ -460,7 +460,7 @@ function viewOverview(){
       rule:'เฉลี่ย >80% = 5 · >70% = 4 · 60–70% = 3 · <60% = 0',tab:'team'})
   );
   return el('div',{class:'panel',style:'background:transparent;border:0;padding:0'},(!S.audit||!S.demand||!S.sales)?el('div',{class:'banner'},'ยังดึงข้อมูลจาก Google Sheet ไม่ครบ ตัวเลขบางข้อจึงยังเป็น 0'+(S.canAdmin?' · กดอัปเดตได้ที่แถบ Settings':'')):null,
-    el('div',{class:'legend'},el('span',{},`${m} ${YEAR}`),stampTxt('อัปเดต',S.audit?.updatedAt),el('span',{class:'key good'},'ถึงเกณฑ์'),el('span',{class:'key warn'},'ใกล้เกณฑ์'),el('span',{class:'key bad'},'ต่ำกว่าเกณฑ์')),actionBox(),box,trendBox());
+    el('div',{class:'legend'},el('span',{},`${m} ${YEAR}`),stampTxt('อัปเดต',S.audit?.updatedAt),el('span',{class:'key good'},'ถึงเกณฑ์'),el('span',{class:'key warn'},'ใกล้เกณฑ์'),el('span',{class:'key bad'},'ต่ำกว่าเกณฑ์')),box,trendBox(),actionBox());
 }
 
 /* ---------- Sales ---------- */
