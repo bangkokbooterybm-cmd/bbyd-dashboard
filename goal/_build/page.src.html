@@ -139,6 +139,8 @@ details.au li b{font-family:var(--disp);min-width:18px;text-align:right}
 .actrow>span.small{grid-column:1} .actrow .go{grid-column:2;grid-row:1/3;align-self:center;color:var(--accent);font-weight:600;font-size:12px}
 .actrow.bad{border-left-color:var(--bad);background:var(--bad-bg)} .actrow.warn{border-left-color:var(--warn);background:var(--warn-bg)}
 .actrow:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.subtabs{align-self:flex-start;flex-wrap:wrap}
+td.cm{background:var(--accent-soft)}
 .sortb{all:unset;cursor:pointer;font:inherit;letter-spacing:inherit;text-transform:inherit;color:inherit;white-space:nowrap} .sortb .arr{opacity:.5} .sortb.on{color:var(--accent)} .sortb.on .arr{opacity:1} .sortb:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 tr.click{cursor:pointer} tr.click:hover td{background:var(--accent-soft)} tr.click:focus-visible{outline:2px solid var(--accent)}
 .items tr.more{display:none} .items.all tr.more{display:table-row}
@@ -263,7 +265,7 @@ function aliasMap(){const out={};const add=(c,list)=>(list||[]).forEach(a=>{cons
 const rosterKeys=r=>{const am=aliasMap(),own=nameKey(r.name);return [own,...(r.aliases||[]).map(nameKey),...Object.keys(am).filter(k=>nameKey(am[k])===own)].filter(Boolean);};
 function canonOf(sc,ro){const k=nameKey(sc);const r=ro.find(x=>rosterKeys(x).includes(k));if(r)return nameKey(r.name);const am=aliasMap();return am[k]?nameKey(am[k]):k;}
 
-const S={scope:store.get('gs2.scope')||'BKK',month:Number(store.get('gs2.month'))||(new Date().getFullYear()===YEAR?new Date().getMonth()+1:9),tab:store.get('gs2.tab')||'overview',
+const S={auditSub:store.get('gs2.auditSub')||'cov',scope:store.get('gs2.scope')||'BKK',month:Number(store.get('gs2.month'))||(new Date().getFullYear()===YEAR?new Date().getMonth()+1:9),tab:store.get('gs2.tab')||'overview',
   config:null,monthly:{},team:{},audit:null,demand:null,sales:null,staff:null,stocks:[],db:null,user:null,mcp:null,canAdmin:false,openBr:{}};
 const DEFAULT_CFG={supervisors:[{scope:'SENIOR',title:'Supervisor'},{scope:'BKK',title:'Supervisor BKK'},{scope:'UPC',title:'Supervisor UPC'}],roster:[],focus:[],discountPeriods:[],liveTargets:{}};
 const cfg=()=>S.config||DEFAULT_CFG;
@@ -531,9 +533,12 @@ function viewAudit(){
     (()=>{const ro=rosterIn(),known=new Set(ro.map(r=>nameKey(r.name))),miss=[...new Set(tc.recs.filter(x=>!known.has(canonOf(x.sc,ro))).map(x=>x.sc))];return miss.length?el('div',{class:'diag'},el('span',{class:'warn'},`ชื่อที่จับคู่กับรายชื่อไม่ได้ (ไม่อยู่ในการ์ด): ${miss.join(', ')}`)):null;})(),
     el('div',{class:'tcgrid'},...tc.rows.map(r=>el('button',{type:'button',onclick:()=>scDetail(r.name),class:'tc '+(r.n>=2?'good':r.n===1?'warn':'bad')},el('b',{},r.name),el('span',{class:'tcn num'},String(r.n)),
       el('span',{class:'tcby small'},r.n?Object.entries(r.by).map(([e,c])=>`Sup${e} ${c}`).join(' · '):'ยังไม่ประเมิน'))))):null;
-  return el('div',{class:'panel'},
-    el('h2',{},`SC Audit · ${m} ${YEAR}`),needSync('audit'),stampTxt('ข้อมูลจากชีทประเมิน SC อัปเดต',S.audit?.updatedAt),
-    tcBox,itemBox(),el('div',{class:'small muted'},'กดชื่อ SC เพื่อดูประวัติการประเมินทุกเดือน'),multi?el('h3',{style:'margin-top:6px'},`เฉพาะที่ ${isSr()?'Supโอ๋':team()==='BKK'?'Supเอ':'Supโบว์'} ประเมิน`):null,
+  const sub=S.auditSub==='hist'?'hist':'cov';
+  const subNav=el('div',{class:'seg subtabs',role:'tablist'},...[['cov','Coverage · ประเมินครบหรือยัง'],['hist','Analysis · คะแนนและย้อนหลัง']].map(([k,l])=>el('button',{type:'button',role:'tab','aria-pressed':String(sub===k),'aria-selected':String(sub===k),onclick:()=>{S.auditSub=k;store.set('gs2.auditSub',k);render();}},l)));
+  const head=[el('h2',{},`SC Audit · ${m} ${YEAR}`),needSync('audit'),stampTxt('ข้อมูลจากชีทประเมิน SC อัปเดต',S.audit?.updatedAt),subNav];
+  if(sub==='hist')return el('div',{class:'panel'},...head,itemBox(),scMonthBox(),itemMonthBox());
+  return el('div',{class:'panel'},...head,
+    tcBox,el('div',{class:'small muted'},'กดชื่อ SC เพื่อดูประวัติการประเมินทุกเดือน'),multi?el('h3',{style:'margin-top:6px'},`เฉพาะที่ ${isSr()?'Supโอ๋':team()==='BKK'?'Supเอ':'Supโบว์'} ประเมิน`):null,
     el('div',{class:'stats'},stat(`${st.c1}/${st.ro.length}`,'SC ที่ประเมินแล้ว ≥1 ครั้ง'),stat(`${st.c2}/${st.ro.length}`,'SC ที่ครบ 2 ครั้ง'),stat(String(st.recs.length),'จำนวนครั้งที่ประเมิน'),stat(st.avg==null?'–':st.avg.toFixed(2),'คะแนนเฉลี่ย (เต็ม 5)')),
     el('h3',{},'ความครอบคลุมรายคน'),el('div',{class:'legend'},el('span',{class:'key good'},'≥2 ครั้ง'),el('span',{class:'key warn'},'1 ครั้ง'),el('span',{class:'key bad'},'ยังไม่ประเมิน')),chips,
     el('div',{class:'small muted'},S.staff?`รายชื่อจากชีทข้อมูลพนักงาน BBYD ประกอบกับฟอร์มส่งยอดขาย · คนที่ออกไม่นับตั้งแต่เดือนที่ออก · พนักงานใหม่นับเมื่อครบ 14 วัน`:'ยังไม่ได้ดึงรายชื่อจากชีทข้อมูลพนักงาน ใช้รายชื่อเดิมไปก่อน'),
@@ -875,6 +880,39 @@ function itemBox(){
     el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},th('l','หัวข้อ','l'),th('avg','เฉลี่ย'),th('d','vs เดือนก่อน'),th('n','ครั้ง'))),tb)),more);
 }
 
+
+/* --- Analysis sub-tab: SC × month and item × month since June --- */
+function scMonthBox(){
+  const ms=peopleMonths(),ro=rosterIn(),tb=el('tbody');
+  const recs=(S.audit?.audits||[]).filter(a=>a.scope===team()&&a.ym>=PEOPLE_FROM&&a.ym<=curYM()&&!a.x);
+  const rows=ro.map(r=>{const k=nameKey(r.name),mine=recs.filter(a=>canonOf(a.sc,ro)===k);
+    const cells=ms.map(m=>{const xs=mine.filter(a=>a.ym===ym(m)),sc=xs.map(a=>a.avg).filter(v=>v!=null),on=rosterFor(team(),ym(m)).some(x=>nameKey(x.name)===k);return {n:xs.length,on,avg:sc.length?sc.reduce((a,b)=>a+b,0)/sc.length:null};});
+    const all=mine.map(a=>a.avg).filter(v=>v!=null);return {name:r.name,cells,avg:all.length?all.reduce((a,b)=>a+b,0)/all.length:null,n:mine.length};});
+  const so=S.scSort||{k:'avg',dir:1},val=r=>so.k==='name'?r.name:so.k==='n'?r.n:so.k==='avg'?r.avg:r.cells[so.k]?.avg;
+  rows.sort((a,b)=>{const x=val(a),y=val(b);if(x==null&&y==null)return 0;if(x==null)return 1;if(y==null)return -1;return (typeof x==='string'?x.localeCompare(y,'th'):x-y)*so.dir;});
+  rows.forEach(r=>{const tr=el('tr',{class:'click',tabindex:'0',onclick:()=>scDetail(r.name)},el('td',{},r.name),
+    ...r.cells.map((c,i)=>el('td',{class:ms[i]===S.month?'cm':null},c.n?el('span',{class:'pill '+(c.avg==null?'':tone(c.avg/5,.8,.6))},`${c.avg==null?'–':c.avg.toFixed(2)} · ${c.n}`):c.on?el('span',{class:'pill bad'},'0'):el('span',{class:'muted small',title:'ยังไม่อยู่ในทีม'},'–'))),
+    el('td',{},r.avg==null?'–':el('span',{class:'pill '+tone(r.avg/5,.8,.6)},r.avg.toFixed(2))),el('td',{class:'num'},String(r.n)));
+    tr.addEventListener('keydown',e=>{if(e.key==='Enter')tr.click();});tb.append(tr);});
+  const th=(k,label)=>{const on=so.k===k;return el('th',{class:k==='name'?'l':null},el('button',{type:'button',class:'sortb'+(on?' on':''),onclick:()=>{S.scSort=on?{k,dir:-so.dir}:{k,dir:k==='n'?-1:1};render();}},label,el('span',{class:'arr'},on?(so.dir>0?' ▲':' ▼'):' ↕')));};
+  return el('section',{class:'items all'},el('h3',{},`SC รายเดือน · ทีม ${team()}`),el('div',{class:'small muted'},'คะแนนเฉลี่ย · จำนวนครั้งที่ถูกประเมิน (Sup ทุกคน) · 0 สีแดง = อยู่ในทีมแต่ไม่ถูกประเมิน · – = ยังไม่อยู่ในทีม · รายชื่อ SC ของเดือนที่เลือก · กดหัวตารางเพื่อเรียง · กดชื่อเพื่อดูรายละเอียด'),
+    el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},th('name','SC'),...ms.map((m,i)=>th(i,MONTHS[m-1])),th('avg','เฉลี่ยรวม'),th('n','ครั้ง'))),tb)));
+}
+function itemMonthBox(){
+  const ms=peopleMonths();if(ms.length<2)return null;
+  const per=ms.map(m=>{const o={};itemStats(ym(m)).forEach(r=>o[r.i]=r);return o;});
+  const items=S.audit?.diag?.items||[],idx=[...new Set(per.flatMap(o=>Object.keys(o).map(Number)))];
+  const rows=idx.map(i=>({i,c:items[i].c,l:items[i].l,vals:per.map(o=>o[i]?o[i].avg:null)}));
+  rows.forEach(r=>{const v=r.vals.filter(x=>x!=null);r.first=v[0]??null;r.last=v[v.length-1]??null;r.chg=v.length>1?r.last-r.first:null;});
+  const so=S.imSort||{k:'chg',dir:1},val=r=>so.k==='l'?r.c+' '+r.l:so.k==='chg'?r.chg:r.vals[so.k];
+  rows.sort((a,b)=>{const x=val(a),y=val(b);if(x==null&&y==null)return 0;if(x==null)return 1;if(y==null)return -1;return (typeof x==='string'?x.localeCompare(y,'th'):x-y)*so.dir;});
+  const th=(k,label,cls)=>{const on=so.k===k;return el('th',{class:cls||null},el('button',{type:'button',class:'sortb'+(on?' on':''),onclick:()=>{S.imSort=on?{k,dir:-so.dir}:{k,dir:1};render();}},label,el('span',{class:'arr'},on?(so.dir>0?' ▲':' ▼'):' ↕')));};
+  const tb=el('tbody');rows.forEach(r=>tb.append(el('tr',{},el('td',{class:'l wrap'},el('span',{class:'muted small'},r.c+' · '),r.l),
+    ...r.vals.map((v,i)=>el('td',{class:ms[i]===S.month?'cm':null},v==null?'–':el('span',{class:'pill '+tone(v/5,.8,.6)},v.toFixed(2)))),
+    el('td',{class:'num '+(r.chg==null?'muted':r.chg>=0.05?'s-hi':r.chg<=-0.05?'s-lo':'muted')},r.chg==null?'–':(r.chg>0?'+':'')+r.chg.toFixed(2)))));
+  return el('section',{},el('h3',{},`คะแนนรายหัวข้อย้อนหลัง · ${MONTHS[ms[0]-1]}–${MONTHS[S.month-1]}`),el('div',{class:'small muted'},'คะแนนเฉลี่ยของทีมรายเดือน · เปลี่ยนแปลง = เดือนล่าสุดที่มีข้อมูล − เดือนแรก · ค่าเริ่มต้นเรียงหัวข้อที่แย่ลงมากที่สุดก่อน'),
+    el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},th('l','หัวข้อ','l'),...ms.map((m,i)=>th(i,MONTHS[m-1])),th('chg','เปลี่ยนแปลง'))),tb)));
+}
 /* --- Overview: things to act on + monthly trends --- */
 function actionBox(){
   if(!peopleOK())return null;
