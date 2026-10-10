@@ -1,0 +1,1274 @@
+<title>Supervisor Goal Board 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ground:#F1F3EF; --surface:#FFFFFF; --sunk:#E7EBE4; --line:#D5DBD1; --ink:#17211C; --ink2:#4A5750; --ink3:#6F7B73;
+  --accent:#2F6B4F; --accent-soft:#DCEBE2; --brass:#8A6A1F; --brass-bg:#F3EAD2;
+  --good:#2E7D4F; --good-bg:#DDF0E3; --orng:#C2571A; --orng-bg:#FBE3D3; --ylw:#A88408; --ylw-bg:#F6EDC6; --warn:#9A6A0C; --warn-bg:#F7EBCF; --bad:#B3412F; --bad-bg:#F6DEDA;
+  --shadow:0 1px 2px rgba(23,33,28,.06),0 4px 14px rgba(23,33,28,.05);
+  --c-sales:#2E7D4F; --c-event:#B07A0A; --c-demand:#13867F; --c-focus:#C2571A; --c-visit:#2F6FB0; --c-audit:#7A4FB5; --c-exam:#B8860B; --c-mgr:#8A6A1F;
+  --disp:"Chakra Petch","IBM Plex Sans Thai",system-ui,sans-serif;
+  --body:"IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --ground:#111613; --surface:#18201B; --sunk:#202A24; --line:#2E3A33; --ink:#E4EAE5; --ink2:#AEBAB2; --ink3:#8A968E;
+  --accent:#6FBF95; --accent-soft:#1F3A2C; --brass:#D9B866; --brass-bg:#3A3018;
+  --good:#6FCB92; --good-bg:#1D3727; --orng:#F0955A; --orng-bg:#3F2616; --ylw:#E2C24E; --ylw-bg:#3A3212; --warn:#E3B45A; --warn-bg:#3A2F17; --bad:#EE8B79; --bad-bg:#3D211C;
+  --shadow:0 1px 2px rgba(0,0,0,.3);
+  --c-sales:#6FCB92; --c-event:#E2C24E; --c-demand:#4FC7BE; --c-focus:#F0955A; --c-visit:#7FB2EE; --c-audit:#B79AE8; --c-exam:#E2C24E; --c-mgr:#D9B866;
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#111613; --surface:#18201B; --sunk:#202A24; --line:#2E3A33; --ink:#E4EAE5; --ink2:#AEBAB2; --ink3:#8A968E;
+  --accent:#6FBF95; --accent-soft:#1F3A2C; --brass:#D9B866; --brass-bg:#3A3018;
+  --good:#6FCB92; --good-bg:#1D3727; --orng:#F0955A; --orng-bg:#3F2616; --ylw:#E2C24E; --ylw-bg:#3A3212; --warn:#E3B45A; --warn-bg:#3A2F17; --bad:#EE8B79; --bad-bg:#3D211C;
+  --shadow:0 1px 2px rgba(0,0,0,.3);
+  --c-sales:#6FCB92; --c-event:#E2C24E; --c-demand:#4FC7BE; --c-focus:#F0955A; --c-visit:#7FB2EE; --c-audit:#B79AE8; --c-exam:#E2C24E; --c-mgr:#D9B866;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.55;padding-inline:16px;padding-block:0 48px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+h1,h2,h3{font-family:var(--disp);margin:0;text-wrap:balance;letter-spacing:.01em}
+h1{font-size:24px;font-weight:700} h2{font-size:17px;font-weight:600} h3{font-size:14px;font-weight:600}
+.num{font-variant-numeric:tabular-nums}
+.muted{color:var(--ink3)} .small{font-size:12px}
+.eyebrow{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink3);font-weight:600}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--ground);padding-top:14px;display:flex;flex-direction:column;gap:10px;border-bottom:1px solid var(--line)}
+.toprow{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;justify-content:space-between}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.seg{display:inline-flex;background:var(--sunk);border-radius:10px;padding:3px;gap:3px}
+.seg button{border:0;background:transparent;color:var(--ink2);font:600 13px var(--body);padding:7px 12px;border-radius:8px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+select,input,textarea{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 9px;min-width:0}
+select:focus-visible,input:focus-visible,textarea:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:thin;margin-bottom:-1px}
+.tabs button{flex:none;border:0;background:none;padding:9px 12px;font:600 13px var(--body);color:var(--ink3);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+.btn{border:1px solid var(--accent);background:var(--accent);color:var(--surface);font:600 13px var(--body);padding:8px 14px;border-radius:8px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)} .btn.small{padding:4px 9px;font-size:12px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.pick{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;max-width:760px}
+.pick button{display:flex;flex-direction:column;gap:4px;align-items:flex-start;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;cursor:pointer;font:inherit;color:var(--ink);box-shadow:var(--shadow)}
+.pick button:hover,.pick button:focus-visible{border-color:var(--accent);outline:none}
+.pick b{font-size:16px}.pick span{font-size:13px;color:var(--ink3)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.banner{border-radius:10px;padding:10px 14px;font-size:13px;background:var(--warn-bg);color:var(--warn)}
+.stamp{font-size:12px;color:var(--ink3)}
+.stamp b{color:var(--ink2);font-weight:600}
+.score{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+@media (max-width:420px){.score{grid-template-columns:1fr}}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 14px 12px;display:flex;flex-direction:column;gap:8px}
+.kpi .head{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.kpi .code{font:600 12px var(--disp);color:var(--accent)} .kpi .w{font-size:11px;color:var(--ink3);background:var(--sunk);padding:1px 7px;border-radius:99px}
+.kpi .name{font:600 14px var(--disp)} .kpi .big{font:700 30px var(--disp);line-height:1.1;color:var(--ink)}
+.kpi .big.good{color:var(--good)} .kpi .big.warn{color:var(--warn)} .kpi .big.bad{color:var(--bad)} .kpi .big.live{color:var(--ink)} .kpi .big.none{color:var(--ink3)}
+.kpi .cap{font-size:11px;color:var(--ink3);margin-top:-4px}
+.kpi .rows{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:13px;margin:0}
+.kpi .rows dt{color:var(--ink3)} .kpi .rows dd{margin:0;text-align:right;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.kpi .rows dd.note{grid-column:1/-1;text-align:left;color:var(--ink3);font-weight:500} .kpi .rows dd.good{color:var(--good)} .kpi .rows dd.warn{color:var(--warn)} .kpi .rows dd.bad{color:var(--bad)} .kpi .rows dd.mute{color:var(--ink3);font-weight:500}
+.kpi .rule{font-size:11px;color:var(--ink3);border-top:1px dashed var(--line);padding-top:6px}
+.kpi button.go{align-self:flex-start;border:0;background:none;color:var(--accent);font:600 12px var(--body);padding:0;cursor:pointer}
+.pill{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--sunk);color:var(--ink2);white-space:nowrap}
+.pill.good{background:var(--good-bg);color:var(--good)} .pill.warn{background:var(--warn-bg);color:var(--warn)} .pill.bad{background:var(--bad-bg);color:var(--bad)} .pill.ex{background:var(--brass-bg);color:var(--brass)}
+.bar{height:6px;border-radius:99px;background:var(--sunk);overflow:hidden} .bar i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.tscroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:7px 9px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;vertical-align:top}
+th{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink3);font-weight:600;background:var(--sunk)}
+th:first-child,td:first-child{text-align:left} td.l,th.l{text-align:left}
+tr.cur td{background:var(--accent-soft)} tr.tot td{font-weight:600;border-top:2px solid var(--line)}
+td.wrap{display:table-cell;max-width:none;margin:0;white-space:normal;min-width:200px}
+.chart{width:100%;height:auto;display:block}
+.chart text{fill:var(--ink3);font:11px var(--body)} .chart .lbl{fill:var(--ink2);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:12px;padding:4px 9px;border-radius:8px;border:1px solid var(--line);background:var(--surface);display:inline-flex;gap:6px;align-items:center}
+.chip b{font-family:var(--disp)}
+.chip.good{border-color:var(--good);background:var(--good-bg);color:var(--good)}
+.chip.warn{border-color:var(--warn);background:var(--warn-bg);color:var(--warn)}
+.chip.bad{border-color:var(--bad);background:var(--bad-bg);color:var(--bad)}
+.chip.ex{border-color:var(--brass);background:var(--brass-bg);color:var(--brass)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--ink3)}
+.key{display:inline-flex;align-items:center;gap:5px;font-size:12px}
+.key::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.key.good{color:var(--good)} .key.warn{color:var(--warn)} .key.bad{color:var(--bad)}
+details.au{border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+details.au+details.au,.au+.au{margin-top:6px}
+.au.plain{border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.vis .sumrow,details.au.vis summary{display:grid;grid-template-columns:100px 160px 80px 1fr 100px;gap:10px;align-items:center;padding:9px 12px;font-size:13px}
+.vis .sumrow>:nth-child(4),details.au.vis summary>:nth-child(4){justify-self:start}
+.vis .cnt{color:var(--accent);font-weight:600;text-align:right} .vis .cnt.none{color:var(--ink3);font-weight:400}
+@media (max-width:560px){.vis .sumrow,details.au.vis summary{grid-template-columns:80px 1fr auto}.vis .hide-s{display:none}}
+details.au summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:92px minmax(90px,1.2fr) 70px minmax(70px,1fr) auto;gap:10px;align-items:center;padding:9px 12px;font-size:13px}
+details.au summary::-webkit-details-marker{display:none}
+details.au[open] summary{border-bottom:1px solid var(--line)}
+details.au .body{padding:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+details.au h4{margin:0 0 6px;font:600 12px var(--body);letter-spacing:.03em;display:flex;justify-content:space-between}
+details.au ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:3px;font-size:13px}
+details.au li{display:flex;justify-content:space-between;gap:10px}
+details.au li b{font-family:var(--disp);min-width:18px;text-align:right}
+.s-hi{color:var(--good)} .s-lo{color:var(--bad)}
+.notes{grid-column:1/-1;font-size:13px;display:flex;flex-direction:column;gap:4px}
+@media (max-width:560px){details.au summary{grid-template-columns:80px 1fr auto}details.au summary .hide-s{display:none}}
+.vcal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.vcal .dow{font-size:11px;font-weight:600;color:var(--ink3);text-align:center;letter-spacing:.04em;padding:2px 0}
+.vcal .dow.we{color:var(--brass)}
+.vcal .day{min-height:76px;border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:4px 5px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.vcal .day.blank{background:transparent;border-style:dashed;opacity:.45}
+.vcal .day.has{background:var(--accent-soft);border-color:var(--accent)}
+.vcal .day.today{outline:2px solid var(--accent);outline-offset:-1px}
+.vcal .dn{font:600 12px var(--disp);color:var(--ink3)} .vcal .day.has .dn{color:var(--accent)}
+:is(.vcal,.vlg) .vb{font:600 11px var(--disp);padding:1px 5px;border-radius:5px;background:var(--surface);color:var(--ink);border:1px solid var(--line);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+:is(.vcal,.vlg) .vb.ok{background:var(--good);border-color:var(--good);color:var(--surface)} :is(.vcal,.vlg) .vb.ok::after{content:' ✓'} :is(.vcal,.vlg) .vb.ex{border-color:var(--brass);color:var(--brass);background:var(--brass-bg)}
+.vcal .day.off{background:var(--bad-bg);border-color:color-mix(in srgb,var(--bad) 45%,var(--line))}
+.vcal .day.off .dn{color:var(--bad)}
+.vcal .offt{font-size:10px;font-weight:600;color:var(--bad);letter-spacing:.02em}
+.vlg .vli{display:inline-flex;align-items:center;gap:6px}
+:is(.vcal,.vlg) .vb.nt{border-style:dashed;border-color:var(--accent);color:var(--accent);background:var(--surface)}
+.pill.nt{background:transparent;border:1px dashed var(--accent);color:var(--accent);padding:1px 6px}
+.vbr{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+:is(.vcal,.vlg) .vb.oth{border-style:dashed;border-color:var(--ink3);color:var(--ink2);background:var(--sunk)}
+@media (max-width:560px){.vcal .vb.ok::after{content:none}.vcal{gap:2px}.vcal .day{min-height:58px;padding:3px 2px;gap:2px}.vcal .vb{font-size:9px;padding:0 1px;border-width:0 0 0 2px;border-radius:2px;text-overflow:clip;letter-spacing:-.02em}.vcal .dn{font-size:11px}}
+.sheet{border:1px solid var(--line);border-radius:14px;padding:0;width:min(760px,calc(100% - 24px));max-height:86vh;background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.sheet::backdrop{background:rgba(10,16,13,.45)}
+.sh-head{position:sticky;top:0;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--line)}
+.sh-body{padding:14px 16px 18px;display:flex;flex-direction:column;gap:12px}
+.trend{display:flex;gap:6px;align-items:flex-end;min-height:64px}
+.tcol{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:34px}
+.tcol i{display:block;width:22px;border-radius:4px 4px 0 0;background:var(--ink3);opacity:.45}
+.tcol.cur i{opacity:1} .tcol i.good{background:var(--good)} .tcol i.warn{background:var(--warn)} .tcol i.bad{background:var(--bad)}
+.tcol .tv{font:600 11px var(--disp);color:var(--ink2)} .tcol .tm{font-size:10px;color:var(--ink3)} .tcol.cur .tm{color:var(--ink);font-weight:600}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.tcard{background:var(--sunk);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.act{gap:8px}
+.actrow{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:9px 12px;border-radius:10px;border-left:4px solid var(--line);background:var(--sunk)}
+.actrow>span.small{grid-column:1} .actrow .go{grid-column:2;grid-row:1/3;align-self:center;color:var(--accent);font-weight:600;font-size:12px}
+.actrow.bad{border-left-color:var(--bad);background:var(--bad-bg)} .actrow.warn{border-left-color:var(--warn);background:var(--warn-bg)}
+.actrow:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.subtabs{align-self:flex-start;flex-wrap:wrap}
+td.cm{background:var(--accent-soft)}
+.dl{font:600 12px var(--disp);white-space:nowrap} .dl.up{color:var(--good)} .dl.down{color:var(--bad)} .dl.flat,.dl.none{color:var(--ink3)}
+.scsum{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.scsum .grp{border-radius:10px;padding:10px 12px;border-left:4px solid}
+.scsum h4{margin:0 0 6px;font:600 13px var(--body)}
+.scsum ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px;font-size:13px}
+.scsum li{display:flex;justify-content:space-between;gap:10px;align-items:center}
+tr.asb td{background:var(--bad-bg)}
+.lhero{flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px;background:linear-gradient(135deg,var(--surface),var(--brass-bg))}
+.lh-l{display:flex;gap:16px;align-items:center}
+.trophy{width:110px;flex:none} .trophy svg{width:100%;height:auto;display:block} .trophy.sm{width:44px}
+.champ{font:700 30px var(--disp);line-height:1.1} .champ-s{font:700 20px var(--disp);color:var(--brass)}
+.pill.lt{background:var(--sunk);color:var(--ink2);font-size:10px;padding:1px 6px}
+.podium{display:grid;grid-template-columns:repeat(3,110px);gap:8px;align-items:end}
+.pod{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;font-size:13px}
+.pod b{font:700 14px var(--disp)} .pod .step{width:100%;border-radius:8px 8px 0 0;margin-top:4px}
+.pod.p1 .step{height:70px;background:linear-gradient(#F6D77A,#B88A24)} .pod.p2 .step{height:48px;background:linear-gradient(#E4E7EA,#9AA3AB)} .pod.p3 .step{height:34px;background:linear-gradient(#E8B98C,#A0643A)}
+.medal{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;font:700 13px var(--disp);color:#2A1C00;background:#E2B84A;border:2px solid #8A6414}
+.pod.p2 .medal,.medal.m2{background:#D5DADF;border-color:#7E878F;color:#1F262C} .pod.p3 .medal,.medal.m3{background:#E3A877;border-color:#8A5228;color:#2C1708}
+.awards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.award{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:2px;padding:12px 14px;border-radius:12px;background:var(--sunk);border-top:4px solid var(--brass)}
+.award.off{cursor:default;opacity:.6} .aw-t{font:600 11px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--brass)} .aw-n{font:700 20px var(--disp)} .aw-v{font:600 13px var(--disp);color:var(--good)}
+.tbattle{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center}
+.tb{background:var(--sunk);border-radius:12px;padding:12px 14px;border:2px solid transparent} .tb.lead{border-color:var(--good);background:var(--good-bg)}
+.tb-h{display:flex;justify-content:space-between;align-items:center} .tb-v{font:700 26px var(--disp)} .vs{font:700 16px var(--disp);color:var(--ink3)}
+.ltable td{vertical-align:middle} .lrk{width:44px} .lsc{min-width:180px} .lsc .num{display:inline-block;width:64px;font-weight:600}
+.lbar{display:inline-block;vertical-align:middle;width:calc(100% - 72px);min-width:60px;height:8px;border-radius:99px;background:var(--sunk);overflow:hidden} .lbar i{display:block;height:100%;background:var(--accent);border-radius:99px}
+tr.ltop td{background:color-mix(in srgb,var(--brass-bg) 60%,transparent)} tr.lbot td{background:color-mix(in srgb,var(--bad-bg) 55%,transparent)} tr.lbot .lbar i{background:var(--bad)}
+.hof{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.hofc{all:unset;box-sizing:border-box;cursor:pointer;display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:var(--sunk)} .hofc.cur{background:var(--brass-bg);outline:1px solid var(--brass)}
+@media (max-width:560px){.podium{grid-template-columns:repeat(3,1fr);width:100%}.lh-l{width:100%}.trophy{width:84px}.champ{font-size:24px}.tbattle{grid-template-columns:1fr}.vs{text-align:center}}
+/* ---- colour per section (League style) ---- */
+#view{--tc:var(--accent)}
+#view[data-tab=sales]{--tc:var(--c-sales)} #view[data-tab=audit]{--tc:var(--c-audit)} #view[data-tab=visit]{--tc:var(--c-visit)} #view[data-tab=focus]{--tc:var(--c-focus)}
+#view[data-tab=demand]{--tc:var(--c-demand)} #view[data-tab=team]{--tc:var(--c-exam)} #view[data-tab=league]{--tc:var(--c-exam)} #view[data-tab=manager]{--tc:var(--c-mgr)} #view[data-tab=settings]{--tc:var(--ink3)}
+#view .panel:not(.lhero):not([style*="transparent"]){border-top:4px solid var(--tc);background:linear-gradient(165deg,color-mix(in srgb,var(--tc) 11%,var(--surface)) 0,var(--surface) 160px)}
+#view .panel>h2:first-child::before,#view section>h2:first-child::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--tc);margin-right:8px;vertical-align:1px}
+#view .stat{background:color-mix(in srgb,var(--tc) 9%,var(--sunk));border-left:4px solid var(--tc)}
+#view .stat .v{color:color-mix(in srgb,var(--tc) 55%,var(--ink))}
+#view .tcov .stat{background:var(--surface)}
+#view th{background:color-mix(in srgb,var(--tc) 10%,var(--sunk))}
+#view .seg button[aria-pressed="true"]{color:var(--tc);box-shadow:inset 0 -2px 0 var(--tc),var(--shadow)}
+.tabs button[aria-selected="true"]{color:var(--tc,var(--accent));border-bottom-color:var(--tc,var(--accent))}
+.tabs button::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--tc,var(--accent));margin-right:6px;vertical-align:1px;opacity:.75}
+.kpi{border-top:4px solid var(--tc,var(--line));background:linear-gradient(170deg,color-mix(in srgb,var(--tc) 12%,var(--surface)) 0,var(--surface) 130px)}
+.kpi .code{color:var(--tc)} .kpi .w{background:color-mix(in srgb,var(--tc) 14%,var(--sunk));color:color-mix(in srgb,var(--tc) 60%,var(--ink2))}
+.kpi button.go{color:var(--tc)} .kpi .bar i{background:var(--tc)}
+.tcard{border-top:3px solid var(--tc,var(--line));background:color-mix(in srgb,var(--tc) 8%,var(--sunk))}
+.sheet{border-top:4px solid var(--tc,var(--accent))} .sh-head{background:linear-gradient(135deg,color-mix(in srgb,var(--tc,var(--accent)) 14%,var(--surface)),var(--surface))}
+.top{background:linear-gradient(180deg,var(--ground) 70%,color-mix(in srgb,var(--brass-bg) 40%,var(--ground)))}
+.sortb{all:unset;cursor:pointer;font:inherit;letter-spacing:inherit;text-transform:inherit;color:inherit;white-space:nowrap} .sortb .arr{opacity:.5} .sortb.on{color:var(--accent)} .sortb.on .arr{opacity:1} .sortb:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+tr.click{cursor:pointer} tr.click:hover td{background:var(--accent-soft)} tr.click:focus-visible{outline:2px solid var(--accent)}
+.items tr.more{display:none} .items.all tr.more{display:table-row}
+button.chip,button.tc{font:inherit;cursor:pointer;text-align:left;color:inherit}
+button.chip:hover,button.tc:hover{box-shadow:var(--shadow)}
+.vcal .day.tap{cursor:pointer} .vcal .day.tap:hover{box-shadow:var(--shadow)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.stat{background:var(--sunk);border-radius:10px;padding:10px 12px}
+.stat .v{font:700 22px var(--disp)} .stat .k{font-size:12px;color:var(--ink3)}
+details.br{border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+details.br+details.br{margin-top:8px}
+details.br summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:92px 72px minmax(120px,1fr) 78px 70px 72px;gap:14px;align-items:center;padding:10px 14px}
+.fcode{display:flex;flex-direction:column;line-height:1.2} .fcode b{font:700 15px var(--disp)} .fcode small{font-size:11px;color:var(--ink3)}
+.fpct{font:700 20px var(--disp);text-align:right} .fpct.good{color:var(--good)} .fpct.warn{color:var(--warn)} .fpct.bad{color:var(--bad)}
+.fbarw{display:flex;flex-direction:column;gap:3px} .fbarw small{font-size:11px;color:var(--ink3)}
+.fbar{position:relative;height:8px;border-radius:99px;background:var(--sunk)} .fbar i{position:absolute;inset:0 auto 0 0;border-radius:99px}
+.fbar.good i{background:var(--good)} .fbar.warn i{background:var(--warn)} .fbar.bad i{background:var(--bad)}
+.fbar b{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink3);opacity:.5}
+.fmiss{justify-self:start;font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px;background:var(--bad-bg);color:var(--bad)} .fmiss.zero{background:var(--good-bg);color:var(--good)}
+
+.ftiers{display:flex;flex-direction:column;gap:6px}
+.ftier{display:flex;align-items:baseline;gap:10px;padding:10px 2px 4px;border-bottom:1px solid var(--line);margin-bottom:4px}
+.ftier:first-child{padding-top:0}
+.ftier h3{font-size:15px}
+.fpct-s.l1{color:var(--bad)} .fpct-s.l2{color:var(--orng)} .fpct-s.l3{color:var(--ylw)} .fpct-s.l4{color:var(--good)}
+.tcov{display:flex;flex-direction:column;gap:10px;background:var(--sunk);border-radius:12px;padding:14px}
+.tcov .stat{background:var(--surface)}
+.tcgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:6px}
+.tc{background:var(--surface);border:1px solid var(--line);border-left:4px solid;border-radius:8px;padding:4px 8px;display:grid;grid-template-columns:1fr auto;gap:0 6px;align-items:baseline;line-height:1.35}
+.tc b{font-size:13px} .tc .tcn{font:700 15px var(--disp)} .tc .tcby{grid-column:1/-1;color:var(--ink2);font-size:11px}
+.tc.good{border-left-color:var(--good);background:var(--good-bg)} .tc.good .tcn{color:var(--good)} .tc.warn{border-left-color:var(--warn);background:var(--warn-bg)} .tc.warn .tcn{color:var(--warn)} .tc.bad{border-left-color:var(--bad);background:var(--bad-bg)} .tc.bad .tcn{color:var(--bad)}
+.fgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:900px){.fgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.fcard{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:6px;padding:12px 14px;border:1px solid var(--line);border-left:4px solid var(--line);border-radius:12px;background:var(--surface)}
+.fcard.good{border-left-color:var(--good)} .fcard.warn{border-left-color:var(--warn)} .fcard.bad{border-left-color:var(--bad)}
+.fcard:hover{box-shadow:var(--shadow)} .fcard:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.fcard.sel{background:var(--accent-soft);border-color:var(--accent)}
+.fc-top{display:flex;justify-content:space-between;align-items:baseline} .fc-top b{font:700 16px var(--disp)} .fc-top small{font-size:11px;color:var(--ink3)}
+.fcard .fpct{text-align:left;font-size:26px;line-height:1.1}
+.fc-sub{font-size:12px;color:var(--ink3)} .fc-tags{display:flex;gap:8px;align-items:center}
+.fdetail{margin-top:12px;border:1px solid var(--accent);border-radius:12px;padding:12px;background:var(--surface)}
+.fdetail .body{padding:0!important;margin-top:8px}
+.key.l1,.fpct.l1{color:var(--bad)} .key.l2,.fpct.l2{color:var(--orng)} .key.l3,.fpct.l3{color:var(--ylw)} .key.l4,.fpct.l4{color:var(--good)}
+.fbar.l1 i{background:var(--bad)} .fbar.l2 i{background:var(--orng)} .fbar.l3 i{background:var(--ylw)} .fbar.l4 i{background:var(--good)}
+.fcard.l1{border-left-color:var(--bad)} .fcard.l2{border-left-color:var(--orng)} .fcard.l3{border-left-color:var(--ylw)} .fcard.l4{border-left-color:var(--good)}
+.kpi .big.l1{color:var(--bad)} .kpi .big.l2{color:var(--orng)} .kpi .big.l3{color:var(--ylw)} .kpi .big.l4{color:var(--good)} .kpi .rows dd.l1{color:var(--bad)} .kpi .rows dd.l2{color:var(--orng)} .kpi .rows dd.l3{color:var(--ylw)} .kpi .rows dd.l4{color:var(--good)}
+.fex{font-size:12px;color:var(--brass)} .fpcs{font-size:12px;color:var(--ink3);text-align:right}
+.fhead{display:grid;grid-template-columns:92px 72px minmax(120px,1fr) 78px 70px 72px;gap:14px;padding:0 14px 4px;font-size:11px;color:var(--ink3);letter-spacing:.03em}
+.fhead span:nth-child(2),.fhead span:nth-child(6){text-align:right}
+details.br summary::-webkit-details-marker{display:none}
+details.br summary .code{font:700 14px var(--disp)}
+details.br[open] summary{border-bottom:1px solid var(--line)}
+:is(details.br,.fdetail) .body{padding:12px;display:flex;flex-direction:column;gap:14px}
+:is(details.br,.fdetail) .body h4{margin:0 0 6px;font:600 12px var(--body);letter-spacing:.04em;text-transform:uppercase}
+:is(details.br,.fdetail) .body ul{margin:0;padding:0;list-style:none;columns:190px;column-gap:28px;font-size:13px}
+:is(details.br,.fdetail) .body li{display:flex;justify-content:space-between;gap:8px;break-inside:avoid;padding:2px 0;border-bottom:1px dashed var(--line)}
+:is(details.br,.fdetail) .body .empty{padding:0}
+:is(details.br,.fdetail) .grp{border-radius:10px;padding:10px 14px 12px;border-left:4px solid}
+:is(details.br,.fdetail) .grp h4{font-size:13px;margin-bottom:8px}
+:is(details.br,.fdetail) .grp .tag{font-size:12px;opacity:.8;white-space:nowrap}
+:is(details.br,.fdetail) .g-ex ul{columns:300px}
+.g-miss{background:var(--bad-bg);border-color:var(--bad)!important}
+.g-ex{background:var(--brass-bg);border-color:var(--brass)!important}
+.g-have{background:var(--good-bg);border-color:var(--good)!important}
+:is(details.br,.fdetail) .grp li{border-bottom-color:color-mix(in srgb,currentColor 18%,transparent)}
+:is(details.br,.fdetail) .g-miss li{color:var(--bad);font-weight:500}
+:is(details.br,.fdetail) .body li .num{white-space:nowrap}
+@media (max-width:560px){details.br summary,.fhead{grid-template-columns:60px 62px 1fr 60px}.fex,.fpcs,.fhead span:nth-child(5),.fhead span:nth-child(6){display:none}}
+.h-have{color:var(--good)} .h-miss{color:var(--bad)} .h-ex{color:var(--brass)}
+.empty{color:var(--ink3);font-size:13px;padding:8px 0}
+.admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.mini td input{width:110px;padding:4px 6px;text-align:right} .mini td input.s{width:70px}
+.diag{font-size:12px;background:var(--sunk);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.diag .warn{color:var(--warn)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--ground);padding:9px 16px;border-radius:10px;font-size:13px;box-shadow:var(--shadow);z-index:10}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="toprow">
+      <div>
+        <span class="eyebrow">Bangkok Bootery the Exotic · Goal Setting 2026</span>
+        <h1 id="title">Supervisor Goal Board</h1>
+      </div>
+      <div class="controls">
+        <div class="seg" id="scopeSeg" role="group" aria-label="Supervisor"></div>
+        <select id="monthSel" aria-label="Month"></select>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist" id="tabs"></nav>
+  </header>
+  <div class="banner" id="banner" hidden></div>
+  <main id="view"></main>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+/*PROC*/
+</script>
+<script>
+(() => {
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const TH_M=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+const YEAR=2026, ym=m=>`${YEAR}-${String(m).padStart(2,'0')}`;
+const SHEETS={audit:'1rqwdmccSqz60tEG039A77ivkc-ZW06fHw2dkO0klunY',demand:'1GI-TUQoQc3p5bHVmA_CsLvz_Ae23mSpdJWxJCO1cQIQ',sales:'1UjO_8Upfe2grXg0F2QcCrtM13md-60st629LD-zh7aE',staff:'1yE7oALXvKcKhP3U75C_vzq6BcGSi4XR4JBLApP5W8mM'};
+const PEOPLE_FROM='2026-06'; // audit / visit / exam / demand records start in June 2026
+const DEFAULT_ALIASES={'กิ้ฟ':['กุ๊บกิ๊บ','กิ๊ฟ','กุ้บกิ้ฟ'],'ญาญ่า':['ญ่า','ญา']};
+const DRIVE='Google Drive';
+const MAIN=GSProc.MAIN, TYPE_LABEL={L:'Lady',M:'Men',S:'Shop'};
+const $=(s,r=document)=>r.querySelector(s);
+const el=(tag,attrs={},...kids)=>{const e=document.createElement(tag);for(const[k,v] of Object.entries(attrs)){if(v==null||v===false)continue;if(k==='class')e.className=v;else if(k.startsWith('on'))e.addEventListener(k.slice(2),v);else e.setAttribute(k,v===true?'':v);}for(const k of kids.flat()){if(k==null||k===false)continue;e.append(k.nodeType?k:document.createTextNode(String(k)));}return e;};
+const fmt=(n,d=0)=>n==null||isNaN(n)?'–':Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const pct=(n,d=1)=>n==null||!isFinite(n)?'–':(n*100).toFixed(d)+'%';
+const thDate=s=>{if(!s)return '–';const[y,m,d]=s.split('-').map(Number);return `${d} ${MONTHS[m-1]} ${y}`;};
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const nameKey=s=>String(s||'').replace(/\(.*?\)/g,'').replace(/^คุณ/,'').replace(/[\u0E48-\u0E4B\u0E4C]/g,'').replace(/[\u0E38\u0E39]+/g,'\u0E38').replace(/\s+/g,'').trim(); // ignore tone marks: กิ้ฟ = กิ๊ฟ, ตูุ๊กตา = ตุ๊กตา
+function aliasMap(){const out={};const add=(c,list)=>(list||[]).forEach(a=>{const k=nameKey(a);if(k&&k!==nameKey(c))out[k]=c;});
+  Object.entries(DEFAULT_ALIASES).forEach(([c,l])=>add(c,l));Object.entries(cfg().aliases||{}).forEach(([c,l])=>add(c,l));return out;}
+const rosterKeys=r=>{const am=aliasMap(),own=nameKey(r.name);return [own,...(r.aliases||[]).map(nameKey),...Object.keys(am).filter(k=>nameKey(am[k])===own)].filter(Boolean);};
+function canonOf(sc,ro){const k=nameKey(sc);const r=ro.find(x=>rosterKeys(x).includes(k));if(r)return nameKey(r.name);const am=aliasMap();return am[k]?nameKey(am[k]):k;}
+
+const S={auditSub:store.get('gs2.auditSub')||'cov',scope:null, /* no default: viewer picks a supervisor first */month:Number(store.get('gs2.month'))||(new Date().getFullYear()===YEAR?new Date().getMonth()+1:9),tab:store.get('gs2.tab')||'overview',
+  config:null,monthly:{},team:{},audit:null,demand:null,sales:null,staff:null,stocks:[],db:null,user:null,mcp:null,canAdmin:false,openBr:{}};
+const DEFAULT_CFG={supervisors:[{scope:'SENIOR',title:'Supervisor'},{scope:'BKK',title:'Supervisor BKK'},{scope:'UPC',title:'Supervisor UPC'}],roster:[],focus:[],discountPeriods:[],liveTargets:{}};
+const cfg=()=>S.config||DEFAULT_CFG;
+const sup=()=>cfg().supervisors.find(s=>s.scope===S.scope)||{};
+const mainIn=scope=>Object.keys(MAIN).filter(k=>scope==='SENIOR'||MAIN[k].s===scope);
+// Senior Supervisor (คุณโอ๋): sales + focus = whole country; audit = own evaluations of BKK SCs; visit KPI = BKK branches (UPC visits shown, not counted)
+const isSr=()=>S.scope==='SENIOR';
+const team=()=>isSr()?'BKK':S.scope;
+const SR_KEY='โอ'; // nameKey of คุณโอ๋
+// whose audits/visits count on each board: Supervisor = คุณโอ๋, Supervisor BKK = คุณเอ, Supervisor UPC = คุณโบว์ until 2026-07, vacant 2026-08, คุณมิ้ว from 2026-09 (only UPC evaluator kept by the parser)
+const EV_KEY={SENIOR:'โอ',BKK:'เอ'};
+const upcSup=ym=>ym>='2026-09'?'คุณมิ้ว':ym==='2026-08'?'ว่าง · ไม่มี Sup':'คุณโบว์'; // UPC Sup: โบว์ until Jul 2026, vacant Aug, มิ้ว from Sep
+const SUP_NAME={SENIOR:'คุณโอ๋',BKK:'คุณเอ',get UPC(){return upcSup(curYM());}};
+const evOK=ev=>!EV_KEY[S.scope]||nameKey(ev)===EV_KEY[S.scope];
+const salesScopes=()=>isSr()?['BKK','UPC']:[S.scope];
+// Who is on a team in a month: from the HR sheet (nickname + work location). Out from the month they resign, whatever the day.
+const addDays=(d,n)=>{const t=new Date(d+'T00:00:00Z');t.setUTCDate(t.getUTCDate()+n);return t.toISOString().slice(0,10);};
+const GRACE=14; // new staff are evaluated after 14 days; no sales form for more than 14 days = left
+// Merge the HR sheet with the daily sales form. Each person: {name, scope, fromYM, untilYM|null, note}
+function mergedPeople(){
+  if(!S.staff)return null;
+  const am=aliasMap(),form=S.sales?.sc||[],months=Object.values(S.sales?.months||{}),dataLast=months.map(m=>m.lastDate).sort().pop()||null;
+  const key=(n,sc)=>nameKey(n)+'|'+sc,fk={};form.forEach(f=>{if(f.scope)fk[key(am[nameKey(f.name)]||f.name,f.scope)]=f;});
+  const used=new Set(),out=[],seen=new Set();
+  const decide=(name,scope,start,end,left,f,src)=>{
+    const k=key(name,scope);if(seen.has(k))return;seen.add(k);
+    let until=null,note='';
+    const gone=f&&dataLast&&f.last<addDays(dataLast,-GRACE);
+    if(end&&f&&f.last>end){note=`ชีทพนักงานลงลาออก ${end} แต่ยังส่งยอดถึง ${f.last}`;if(gone){until=f.last.slice(0,7);note+=' แล้วหายไป';}}
+    else if(end)until=end.slice(0,7);
+    else if(left||gone){if(f){until=f.last.slice(0,7);note=left?`ลาออกไม่มีวันที่ ส่งยอดล่าสุด ${f.last}`:`ไม่ส่งยอดตั้งแต่ ${f.last} ถือว่าออก`;}else{until='0000-00';note='ลาออกไม่มีวันที่ และไม่มีในฟอร์มส่งยอด';}}
+    const ov=(cfg().leftOverride||{})[name];
+    if(ov){until=ov;note=`ตั้งค่าว่าออกแล้ว เดือน ${MONTHS[+ov.slice(5)-1]}`;}
+    const st=start||f?.first||null;
+    out.push({name,scope,fromYM:st?addDays(st,GRACE).slice(0,7):null,untilYM:until,note,src});
+  };
+  S.staff.people.forEach(p=>{if(am[nameKey(p.name)])return;const f=fk[key(p.name,p.scope)];if(f)used.add(f);decide(p.name,p.scope,p.start,p.end,p.left,f,'HR');});
+  form.forEach(f=>{if(used.has(f)||!f.scope||am[nameKey(f.name)])return;decide(f.name,f.scope,null,null,false,f,'form');});
+  return out;
+}
+// Who is on a team in a month. Out from the month they leave, whatever the day; in once they pass 14 days.
+function rosterFor(scope,ymk){
+  const mp=mergedPeople();
+  if(!mp)return cfg().roster.filter(r=>r.scope===scope&&r.active!==false);
+  return mp.filter(p=>p.scope===scope&&(!p.fromYM||p.fromYM<=ymk)&&(!p.untilYM||p.untilYM>ymk)).map(p=>({name:p.name,scope}));
+}
+const rosterIn=()=>rosterFor(team(),curYM());
+const peopleOK=()=>curYM()>=PEOPLE_FROM;
+const otherScope=()=>team()==='BKK'?'UPC':'BKK';
+const curYM=()=>ym(S.month);
+function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,3000);}
+function banner(m){const b=$('#banner');b.hidden=!m;b.textContent=m||'';}
+function tone(v,g,w){if(v==null||!isFinite(v))return '';return v>=g?'good':v>=w?'warn':'bad';}
+function barEl(v){const b=el('div',{class:'bar'});const i=el('i');i.style.width=Math.max(0,Math.min(1,v||0))*100+'%';b.append(i);return b;}
+const stampTxt=(label,ts)=>el('div',{class:'stamp'},label,' ',el('b',{},ts?(()=>{const d=new Date(ts);return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;})():'ยังไม่เคยอัปเดต'));
+
+/* ---------- derived data ---------- */
+function liveTarget(ymk,scope){const lt=(cfg().liveTargets||{})[ymk];const L=S.sales?.months?.[ymk];if(!lt||lt[scope]==null)return null;
+  const n=L?.eventsWithSales||0,mine=L?.[scope]?.eventsWithSales||0;return lt[scope]+(n&&lt.event?lt.event*mine/n:0);}
+function rowFor(scope,m){const id=ym(m),d=S.monthly[`${scope}-${id}`]||{},L=S.sales?.months?.[id]?.[scope];
+  if(!d.closed&&L)return {m,live:true,asOf:S.sales.months[id].lastDate,sales:L.sales,target:d.target??liveTarget(id,scope),disc:d.disc??null,eventDays:L.eventDays,events:L.events.map(e=>({code:e.code,days:e.days}))};
+  return {m,sales:d.sales??null,target:d.target??null,disc:d.disc??null,eventDays:d.eventDays??null,events:d.events||[]};}
+function salesRows(){const r=[];for(let m=1;m<=12;m++){const parts=salesScopes().map(sc=>rowFor(sc,m));if(parts.length===1){r.push(parts[0]);continue;}
+  const sum=k=>parts.every(p=>p[k]!=null)?parts.reduce((a,p)=>a+p[k],0):null;
+  r.push({m,live:parts.some(p=>p.live),asOf:parts.map(p=>p.asOf).filter(Boolean).sort().pop(),sales:sum('sales'),target:sum('target'),disc:null,eventDays:sum('eventDays'),events:parts.flatMap(p=>p.events||[])});}
+  return r;}
+function salesStats(){
+  const rows=salesRows(),upto=rows.filter(r=>r.m<=S.month),have=upto.filter(r=>r.sales!=null&&r.target&&!r.live); // YTD / average use closed months only
+  const ytdS=have.reduce((a,r)=>a+r.sales,0),ytdT=have.reduce((a,r)=>a+r.target,0),achs=have.map(r=>r.sales/r.target),cur=rows[S.month-1];
+  return {rows,cur,ytdAll:upto.reduce((x,r)=>x+(r.sales||0),0),lastClosed:have.length?have[have.length-1].m:null,curAch:cur.sales!=null&&cur.target?cur.sales/cur.target:null,ytdS,ytdT,ytdAch:ytdT?ytdS/ytdT:null,avgAch:achs.length?achs.reduce((a,b)=>a+b,0)/achs.length:null,nMonths:achs.length,evYTD:upto.reduce((a,r)=>a+(r.eventDays||0),0),evCur:cur.eventDays};
+}
+// Every Sup's audits of this team's SCs (company rule: coverage counts whoever evaluated)
+function auditsTeamAll(){if(!peopleOK())return [];const mine=new Set(rosterIn().flatMap(rosterKeys)),other=new Set(rosterFor(otherScope(),curYM()).flatMap(rosterKeys));
+  return (S.audit?.audits||[]).filter(a=>a.scope===team()&&a.ym===curYM()&&!a.x&&!(other.has(nameKey(a.sc))&&!mine.has(nameKey(a.sc))));}
+const evShort=ev=>String(ev||'').replace(/^คุณ/,'');
+function teamCoverage(){
+  const recs=auditsTeamAll(),ro=rosterIn(),evs=[...new Set(recs.map(a=>evShort(a.ev)))].sort();
+  const rows=ro.map(r=>{const k=nameKey(r.name),mine=recs.filter(a=>canonOf(a.sc,ro)===k),by={};mine.forEach(a=>{const e=evShort(a.ev);by[e]=(by[e]||0)+1;});return {name:r.name,n:mine.length,by};});
+  rows.sort((a,b)=>a.n-b.n||a.name.localeCompare(b.name,'th'));
+  const cnt=f=>rows.filter(f).length;
+  return {recs,rows,evs,z:cnt(r=>!r.n),one:cnt(r=>r.n===1),two:cnt(r=>r.n===2),three:cnt(r=>r.n>=3)};
+}
+function auditsMonth(){if(!peopleOK())return [];const mine=new Set(rosterIn().flatMap(rosterKeys)),other=new Set(rosterFor(otherScope(),curYM()).flatMap(rosterKeys));
+  return (S.audit?.audits||[]).filter(a=>a.scope===team()&&a.ym===curYM()&&!a.x&&evOK(a.ev)&&!(other.has(nameKey(a.sc))&&!mine.has(nameKey(a.sc))));} // skip SCs of the other team
+function visitsMonth(){if(!peopleOK())return [];return (S.audit?.visits||[]).filter(v=>v.scope===team()&&v.ym===curYM()&&evOK(v.ev)&&(isSr()||!v.x));}
+function auditStats(){
+  const recs=auditsMonth(),ro=rosterIn(),by={};
+  recs.forEach(a=>{const k=canonOf(a.sc,ro);(by[k]=by[k]||[]).push(a);});
+  const known=new Set(ro.flatMap(rosterKeys));
+  const unknown=[...new Set(recs.map(a=>a.sc).filter(s=>!known.has(nameKey(s))))];
+  const c1=ro.filter(r=>(by[nameKey(r.name)]||[]).length>=1).length,c2=ro.filter(r=>(by[nameKey(r.name)]||[]).length>=2).length;
+  const sc=recs.map(a=>a.avg).filter(v=>v!=null);
+  return {recs,ro,by,c1,c2,unknown,avg:sc.length?sc.reduce((a,b)=>a+b,0)/sc.length:null};
+}
+function visitStats(){
+  const all=visitsMonth(),recs=all.filter(v=>!v.x),extra=all.filter(v=>v.x),br=mainIn(team()),by={};recs.forEach(v=>{const k=v.br||v.brRaw;by[k]=(by[k]||0)+1;});
+  const total=br.reduce((a,b)=>a+(by[b]||0),0);
+  const full=br.filter(b=>(by[b]||0)>=3).length;
+  // KPI rule is per branch (≥3 visits = 5): green only when every branch has 3, amber when every branch has at least 1
+  const tone=!br.length?'none':full===br.length?'good':br.every(b=>by[b])?'warn':'bad';
+  return {full,tone,recs,all,extra,br,by,visited:br.filter(b=>by[b]).length,total,avg:br.length?total/br.length:null,visitOnly:recs.filter(v=>!v.audits&&MAIN[v.br]&&br.includes(v.br)).length,other:recs.filter(v=>!v.br||!MAIN[v.br]).length};
+}
+function examStats(){
+  const recs=auditsMonth().filter(a=>a.exam!=null);const per={};
+  const ro=rosterIn();recs.forEach(a=>{const k=canonOf(a.sc,ro);const r=ro.find(x=>nameKey(x.name)===k);(per[k]=per[k]||{name:r?r.name:a.sc,vals:[]}).vals.push(a.exam);});
+  const people=Object.values(per).map(p=>({name:p.name,avg:p.vals.reduce((a,b)=>a+b,0)/p.vals.length,n:p.vals.length}));
+  return {recs,people,avg:people.length?people.reduce((a,p)=>a+p.avg,0)/people.length:null,pass:people.filter(p=>p.avg>=4).length};
+}
+function demandStats(){const recs=peopleOK()?(S.demand?.rows||[]).filter(r=>r.ym===curYM()) /* shared target: โอ๋ + เอ + UPC Sup together */:[];return {recs,times:recs.length,qty:recs.reduce((a,r)=>a+(r.qty||0),0),done:recs.filter(r=>r.done).length};}
+function stockFor(){
+  const end=`${curYM()}-31`;const list=S.stocks.filter(s=>s.stockDate&&s.stockDate<=end).sort((a,b)=>b.stockDate.localeCompare(a.stockDate));
+  const s=list[0]||null;return s?{s,inMonth:s.stockDate.startsWith(curYM())}:null;
+}
+function focusStats(){
+  const f=stockFor();if(!f)return null;const X=cfg().focusExclude||{};
+  // drop items a branch does not carry (config focusExclude) even from stock files saved before the rule
+  const br=mainIn(S.scope).map(k=>{const b={code:k,...f.s.branches[k]},ex=X[k]||[];if(!ex.length||!b.req)return b;
+    const inHave=b.have.filter(h=>ex.includes(h[0])),inEx=b.exempt.filter(i=>ex.includes(i)),inMiss=b.missing.filter(i=>ex.includes(i)),n=inHave.length+inEx.length+inMiss.length;
+    return {...b,have:b.have.filter(h=>!ex.includes(h[0])),exempt:b.exempt.filter(i=>!ex.includes(i)),missing:b.missing.filter(i=>!ex.includes(i)),req:b.req-n,ok:b.ok-inHave.length-inEx.length,pcs:b.pcs-inHave.reduce((a,h)=>a+h[1],0),skip:ex};}).filter(b=>b.req);
+  const avg=br.length?br.reduce((a,b)=>a+b.ok/b.req,0)/br.length:null;
+  return {f,br,avg,pass:br.filter(b=>b.ok/b.req>=0.9).length};
+}
+
+/* ---------- header / tabs ---------- */
+const PRE_TXT='เริ่มบันทึกตั้งแต่ มิ.ย. 2569';
+const TAB_C={overview:'--accent',sales:'--c-sales',audit:'--c-audit',visit:'--c-visit',focus:'--c-focus',demand:'--c-demand',team:'--c-exam',league:'--c-exam',manager:'--c-mgr',settings:'--ink3'};
+const tcVar=k=>`var(${TAB_C[k]||'--accent'})`;
+const TABS=[['overview','Overview'],['sales','Sales & Events'],['audit','SC Audit'],['visit','Visit'],['focus','Focus Product'],['demand','Product Demand'],['team','SC Exam / All Star'],['league','League']];
+function renderHeader(){
+  const seg=$('#scopeSeg');seg.replaceChildren();
+  cfg().supervisors.forEach(s=>seg.append(el('button',{type:'button','aria-pressed':String(s.scope===S.scope),onclick:()=>{S.scope=s.scope;render();}},s.title)));
+  const sel=$('#monthSel');if(!sel.options.length){MONTHS.forEach((m,i)=>sel.append(el('option',{value:i+1},`${m} ${YEAR}`)));sel.addEventListener('change',()=>{S.month=+sel.value;store.set('gs2.month',sel.value);render();});}
+  sel.value=S.month;$('#title').textContent=S.scope?(sup().title||'Supervisor'):'Supervisor Goal Board';
+  $('#tabs').style.display=S.scope?'':'none';sel.style.display=S.scope?'':'none';
+  const t=$('#tabs');t.replaceChildren();const list=TABS.slice();if(S.canAdmin)list.push(['manager','Manager'],['settings','Settings']);
+  const cur=list.some(x=>x[0]===S.tab)?S.tab:'overview'; // settings appears once admin rights are known; keep the saved tab meanwhile
+  list.forEach(([k,l])=>t.append(el('button',{style:`--tc:${tcVar(k)}`,role:'tab','aria-selected':String(k===cur),onclick:()=>go(k)},l)));
+}
+function go(k){S.tab=k;store.set('gs2.tab',k);render();window.scrollTo({top:0});}
+
+/* ---------- Overview ---------- */
+// o = {code, w, name, big, tone, cap, rows:[[label,value,tone?]], rule, bar, tab}
+function kpi(o){
+  const rows=(o.rows||[]).filter(Boolean);
+  return el('article',{class:'kpi',style:`--tc:${tcVar(o.tab)}`},el('div',{class:'head'},el('span',{class:'code'},o.code),el('span',{class:'w'},`น้ำหนัก ${o.w}`)),el('div',{class:'name'},o.name),
+    el('div',{class:'big num '+(o.tone||'')},o.big),o.cap?el('div',{class:'cap'},o.cap):null,o.bar||null,
+    rows.length?el('dl',{class:'rows'},...rows.flatMap(([k,v,t])=>k?[el('dt',{},k),el('dd',{class:t||null},v)]:[el('dd',{class:'note'},v)])):null,
+    // criteria text intentionally not shown: the board reports results only, no scoring
+o.tab?el('button',{class:'go',type:'button',onclick:()=>go(o.tab)},'ดูรายละเอียด →'):null);
+}
+const tn=(v,g,w)=>v==null||!isFinite(v)?'none':v>=g?'good':v>=w?'warn':'bad';
+function viewOverview(){
+  const st=salesStats(),as=auditStats(),vs=visitStats(),ds=demandStats(),fs=focusStats(),ex=examStats(),s=sup(),m=MONTHS[S.month-1],ok=peopleOK();
+  const per=(cfg().discountPeriods||[]).map(p=>{const xs=salesScopes().map(sc=>p[sc]).filter(Boolean),list=xs.reduce((a,x)=>a+(x.list||0),0),net=xs.reduce((a,x)=>a+(x.net||0),0);return {label:p.label,v:xs.length===salesScopes().length&&list?1-net/list:null};}).filter(p=>p.v!=null);
+  const allstar=S.team[`allstar-${S.scope}-${YEAR}`];
+  const lastDisc=per.length?per[per.length-1]:null;
+  const evT=s.eventDaysTarget,noData=[['',PRE_TXT,'mute']];
+  const box=el('section',{class:'score'});
+  box.append(
+    kpi({code:'1.1',w:'40%',name:'Sales Achievement',big:st.curAch!=null?pct(st.curAch):st.cur.sales!=null?'ยังไม่มีเป้า':'–',
+      tone:st.cur.live?'live':tn(st.curAch,1,.85),cap:st.cur.live?`${m} · ข้อมูลถึง ${thDate(st.cur.asOf)} ยังไม่ปิดเดือน`:m,
+      rows:[['ยอดขาย',fmt(st.cur.sales)],['เป้า',fmt(st.cur.target)],[`YTD Jan–${st.lastClosed?MONTHS[st.lastClosed-1]:''}`,pct(st.ytdAch),tn(st.ytdAch,1,.85)],['เฉลี่ยรายเดือน',pct(st.avgAch),tn(st.avgAch,1,.85)],
+        s.annualTarget?['เทียบเป้าทั้งปี',pct(st.ytdAll/s.annualTarget)]:null],
+      rule:'≥105% = 5 · 100–104% = 4.5 · 90–99% = 4 · 85–89% = 3 · <85% = 2',tab:'sales'}),
+    kpi({code:'1.2',w:'10%',name:'Discount',big:st.cur.disc!=null?pct(st.cur.disc):lastDisc?pct(lastDisc.v):'–',
+      cap:st.cur.disc!=null?m:lastDisc?lastDisc.label:'',
+      rows:[[m,st.cur.disc!=null?pct(st.cur.disc):'–',st.cur.disc!=null?null:'mute'],...per.map(p=>[p.label,pct(p.v)])],
+      rule:'เทียบปี 2025 · ส่วนลดลดลง ≥1% = 5 · เท่าเดิม = 3 · เพิ่ม 1% = 1 · เพิ่ม >1% = 0',tab:'sales'}),
+    kpi({code:'2.1',w:'5%',name:'Event Days',big:`${fmt(st.evYTD)} วัน`,tone:evT?tn(st.evYTD/(evT*S.month/12),1,.85):'none',cap:`สะสม Jan–${m}`,
+      bar:evT?barEl(st.evYTD/evT):null,
+      rows:[[m,st.evCur==null?'–':`${fmt(st.evCur)} วัน`],evT?['เป้าทั้งปี',`${fmt(evT)} วัน`]:['เป้าทั้งปี','ยังไม่ได้ตั้ง','mute'],evT?['ทำได้',pct(st.evYTD/evT,0)]:null],
+      rule:'≥350 วัน/ปี = 5 · <200 วัน = 1',tab:'sales'}),
+    kpi({code:'2.2',w:'5%',name:'Product Demand',big:ok?`${ds.times} ครั้ง`:'–',tone:ok?tn(ds.times,8,1):'none',cap:`เป้าร่วม คุณโอ๋ + คุณเอ + ${SUP_NAME.UPC}`,
+      rows:ok?[['จำนวนชิ้น',fmt(ds.qty)],['Done',`${ds.done}/${ds.times}`]]:noData,
+      rule:'8 ครั้ง/เดือน = 5 · 1 ครั้ง = 2',tab:'demand'}),
+    kpi({code:'3.1',w:'10%',name:'Focus Product',big:fs?pct(fs.avg,1):'–',tone:fs?fLv(fs.avg):'none',cap:fs?`เฉลี่ย ${fs.br.length} สาขา`:'',
+      bar:fs?barEl(fs.avg):null,
+      rows:fs?[['สาขาที่ได้ 90%+',`${fs.pass}/${fs.br.length}`],['สต็อก ณ',thDate(fs.f.s.stockDate)+(fs.f.inMonth?'':' (เดือนก่อน)'),fs.f.inMonth?null:'warn']]:[['','ยังไม่มีไฟล์สต็อก','mute']],
+      rule:'>90% = 5 · 85% = 4 · 80% = 3 · <80% = 0',tab:'focus'}),
+    kpi({code:'3.2',w:'5%',name:'Visit & Coaching',big:ok?`${vs.visited}/${vs.br.length} สาขา`:'–',tone:ok?vs.tone:'none',cap:ok?'สาขาที่เข้าแล้วเดือนนี้':'',
+      bar:ok?barEl(vs.br.length?vs.visited/vs.br.length:0):null,
+      rows:ok?[['สาขาที่ครบ 3 ครั้ง',`${vs.full}/${vs.br.length}`,vs.full===vs.br.length?'good':'warn'],['จำนวนครั้ง',`${vs.total}`],['เฉลี่ยต่อสาขา',vs.avg==null?'–':vs.avg.toFixed(1)],['Visit อย่างเดียว',`${vs.visitOnly}`],isSr()&&vs.extra.length?['UPC (ไม่นับ KPI)',`${vs.extra.length}`,'mute']:null]:noData,
+      rule:'≥3 ครั้ง/สาขา = 5 · 2 ครั้ง = 4 · 1 ครั้ง = 1',tab:'visit'}),
+    kpi({code:'3.3',w:'5%',name:'SC Audit',big:ok?`${as.c1}/${as.ro.length} คน`:'–',tone:ok&&as.ro.length?tn(as.c1/as.ro.length,1,.5):'none',cap:ok?'SC ที่ประเมินแล้วเดือนนี้':'',
+      bar:ok?barEl(as.ro.length?as.c1/as.ro.length:0):null,
+      rows:ok?[['ครบ 2 ครั้ง',`${as.c2}/${as.ro.length}`],['จำนวนครั้ง',`${as.recs.length}`],['คะแนนเฉลี่ย',as.avg==null?'–':`${as.avg.toFixed(2)} / 5`,as.avg==null?'mute':tn(as.avg/5,.8,.6)]]:noData,
+      rule:'≥2 ครั้ง/SC/เดือน = 5 · 1 ครั้ง = 4 · ไม่ได้ประเมิน = 1',tab:'audit'}),
+    kpi({code:'4.1',w:'10%',name:'SC Exam',big:ok&&ex.avg!=null?ex.avg.toFixed(2):'–',tone:ok&&ex.avg!=null?tn(ex.avg,4,3.3):'none',cap:ok&&ex.people.length?'คะแนนเฉลี่ยทีม':'',
+      rows:!ok?noData:ex.people.length?[['ได้ ≥4',`${ex.pass}/${ex.people.length} คน`]]:[['','ยังไม่มีคะแนนสอบเดือนนี้','mute']],
+      rule:'SC Exam ≥4 ผ่าน = 5 · <3.3 ผ่าน = 3',tab:'team'}),
+    (()=>{const y=asCurYM(),a=y?asMonth(y):null,ps=asMonths().filter(m=>y&&m<y),p=ps.length?asMonth(ps[ps.length-1]):null;return kpi({code:'4.2',w:'10%',name:'BBY SC All Star',big:a?fmt(a.reported,2)+'%':'–',tone:a?tn(a.reported,80,70):'none',cap:a?`${MONTHS[+y.slice(5)-1]} · ตามรายงาน`+(y!==curYM()?' (ยังไม่มีของเดือนนี้)':''):'',
+      rows:a?[p?['เทียบเดือนก่อน',`${a.reported-p.reported>=0?'+':''}${(a.reported-p.reported).toFixed(2)}`,a.reported-p.reported>=0?'good':'bad']:null,['เฉลี่ยทุกคน',fmt(a.all,2)+'%'],isSr()?null:[`ทีม ${team()} (${a.team.length} คน)`,a.teamAvg==null?'–':fmt(a.teamAvg,2)+'%'],isSr()?null:['ในกลุ่มรั้งท้าย',`${a.teamBottom} คน`,a.teamBottom?'bad':'good']]:[['','ยังไม่มีข้อมูล','mute']],
+      rule:'เฉลี่ย >80% = 5 · >70% = 4 · 60–70% = 3 · <60% = 0',tab:'team'});})()
+  );
+  return el('div',{class:'panel',style:'background:transparent;border:0;padding:0'},(!S.audit||!S.demand||!S.sales)?el('div',{class:'banner'},'ยังดึงข้อมูลจาก Google Sheet ไม่ครบ ตัวเลขบางข้อจึงยังเป็น 0'+(S.canAdmin?' · กดอัปเดตได้ที่แถบ Settings':'')):null,
+    el('div',{class:'legend'},el('span',{},`${m} ${YEAR}`),stampTxt('อัปเดต',S.audit?.updatedAt),el('span',{class:'key good'},'ถึงเกณฑ์'),el('span',{class:'key warn'},'ใกล้เกณฑ์'),el('span',{class:'key bad'},'ต่ำกว่าเกณฑ์')),box,trendBox(),actionBox());
+}
+
+/* ---------- Sales ---------- */
+function barChart(vals,{fmtLbl,colorOf,refLine,refLabel,yFmt,step,label}){
+  const W=760,H=190,P={l:44,r:10,t:18,b:26},bw=(W-P.l-P.r)/12;
+  const maxV=Math.max(refLine||0,...vals.map(v=>v||0))*1.15||1,yMax=Math.ceil(maxV/step)*step,y=v=>P.t+(H-P.t-P.b)*(1-v/yMax);
+  const ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.setAttribute('class','chart');svg.setAttribute('role','img');svg.setAttribute('aria-label',label);
+  const add=(t,a,txt)=>{const e=document.createElementNS(ns,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;svg.append(e);return e;};
+  for(let v=0;v<=yMax+1e-9;v+=step){const yy=y(v),isRef=refLine!=null&&Math.abs(v-refLine)<1e-9;add('line',{x1:P.l,x2:W-P.r,y1:yy,y2:yy,stroke:'var(--line)','stroke-width':isRef?1.4:.6,'stroke-dasharray':isRef?'':'2 3'});add('text',{x:P.l-6,y:yy+4,'text-anchor':'end'},yFmt(v));}
+  if(refLine!=null&&!(Math.abs((refLine/step)-Math.round(refLine/step))<1e-9)){const yy=y(refLine);add('line',{x1:P.l,x2:W-P.r,y1:yy,y2:yy,stroke:'var(--ink3)','stroke-width':1.2});}
+  if(refLabel&&refLine!=null)add('text',{x:W-P.r,y:y(refLine)-4,'text-anchor':'end'},refLabel);
+  vals.forEach((v,i)=>{const x=P.l+i*bw;add('text',{x:x+bw/2,y:H-8,'text-anchor':'middle'},MONTHS[i]);if(v==null)return;
+    add('rect',{x:x+bw*.2,y:y(v),width:bw*.6,height:Math.max(1,y(0)-y(v)),rx:3,fill:colorOf(v),opacity:i+1===S.month?1:.72});add('text',{x:x+bw/2,y:y(v)-5,'text-anchor':'middle',class:'lbl'},fmtLbl(v));});
+  return svg;
+}
+function liveNote(rows){const r=rows.find(x=>x.live);if(!r)return null;const id=ym(r.m),lt=(cfg().liveTargets||{})[id],L=S.sales.months[id];
+  let t='';if(isSr())t=lt&&lt.BKK!=null&&lt.UPC!=null?`เป้า = ทั้งประเทศ (BKK ${fmt(lt.BKK)} + UPC ${fmt(lt.UPC)} + Event ${fmt(lt.event||0)})`:'ยังไม่ได้ตั้งเป้าเดือนนี้ (ตั้งได้ที่ Settings)';
+  else if(S.monthly[`${S.scope}-${id}`]?.target!=null)t='เป้าตามที่ตั้งไว้ใน Settings';
+  else if(lt&&lt[S.scope]!=null){const n=L.eventsWithSales||0,mine=L[S.scope].eventsWithSales||0;t=`เป้า = สาขา ${fmt(lt[S.scope])}`+(lt.event&&n?` + เป้าอีเว้นท์ ${fmt(lt.event)} ÷ ${n} อีเว้นท์ที่มียอด × ${mine} อีเว้นท์ของทีมนี้`:'');}
+  else t='ยังไม่ได้ตั้งเป้าเดือนนี้ (ตั้งได้ที่ Settings)';
+  return el('div',{class:'small muted'},`${MONTHS[r.m-1]} = ยอดล่าสุดถึง ${thDate(r.asOf)} จากฟอร์มส่งยอดรายวัน (ยังไม่ปิดเดือน) · ${t}`);}
+function viewSales(){
+  const st=salesStats(),rows=st.rows,s=sup();
+  // --- Sales box ---
+  const achVals=rows.map(r=>r.sales!=null&&r.target?r.sales/r.target:null);
+  const salesChart=barChart(achVals,{label:'Monthly achievement',step:.2,refLine:1,yFmt:v=>Math.round(v*100)+'%',fmtLbl:v=>Math.round(v*100)+'%',colorOf:a=>a>=1?'var(--good)':a>=.85?'var(--warn)':'var(--bad)'});
+  let cs=0,ct=0;const tb=el('tbody');
+  rows.forEach(r=>{const has=r.sales!=null&&r.target;if(has&&!r.live){cs+=r.sales;ct+=r.target;}const a=has?r.sales/r.target:null;
+    tb.append(el('tr',{class:r.m===S.month?'cur':null},el('td',{},MONTHS[r.m-1]+(r.live?' *':'')),el('td',{class:'num'},fmt(r.target)),el('td',{class:'num'},fmt(r.sales)),el('td',{},a==null?'–':el('span',{class:'pill '+tone(a,1,.85)},pct(a))),
+      el('td',{class:'num'},has&&!r.live?fmt(cs):'–'),el('td',{class:'num'},has&&!r.live?fmt(ct):'–'),el('td',{class:'num'},has&&!r.live&&ct?pct(cs/ct):'–'),el('td',{class:'num'},r.disc==null?'–':pct(r.disc))));});
+  const achs=rows.filter(r=>r.sales!=null&&r.target&&!r.live);
+  tb.append(el('tr',{class:'tot'},el('td',{},'Avg / Total'),el('td',{class:'num'},fmt(ct)),el('td',{class:'num'},fmt(cs)),el('td',{},'avg '+pct(achs.length?achs.reduce((a,r)=>a+r.sales/r.target,0)/achs.length:null)),el('td',{}),el('td',{}),el('td',{class:'num'},ct?pct(cs/ct):'–'),el('td',{})));
+  const salesBox=el('section',{class:'panel'},el('h2',{},'Sales Achievement'),
+    el('div',{class:'stats'},stat(pct(st.curAch),`Ach% ${MONTHS[S.month-1]}`),stat(pct(st.ytdAch),st.lastClosed?`YTD Jan–${MONTHS[st.lastClosed-1]} (ปิดเดือนแล้ว)`:'YTD'),stat(pct(st.avgAch),`ค่าเฉลี่ยรายเดือน (${st.nMonths} เดือนที่ปิดแล้ว)`),stat(fmt(st.ytdS),'ยอดสะสม (ปิดเดือนแล้ว)')),
+    el('div',{class:'legend'},el('span',{},'แท่ง = Ach% รายเดือน · เส้นทึบ = 100%')),liveNote(rows),salesChart,
+    el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},...['Month','Target','Sales','Ach%','Cum. Sales','Cum. Target','Cum. Ach%','Discount'].map(h=>el('th',{},h)))),tb)));
+  // --- Event box ---
+  const evVals=rows.map(r=>r.eventDays);let ev=0;const tb2=el('tbody');
+  rows.forEach(r=>{ev+=r.eventDays||0;tb2.append(el('tr',{class:r.m===S.month?'cur':null},el('td',{},MONTHS[r.m-1]),el('td',{class:'num'},r.eventDays==null?'–':fmt(r.eventDays)),el('td',{class:'num'},r.eventDays==null&&r.m>S.month?'–':fmt(ev)),el('td',{class:'num'},(r.events||[]).length||'–'),el('td',{class:'l wrap muted'},(r.events||[]).map(e=>`${e.code} ${e.days} วัน`).join(' · '))));});
+  tb2.append(el('tr',{class:'tot'},el('td',{},'Total'),el('td',{class:'num'},fmt(ev)),el('td',{}),el('td',{}),el('td',{})));
+  const tgt=s.eventDaysTarget,nEv=rows.filter(r=>r.m<=S.month&&r.eventDays!=null).length,avgPerMonth=nEv?st.evYTD/nEv:0;
+  const evChart=barChart(evVals,{label:'Event days per month',step:20,yFmt:v=>String(v),fmtLbl:v=>String(v),colorOf:()=>'var(--accent)'});
+  const eventBox=el('section',{class:'panel'},el('h2',{},'Events Total Day'),
+    el('div',{class:'stats'},stat(`${fmt(st.evYTD)} วัน`,`สะสม Jan–${MONTHS[S.month-1]}`),stat(st.evCur==null?'–':`${fmt(st.evCur)} วัน`,`เดือน ${MONTHS[S.month-1]}`),stat(tgt?`${fmt(tgt)} วัน`:'–','เป้าทั้งปี'),stat(tgt?pct(st.evYTD/tgt,0):'–','ทำได้เทียบเป้าทั้งปี')),
+    tgt?el('div',{},barEl(st.evYTD/tgt),el('div',{class:'small muted',style:'margin-top:4px'},`เหลืออีก ${fmt(Math.max(0,tgt-st.evYTD))} วัน · เฉลี่ย ${avgPerMonth.toFixed(0)} วัน/เดือน (${nEv} เดือนที่มีข้อมูล) ถ้าเท่าเดิมทั้งปีจะได้ประมาณ ${fmt(Math.round(avgPerMonth*12))} วัน`)):el('div',{class:'small muted'},'ยังไม่ได้กำหนดเป้าวันอีเว้นท์ของทีมนี้ (ตั้งได้ที่ Settings)'),
+    el('div',{class:'legend'},el('span',{},'แท่ง = จำนวนวันอีเว้นท์รายเดือน (นับวันที่ส่งฟอร์ม รวมหลายอีเว้นท์ในวันเดียวกัน)')),evChart,
+    el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},...['Month','Event Days','Cum. Days','Events','Detail'].map((h,i)=>el('th',{class:i===4?'l':null},h)))),tb2)));
+  return el('div',{style:'display:flex;flex-direction:column;gap:16px'},salesBox,eventBox);
+}
+
+/* ---------- Audit ---------- */
+function auditCard(a){
+  const ro=rosterIn(),k=canonOf(a.sc,ro),r=ro.find(x=>nameKey(x.name)===k);
+  const who=r?r.name:a.sc; // show the roster name only (กุ๊บกิ๊บ -> กิ้ฟ, ญา -> ญาญ่า)
+  const items=S.audit?.diag?.items||[],d=el('details',{class:'au'});
+  d.append(el('summary',{},el('span',{class:'num'},thDate(a.d)),el('b',{},who),el('span',{},a.br||a.brRaw||'–'),el('span',{class:'muted small hide-s'},a.ev+(a.online?' · Online':'')),
+    a.avg==null?el('span',{class:'muted'},'–'):el('span',{class:'pill '+tone(a.avg/5,.8,.6)},`${a.avg.toFixed(2)} / 5`)));
+  const body=el('div',{class:'body'});
+  if(a.s&&items.length){const groups={};
+    a.s.forEach((v,i)=>{if(v==null||!items[i])return;(groups[items[i].c]=groups[items[i].c]||[]).push([items[i].l,v]);});
+    Object.entries(groups).forEach(([c,list])=>{const avg=list.reduce((x,y)=>x+y[1],0)/list.length;
+      body.append(el('div',{},el('h4',{},el('span',{},c),el('span',{class:'num muted'},`เฉลี่ย ${avg.toFixed(2)}`)),
+        el('ul',{},...list.map(([l,v])=>el('li',{class:v>=4?'s-hi':v<=2?'s-lo':null},el('span',{},l),el('b',{class:'num'},String(v)))))));});
+  }else body.append(el('div',{class:'empty'},'ไม่มีรายละเอียดรายข้อ (กดอัปเดตจาก Google Sheet อีกครั้งเพื่อดึงรายละเอียด)'));
+  const notes=a.notes||(a.note?[{f:'',t:a.note}]:[]);
+  body.append(el('div',{class:'notes'},el('h4',{},'ข้อเสนอแนะ'),notes.length?notes.map(n=>el('div',{},n.f?el('span',{class:'muted'},`${n.f==='SC'?'จากพนักงาน':'จาก '+n.f}: `):null,n.t)):el('span',{class:'muted'},'ไม่มี')));
+  d.append(body);return d;
+}
+function viewAudit(){
+  if(!peopleOK())return preBox('SC Audit');
+  const st=auditStats(),m=MONTHS[S.month-1];
+  const chips=el('div',{class:'chips'});st.ro.forEach(r=>{const n=(st.by[nameKey(r.name)]||[]).length;chips.append(el('button',{type:'button',class:'chip '+(n>=2?'good':n===1?'warn':'bad'),onclick:()=>scDetail(r.name)},r.name,el('b',{},String(n))));});
+  if(!st.ro.length)chips.append(el('span',{class:'empty'},'ยังไม่มีรายชื่อ SC ของทีมนี้'));
+  const list=el('div',{});st.recs.slice().sort((a,b)=>(b.d||'').localeCompare(a.d||'')).forEach(a=>list.append(auditCard(a)));
+  const tc=teamCoverage(),multi=tc.evs.length>1||team()==='BKK';
+  const tcBox=multi?el('section',{class:'tcov'},
+    el('h3',{},`ภาพรวมทีม ${team()} · ประเมินโดย Sup ทุกคนรวมกัน`),
+    el('div',{class:'stats'},stat(String(tc.z),'ยังไม่ถูกประเมิน'),stat(String(tc.one),'1 ครั้ง'),stat(String(tc.two),'2 ครั้ง'),stat(String(tc.three),'3 ครั้งขึ้นไป')),
+    el('div',{class:'legend'},el('span',{class:'key bad'},'ยังไม่ถูกประเมิน'),el('span',{class:'key warn'},'1 ครั้ง'),el('span',{class:'key good'},'2 ครั้งขึ้นไป'),el('span',{},`รวม ${tc.recs.length} ครั้ง · ${tc.rows.length} คน`)),
+    (()=>{const ro=rosterIn(),known=new Set(ro.map(r=>nameKey(r.name))),miss=[...new Set(tc.recs.filter(x=>!known.has(canonOf(x.sc,ro))).map(x=>x.sc))];return miss.length?el('div',{class:'diag'},el('span',{class:'warn'},`ชื่อที่จับคู่กับรายชื่อไม่ได้ (ไม่อยู่ในการ์ด): ${miss.join(', ')}`)):null;})(),
+    el('div',{class:'tcgrid'},...tc.rows.map(r=>el('button',{type:'button',onclick:()=>scDetail(r.name),class:'tc '+(r.n>=2?'good':r.n===1?'warn':'bad')},el('b',{},r.name),el('span',{class:'tcn num'},String(r.n)),
+      el('span',{class:'tcby small'},r.n?Object.entries(r.by).map(([e,c])=>`Sup${e} ${c}`).join(' · '):'ยังไม่ประเมิน'))))):null;
+  const sub=S.auditSub==='hist'?'hist':'cov';
+  const subNav=el('div',{class:'seg subtabs',role:'tablist'},...[['cov','Coverage · ประเมินครบหรือยัง'],['hist','Analysis · คะแนนและย้อนหลัง']].map(([k,l])=>el('button',{type:'button',role:'tab','aria-pressed':String(sub===k),'aria-selected':String(sub===k),onclick:()=>{S.auditSub=k;store.set('gs2.auditSub',k);render();}},l)));
+  const head=[el('h2',{},`SC Audit · ${m} ${YEAR}`),needSync('audit'),stampTxt('ข้อมูลจากชีทประเมิน SC อัปเดต',S.audit?.updatedAt),subNav];
+  if(sub==='hist')return el('div',{class:'panel'},...head,itemBox(),scMonthBox(),itemMonthBox());
+  return el('div',{class:'panel'},...head,
+    tcBox,el('div',{class:'small muted'},'กดชื่อ SC เพื่อดูประวัติการประเมินทุกเดือน'),multi?el('h3',{style:'margin-top:6px'},`เฉพาะที่ ${isSr()?'Supโอ๋':team()==='BKK'?'Supเอ':'Sup'+SUP_NAME.UPC.replace(/^คุณ/,'')} ประเมิน`):null,
+    el('div',{class:'stats'},stat(`${st.c1}/${st.ro.length}`,'SC ที่ประเมินแล้ว ≥1 ครั้ง'),stat(`${st.c2}/${st.ro.length}`,'SC ที่ครบ 2 ครั้ง'),stat(String(st.recs.length),'จำนวนครั้งที่ประเมิน'),stat(st.avg==null?'–':st.avg.toFixed(2),'คะแนนเฉลี่ย (เต็ม 5)')),
+    el('h3',{},'ความครอบคลุมรายคน'),el('div',{class:'legend'},el('span',{class:'key good'},'≥2 ครั้ง'),el('span',{class:'key warn'},'1 ครั้ง'),el('span',{class:'key bad'},'ยังไม่ประเมิน')),chips,
+    el('div',{class:'small muted'},S.staff?`รายชื่อจากชีทข้อมูลพนักงาน BBYD ประกอบกับฟอร์มส่งยอดขาย · คนที่ออกไม่นับตั้งแต่เดือนที่ออก · พนักงานใหม่นับเมื่อครบ 14 วัน`:'ยังไม่ได้ดึงรายชื่อจากชีทข้อมูลพนักงาน ใช้รายชื่อเดิมไปก่อน'),
+    st.unknown.length?el('div',{class:'diag'},el('span',{class:'warn'},`ชื่อ SC ในชีทประเมินที่ไม่อยู่ในรายชื่อทีมเดือนนี้: ${st.unknown.join(', ')}`),el('span',{},'ถ้าเป็นคนเดียวกับคนในรายชื่อ เพิ่มชื่อเรียกอื่นได้ที่ Settings')):null,
+    el('h3',{},'รายการประเมิน'),el('div',{class:'small muted'},'กดที่รายการเพื่อดูคะแนนรายข้อ · สีเขียว = 4–5 · สีแดง = 1–2 · ข้อที่ไม่ได้ประเมินไม่แสดง'),
+    st.recs.length?list:el('div',{class:'empty'},'ยังไม่มีการประเมินในเดือนนี้'));
+}
+function needSync(kind){
+  const has=kind==='demand'?S.demand:S.audit;if(has)return null;
+  const out=el('div',{class:'diag'});
+  const box=el('div',{class:'banner'},el('div',{},kind==='demand'?'ยังไม่ได้ดึงข้อมูลจากชีทแจ้งความต้องการสินค้า ตัวเลขในแถบนี้จึงเป็น 0':'ยังไม่ได้ดึงข้อมูลจากชีทประเมิน SC ตัวเลขในแถบนี้จึงเป็น 0'));
+  if(S.canAdmin){const b=el('button',{class:'btn small',type:'button',style:'margin-top:8px'},'ดึงข้อมูลจาก Google Sheet ตอนนี้');b.addEventListener('click',()=>syncSheets(b,out));box.append(el('div',{},b),out);}
+  else box.append(el('div',{class:'small'},'รอผู้ดูแลกดอัปเดตข้อมูล'));
+  return box;
+}
+function preBox(t){return el('div',{class:'panel'},el('h2',{},`${t} · ${MONTHS[S.month-1]} ${YEAR}`),el('div',{class:'empty'},'ข้อมูลส่วนนี้เริ่มบันทึกตั้งแต่ มิ.ย. 2569 เดือนก่อนหน้าจึงไม่มีตัวเลข'));}
+function stat(v,k){return el('div',{class:'stat'},el('div',{class:'v num'},v),el('div',{class:'k'},k));}
+
+/* ---------- Visit ---------- */
+function visitCard(v){
+  const type=v.x?el('span',{class:'pill ex'},v.audits?`UPC · ประเมิน ${v.audits} คน · ไม่นับ KPI`:'UPC · ไม่นับ KPI'):v.audits?el('span',{class:'pill good'},`Visit + ประเมิน ${v.audits} คน`):el('span',{class:'pill'},'Visit อย่างเดียว');
+  const notes=v.notes||[],ro=rosterIn();
+  const sum=[el('span',{class:'num'},thDate(v.d)),(()=>{const xs=notePlaces(v);return el('span',{class:'vbr'},el('b',{},v.br||v.brRaw),...xs.map(x=>el('span',{class:'pill nt',title:'จากความเห็น · ไม่นับ KPI'},'+'+x)));})(),el('span',{class:'muted small hide-s'},v.ev),el('span',{style:'display:flex;gap:6px;flex-wrap:wrap'},type,lagPill(v)),
+    el('span',{class:'small cnt hide-s'+(notes.length?'':' none')},notes.length?`ความเห็น ${notes.length} ▾`:'–')];
+  if(!notes.length){const d=el('div',{class:'au plain vis'});d.append(el('div',{class:'sumrow'},...sum));return d;}
+  const d=el('details',{class:'au vis'});d.append(el('summary',{},...sum),
+    el('div',{class:'notes',style:'padding:12px'},...notes.map(n=>{const k=n.sc?canonOf(n.sc,ro):null,r=k?ro.find(x=>nameKey(x.name)===k):null;
+      return el('div',{},n.sc?el('span',{class:'muted'},`ประเมิน ${r?r.name:n.sc}: `):null,n.t);})));
+  return d;
+}
+// rows with no branch picked: the place is typed in the note (SEM = office, PDPS, TTVS…). Show the first known code, else the note itself
+const OTHER_PLACES=['SEM','PDPS','TTVS','HHNS','TMTS','TMTE','TMNE','ZENE','ICDE','JCPE','PKCE','EMPL','EMPM'];
+// other places a Sup wrote in the visit note (e.g. 'PHCL , PHCM'): shown next to the visit, not counted in KPI
+function notePlaces(v){const known=new Set([...Object.keys(MAIN),...OTHER_PLACES,'JCPE','PKCE2']),own=v.br||v.brRaw,t=(v.notes||[]).map(n=>n.t).join(' ').toUpperCase();return [...new Set((t.match(/[A-Z0-9]{3,5}/g)||[]).filter(x=>known.has(x)&&x!==own))];}
+function logPlace(t){const known=new Set([...Object.keys(MAIN),...OTHER_PLACES]),m=(String(t).toUpperCase().match(/[A-Z0-9]{3,5}/g)||[]).find(x=>known.has(x));if(m)return m;const x=String(t).trim();return x.length>12?x.slice(0,12)+'…':x;}
+// Sup days off, kept in config/main.dayoff[YYYY-MM][scope] = {off:[day numbers], sick:[day numbers]}
+function dayOffFor(scope,ymk){const x=((cfg().dayoff||{})[ymk]||{})[scope]||{};return {off:x.off||[],sick:x.sick||[]};}
+function visitCal(st,logs){
+  const [y,m]=curYM().split('-').map(Number),days=new Date(y,m,0).getDate(),lead=(new Date(y,m-1,1).getDay()+6)%7;
+  const t=new Date(),todayK=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+  const by={};st.all.forEach(v=>(by[v.d]=by[v.d]||[]).push(v));
+  const lg={};logs.forEach(l=>(lg[l.d]=lg[l.d]||[]).push(l));
+  const dof=dayOffFor(S.scope,curYM()),offSet=new Set(dof.off),sickSet=new Set(dof.sick);
+  const g=el('div',{class:'vcal',role:'grid','aria-label':'Visit calendar'});
+  ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach((d,i)=>g.append(el('div',{class:'dow'+(i>4?' we':'')},d)));
+  for(let i=0;i<lead;i++)g.append(el('div',{class:'day blank'}));
+  for(let d=1;d<=days;d++){
+    const k=`${curYM()}-${String(d).padStart(2,'0')}`,vs=(by[k]||[]).slice().sort((a,b)=>String(a.br||a.brRaw).localeCompare(String(b.br||b.brRaw)));
+    const isOff=offSet.has(d)||sickSet.has(d);
+    const c=el('div',{class:'day'+(isOff?' off':vs.length||lg[k]?' has':'')+(k===todayK?' today':'')},el('div',{class:'dn num'},String(d)));
+    if(isOff)c.append(el('div',{class:'offt'},sickSet.has(d)?'Sick Leave':'Day Off'));
+    vs.forEach(v=>c.append(el('div',{class:'vb'+(v.x?' ex':v.audits?' ok':''),title:`${v.br||v.brRaw}${v.audits?` · ประเมิน ${v.audits} คน`:' · Visit อย่างเดียว'}${v.x?' · ไม่นับ KPI':''}`},v.br||v.brRaw)));
+    {const have=new Set([...vs.map(v=>v.br||v.brRaw),...(lg[k]||[]).map(l=>logPlace(l.t))]);vs.forEach(v=>notePlaces(v).forEach(x=>{if(have.has(x))return;have.add(x);c.append(el('div',{class:'vb nt',title:`จากความเห็นของ ${v.br||v.brRaw} · ไม่นับ KPI`},x));}));}
+    (lg[k]||[]).forEach(l=>c.append(el('div',{class:'vb oth',title:`${l.t} · นอก KPI`},logPlace(l.t))));
+    if(vs.length||lg[k]||isOff){c.classList.add('tap');c.tabIndex=0;c.setAttribute('role','button');const off=isOff?(sickSet.has(d)?'Sick Leave':'Day Off'):null,fn=()=>dayDetail(k,vs,lg[k]||[],off);c.addEventListener('click',fn);c.addEventListener('keydown',e=>{if(e.key==='Enter')fn();});}
+    g.append(c);
+  }
+  const tail=(lead+days)%7;if(tail)for(let i=tail;i<7;i++)g.append(el('div',{class:'day blank'}));
+  return g;
+}
+function viewVisit(){
+  if(!peopleOK())return preBox('Visit');
+  const st=visitStats(),chips=el('div',{class:'chips'});
+  st.br.forEach(b=>{const n=st.by[b]||0;chips.append(el('button',{type:'button',class:'chip '+(n>=3?'good':n>=1?'warn':'bad'),onclick:()=>branchDetail(b)},b,el('b',{},String(n))));});
+  const ls=lagStats([...visitsMonth(),...auditsMonth()]);
+  const list=el('div',{});st.all.slice().sort((a,b)=>b.d.localeCompare(a.d)).forEach(v=>list.append(visitCard(v)));
+  const logs=(S.audit?.logs||[]).filter(l=>l.scope===team()&&l.ym===curYM()&&evOK(l.ev)).sort((a,b)=>b.d.localeCompare(a.d));
+  return el('div',{class:'panel'},el('h2',{},`Visit · ${MONTHS[S.month-1]} ${YEAR}`),needSync('audit'),stampTxt('ข้อมูลจากชีทประเมิน SC อัปเดต',S.audit?.updatedAt),
+    el('div',{class:'stats'},stat(`${st.visited}/${st.br.length}`,'สาขาที่เข้าแล้ว'),stat(String(st.total),'จำนวนครั้ง'),stat(st.avg==null?'–':st.avg.toFixed(1),'เฉลี่ยต่อสาขา'),stat(`${st.full}/${st.br.length}`,'สาขาที่ครบ 3 ครั้ง (เกณฑ์ KPI)'),stat(String(st.visitOnly),'Visit อย่างเดียว'),stat(ls?`${ls.avg.toFixed(1)} วัน`:'–',ls?`ลงฟอร์มหลังวันที่ไปจริง (เฉลี่ย) · ช้าเกิน ${LATE} วัน ${ls.late}/${ls.n}`:'ลงฟอร์มหลังวันที่ไปจริง')),
+    el('div',{class:'legend'},el('span',{class:'key good'},'≥3 ครั้ง'),el('span',{class:'key warn'},'1–2 ครั้ง'),el('span',{class:'key bad'},'ยังไม่เข้า')),chips,
+    el('div',{class:'small muted'},'กดสาขาเพื่อดูประวัติ Visit · 1 Visit = คนเดียว สาขาเดียว วันเดียว · นับทุกรายการ Onsite ในชีทประเมิน'+(isSr()?' · การลงพื้นที่ UPC แสดงไว้แต่ไม่นับ KPI':'')),
+    el('h3',{},'รายการ Visit'),el('div',{class:'small muted'},'กดที่รายการที่มีความเห็นเพื่ออ่าน'),
+    st.all.length?list:el('div',{class:'empty'},'ยังไม่มี Visit ในเดือนนี้'),
+    logs.length?el('h3',{},'บันทึกวันที่ไม่ได้ระบุสาขา'):null,
+    logs.length?el('div',{class:'diag'},...logs.map(l=>el('span',{},el('b',{},thDate(l.d)),` · ${l.ev} · ${l.t}`))):null,
+    el('h3',{},`Visit Calendar · ${sup().title||'Supervisor'} (${SUP_NAME[S.scope]||''}) · ${MONTHS[S.month-1]} ${YEAR}`),
+    el('div',{class:'legend vlg'},el('span',{class:'vli'},el('span',{class:'vb ok'},'CODE'),'Visit + ประเมิน SC'),el('span',{class:'vli'},el('span',{class:'vb'},'CODE'),'Visit อย่างเดียว'),isSr()?el('span',{class:'key',style:'color:var(--brass)'},'UPC (ไม่นับ KPI)'):null,logs.length?el('span',{class:'key',style:'color:var(--ink2)'},'Office / นอกสาขาที่ดูแล (ไม่นับ KPI)'):null,st.all.some(v=>notePlaces(v).length)?el('span',{class:'vli'},el('span',{class:'vb nt'},'CODE'),'สาขาที่เขียนไว้ในความเห็น (ไม่นับ KPI)'):null,(()=>{const o=dayOffFor(S.scope,curYM());return o.off.length||o.sick.length?el('span',{class:'key bad'},`Day Off ${o.off.length} วัน`+(o.sick.length?` · ลาป่วย ${o.sick.length} วัน`:'')):null;})()),
+    el('div',{class:'tscroll'},visitCal(st,logs)));
+}
+
+/* ---------- Focus ---------- */
+// Focus levels: <80 red · 80–84 orange · 85–89 yellow · 90+ green
+const fLv=v=>v>=0.9?'l4':v>=0.85?'l3':v>=0.8?'l2':'l1';
+function viewFocus(){
+  const fs=focusStats();
+  if(!fs)return el('div',{class:'panel'},el('h2',{},'Focus Product'),el('div',{class:'empty'},'ยังไม่มีไฟล์สต็อกของเดือนนี้หรือก่อนหน้า'));
+  const shMap={};(fs.f.s.shortages||[]).forEach(x=>shMap[x.item]=x);
+  const poolOf=i=>fs.f.s.pool?fs.f.s.pool[i]:(shMap[i]?shMap[i].pool:null);
+  const tag=(t)=>el('span',{class:'num tag'},t);
+  const lbl=i=>i==='All Model'?'Sunglass':i; // focus list names the sunglass group 'All Model'
+  // Tier A first (focus branches), then B, then C · lowest % first inside each tier
+  const TR={A:0,B:1,C:2},sorted=fs.br.slice().sort((a,b)=>TR[MAIN[a.code].tier]-TR[MAIN[b.code].tier]||a.ok/a.req-b.ok/b.req);
+  if(S.focusSel&&!sorted.some(b=>b.code===S.focusSel))S.focusSel=null;
+  const detail=b=>el('div',{class:'body'},
+        el('div',{class:'grp g-miss'},el('h4',{class:'h-miss'},`ขาด (${b.missing.length})`),b.missing.length?el('ul',{},...b.missing.map(i=>{const p=poolOf(i);return el('li',{},el('span',{},lbl(i)),p==null?null:tag(p?`ในระบบ ${p} ชิ้น`:'ในระบบ 0'));})):el('div',{class:'empty'},'ไม่มี')),
+        el('div',{class:'grp g-ex'},el('h4',{class:'h-ex'},`ยกเว้น · ของในระบบไม่พอ (${b.exempt.length})`),b.exempt.length?el('ul',{},...b.exempt.map(i=>{const x=shMap[i];return el('li',{},el('span',{},lbl(i)),x?tag(`มี ${x.pool} ชิ้น / ต้อง ${x.need} สาขา`):null);})):el('div',{class:'empty'},'ไม่มี'),b.exempt.length?el('div',{class:'small muted',style:'margin-top:6px'},'ของทั้งระบบไม่พอให้ทุกสาขา · สาขาที่ได้ยกเว้นเรียงจาก Tier C ก่อน แล้ว B และ A'):null),
+        b.skip&&b.skip.length?el('div',{class:'small muted'},`ไม่ต้องวาง (ไม่นับ): ${b.skip.map(lbl).join(', ')}`):null,
+        el('div',{class:'grp g-have'},el('h4',{class:'h-have'},`มี (${b.have.length})`),el('ul',{},...b.have.map(([i,q])=>el('li',{},el('span',{},lbl(i)),el('span',{class:'num muted'},`${q} ชิ้น`))))));
+  const card=b=>{
+    const v=b.ok/b.req,t=fLv(v),bar=el('div',{class:'fbar '+t});bar.append(el('i',{style:`width:${Math.min(100,v*100)}%`}),el('b',{style:'left:90%'}));
+    return el('button',{type:'button',class:'fcard '+t+(S.focusSel===b.code?' sel':''),'aria-pressed':String(S.focusSel===b.code),onclick:()=>{S.focusSel=S.focusSel===b.code?null:b.code;render();if(S.focusSel)setTimeout(()=>document.getElementById('fdetail')?.scrollIntoView({behavior:'smooth',block:'start'}),0);}},
+      el('span',{class:'fc-top'},el('b',{},b.code),el('small',{},TYPE_LABEL[MAIN[b.code].t]+(isSr()?` · ${MAIN[b.code].s}`:''))),
+      el('span',{class:'fpct num '+t},pct(v,1)),bar,
+      el('span',{class:'fc-sub num'},`${b.ok}/${b.req} รุ่น · ${fmt(b.pcs)} ชิ้น`),
+      el('span',{class:'fc-tags'},el('span',{class:'fmiss num'+(b.missing.length?'':' zero')},b.missing.length?`ขาด ${b.missing.length}`:'ครบ'),b.exempt.length?el('span',{class:'fex num'},`ยกเว้น ${b.exempt.length}`):null));
+  };
+  const selB=sorted.find(b=>b.code===S.focusSel);
+  const detailBox=()=>el('div',{class:'fdetail',id:'fdetail'},el('div',{class:'row',style:'justify-content:space-between'},el('h3',{},`${selB.code} · ${TYPE_LABEL[MAIN[selB.code].t]}`),el('button',{class:'btn ghost small',type:'button',onclick:()=>{S.focusSel=null;render();}},'ปิด')),detail(selB));
+  const list=el('div',{class:'ftiers'});
+  ['A','B','C'].forEach(tr=>{const g=sorted.filter(b=>MAIN[b.code].tier===tr);if(!g.length)return;
+    const av=g.reduce((a,b)=>a+b.ok/b.req,0)/g.length,grid=el('div',{class:'fgrid'});grid.append(...g.map(card));
+    list.append(el('div',{class:'ftier'},el('h3',{},`Tier ${tr}`),el('span',{class:'muted small num'},`${g.length} สาขา · เฉลี่ย `,el('b',{class:'fpct-s num '+fLv(av)},pct(av,1)))),grid);if(selB&&MAIN[selB.code].tier===tr)list.append(detailBox());});
+  return el('div',{class:'panel'},el('h2',{},'Focus Product'),
+    el('div',{class:'legend'},el('span',{},`สต็อก ณ `,el('b',{},thDate(fs.f.s.stockDate))),fs.f.inMonth?null:el('span',{class:'pill warn'},'ยังไม่มีสต็อกของเดือนนี้ ใช้ไฟล์ล่าสุดก่อนหน้า')),
+    el('div',{class:'stats'},stat(pct(fs.avg,1),`เฉลี่ย ${fs.br.length} สาขา`),stat(`${fs.pass}/${fs.br.length}`,'สาขาที่ได้ 90%+')),
+    el('div',{class:'legend'},el('span',{class:'key l4'},'90%+'),el('span',{class:'key l3'},'85–89%'),el('span',{class:'key l2'},'80–84%'),el('span',{class:'key l1'},'ต่ำกว่า 80%'),el('span',{},'เส้นขีดบนแถบ = 90%')),
+    el('div',{class:'small muted'},'มี = มีรุ่นนั้นอย่างน้อย 1 ชิ้น (ทุก version) · Lady 41 / Men 39 / Shop 51 รุ่น · เรียง Tier A → B → C · ในแต่ละ Tier เรียงจาก % ต่ำไปสูง · กดที่กล่องสาขาเพื่อดูรุ่นที่ขาด / ยกเว้น / มี'),
+    list);
+}
+
+/* ---------- Demand ---------- */
+function viewDemand(){
+  if(!peopleOK())return preBox('Product Demand');
+  const st=demandStats(),tb=el('tbody');
+  st.recs.slice().sort((a,b)=>b.d.localeCompare(a.d)).forEach(r=>tb.append(el('tr',{},el('td',{},thDate(r.d)),el('td',{class:'l wrap'},r.item+(r.size?` #${r.size}`:'')),el('td',{class:'l wrap muted'},r.skin||''),el('td',{class:'num'},fmt(r.qty)),el('td',{class:'l'},r.by),el('td',{class:'l'},r.done?el('span',{class:'pill good'},r.status||'Done'):el('span',{class:'pill warn'},'ยังไม่ Done')),el('td',{class:'l wrap muted'},r.plan||''))));
+  return el('div',{class:'panel'},el('h2',{},`Product Demand · ${MONTHS[S.month-1]} ${YEAR}`),needSync('demand'),stampTxt('ข้อมูลจากชีทแจ้งความต้องการสินค้า อัปเดต',S.demand?.updatedAt),
+    el('div',{class:'stats'},stat(String(st.times),'จำนวนครั้งที่แจ้ง'),stat(fmt(st.qty),'จำนวนชิ้นที่ขอ'),stat(`${st.done}/${st.times}`,'Done แล้ว')),
+    el('div',{class:'small muted'},`เป้าร่วมกัน · นับทุกรายการที่คุณโอ๋ คุณเอ และ${SUP_NAME.UPC}แจ้ง (ตัวเลขเท่ากันทุกแถบ)`||''),
+    st.recs.length?el('h3',{},'สรุปตามรุ่น · กดเพื่อดูรายการ'):null,st.recs.length?demandByModel(st.recs):null,
+    st.recs.length?el('h3',{},'รายการทั้งหมด'):null,
+    st.recs.length?el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},...['Date','Model','Skin','Qty','By','Status','Plan'].map((h,i)=>el('th',{class:[1,2,4,5,6].includes(i)?'l':null},h)))),tb)):el('div',{class:'empty'},'ยังไม่มีการแจ้งในเดือนนี้'));
+}
+
+/* ---------- Team ---------- */
+function viewTeam(){
+  if(!peopleOK())return preBox('SC Exam');
+  const ex=examStats(),tb=el('tbody');ex.people.sort((a,b)=>b.avg-a.avg).forEach(p=>tb.append(el('tr',{class:'click',tabindex:'0',onclick:()=>examDetail(p.name)},el('td',{},p.name),el('td',{},el('span',{class:'pill '+(p.avg>=4?'good':p.avg>=3.3?'warn':'bad')},p.avg.toFixed(2))),el('td',{class:'num'},p.n))));
+  const a=S.team[`allstar-${S.scope}-${YEAR}`];
+  return el('div',{class:'panel'},el('h2',{},`4.1 SC Exam · ${MONTHS[S.month-1]} ${YEAR}`),needSync('audit'),stampTxt('ข้อมูลจากชีทประเมิน SC อัปเดต',S.audit?.updatedAt),
+    el('div',{class:'stats'},stat(ex.avg==null?'–':ex.avg.toFixed(2),'คะแนนเฉลี่ยทีม'),stat(`${ex.pass}/${ex.people.length}`,'SC ที่ได้ ≥4')),el('div',{class:'small muted'},'กดชื่อเพื่อดูคะแนนแต่ละครั้งและแนวโน้ม'),
+    ex.people.length?el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},el('th',{},'SC'),el('th',{},'Exam avg'),el('th',{},'Entries'))),tb)):el('div',{class:'empty'},'ยังไม่มีคะแนนสอบในเดือนนี้'),
+    el('h2',{},`4.2 BBY SC All Star · ${MONTHS[S.month-1]} ${YEAR}`),allstarBox());
+}
+
+/* ---------- Settings (admin) ---------- */
+let lastDiag={};
+async function driveXlsx(fileId){
+  const res=await S.mcp.callTool(DRIVE,'download_file_content',{fileId,exportMimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'},{cache:false});
+  const p=res.payload;const b64=typeof p==='string'?p:(p&&(p.content||p.data));
+  if(!b64||typeof b64!=='string')throw {code:'shape',message:'ไฟล์ที่ได้กลับมาไม่อยู่ในรูปแบบที่อ่านได้'};
+  return XLSX.read(b64,{type:'base64'});
+}
+function mcpMsg(e){const c=e&&e.code;return c==='needs_reauth'?'Google Drive ต้องเชื่อมต่อใหม่ (claude.ai Settings → Connectors)':c==='server_not_connected'?'ยังไม่ได้เพิ่ม Google Drive ใน claude.ai Settings → Connectors':c==='not_in_manifest'?'ยังไม่ได้อนุญาตให้หน้านี้ใช้ Google Drive':c==='selection_required'?'มี Google Drive หลายบัญชี ให้เลือกบัญชีก่อน':c==='server_unavailable'?'Google Drive ไม่ตอบชั่วคราว ลองอีกครั้ง':c==='tool_error'?'Google Drive แจ้งว่าอ่านไฟล์ไม่ได้: '+(e.message||''):(e&&e.message)||'เกิดข้อผิดพลาด';}
+async function syncSheets(btn,out){
+  if(!S.mcp){out.replaceChildren(el('span',{class:'warn'},'หน้านี้ยังเชื่อม Google Drive ไม่ได้ ลองรีเฟรชหน้าแล้วกดใหม่ ถ้ายังไม่ได้ ให้ตรวจว่ามี Google Drive ใน claude.ai Settings → Connectors'));return;}
+  btn.disabled=true;const now=Date.now(),lines=[];
+  const step=async(label,fn)=>{out.replaceChildren(...lines.map(l=>el('span',{},l)),el('span',{},`กำลังดึง${label}…`));try{lines.push(`${label}: `+await fn());}catch(e){lines.push(`${label}: `+mcpMsg(e));}};
+  await step('รายชื่อพนักงาน',async()=>{const r=GSProc.parseStaff(await driveXlsx(SHEETS.staff));await S.db.doc('sync/staff').set(JSON.parse(JSON.stringify(Object.assign({updatedAt:now},r))));return `${r.diag.people} คน`;});
+  await step('ยอดขายรายวัน',async()=>{const r=GSProc.parseSales(await driveXlsx(SHEETS.sales));await S.db.doc('sync/sales').set(JSON.parse(JSON.stringify(Object.assign({updatedAt:now},r))));const ks=Object.keys(r.months).sort(),l=ks[ks.length-1];return `ข้อมูลถึง ${thDate(r.months[l].lastDate)}`;});
+  await step('ชีทประเมิน SC',async()=>{const r=GSProc.parseAudit(await driveXlsx(SHEETS.audit));await S.db.doc('sync/audit').set(JSON.parse(JSON.stringify(Object.assign({updatedAt:now},r))));lastDiag.audit=r.diag;return `ปี 2569 ${r.diag.inYear} แถว · ประเมิน ${r.diag.audits} · Visit ${r.diag.visits}`;});
+  await step('ชีทแจ้งความต้องการสินค้า',async()=>{const r=GSProc.parseDemand(await driveXlsx(SHEETS.demand));await S.db.doc('sync/demand').set(JSON.parse(JSON.stringify(Object.assign({updatedAt:now},r))));lastDiag.demand=r.diag;return `ปี 2026 ${r.diag.inYear} แถว · นับ ${r.diag.counted}`;});
+  btn.disabled=false;out.replaceChildren(...lines.map(l=>el('span',{},l)));toast('อัปเดตเสร็จ');render();
+}
+async function uploadStock(file,out){
+  out.replaceChildren(el('span',{},'กำลังอ่านไฟล์…'));
+  try{const wb=XLSX.read(await file.arrayBuffer(),{type:'array'});
+    if(!cfg().focus.length)throw new Error('ยังไม่มีรายชื่อ Focus Product');
+    const r=GSProc.parseStock(wb,cfg().focus,cfg().focusExclude);
+    if(!r.stockDate)throw new Error('อ่านวันที่สต็อกไม่ได้ (ช่อง A1 แบบ "Stock: 25.09.69", ชื่อชีทแบบ "Stock 30.09.69" หรือวันที่ในแถวแรก)');
+    await S.db.doc('stock/'+r.stockDate).set(Object.assign(r,{uploadedAt:Date.now(),fileName:file.name}));
+    out.replaceChildren(el('span',{},`บันทึกสต็อก ณ ${thDate(r.stockDate)} · ${fmt(r.rowsRead)} ชิ้น`));toast('อัปโหลดสต็อกแล้ว');
+  }catch(e){out.replaceChildren(el('span',{class:'warn'},'อัปโหลดไม่สำเร็จ: '+(e.message||e.code||e)));}
+}
+async function uploadFocus(file,out){
+  try{const f=GSProc.focusFromWorkbook(XLSX.read(await file.arrayBuffer(),{type:'array'}));await saveCfg(c=>{c.focus=f;});out.replaceChildren(el('span',{},`บันทึกรายชื่อ ${f.length} รุ่น (Lady ${f.filter(x=>x.L).length} / Men ${f.filter(x=>x.M).length} / Shop ${f.filter(x=>x.S).length}) · อัปโหลดไฟล์สต็อกอีกครั้งเพื่อคำนวณใหม่`));}
+  catch(e){out.replaceChildren(el('span',{class:'warn'},'อ่านไฟล์ไม่สำเร็จ: '+(e.message||e)));}
+}
+async function saveCfg(mut){const c=JSON.parse(JSON.stringify(cfg()));mut(c);try{await S.db.doc('config/main').set(c);toast('บันทึกแล้ว');}catch(e){toast('บันทึกไม่สำเร็จ '+(e.code||''));}}
+function diagBox(d,kind){
+  if(!d)return null;const L=[];
+  if(kind==='audit'){L.push(`ชีท "${d.sheet}" · ${d.total} แถว · ปี 2569 ${d.inYear} แถว · หัวข้อคะแนน ${d.scoreCols} · คอลัมน์ Exam ${d.examCols}`);
+    const ue=Object.entries(d.unknownEvaluators||{});if(ue.length)L.push(['warn',`ผู้ประเมินที่ไม่นับ: ${ue.map(([k,v])=>`${k} (${v})`).join(', ')}`]);
+    const ub=Object.entries(d.unknownBranches||{});if(ub.length)L.push(['warn',`ชื่อสาขาที่แปลงเป็นรหัสไม่ได้: ${ub.map(([k,v])=>`${k} (${v})`).join(', ')}`]);
+    if(d.crossScope)L.push(`ไม่นับ ${d.crossScope} แถวที่ Sup ประเมินสาขาของอีกทีม`);
+    if(d.monthDateMismatch)L.push(['warn',`${d.monthDateMismatch} รายการ เดือนที่เลือกไม่ตรงกับวันที่ประเมิน (นับตามเดือนที่เลือก)`]);}
+  else if(kind==='staff'){L.push(`อ่าน ${d.total} คน · นับ ${d.people} คน`);if(d.notSales.length)L.push(`ไม่ใช่พนักงานขาย: ${d.notSales.join(', ')}`);if(d.leftNoDate.length)L.push(`ลาออกแต่ไม่มีวันที่ (ใช้วันส่งยอดล่าสุดแทน): ${d.leftNoDate.join(', ')}`);
+    const u=Object.entries(d.unknownLoc||{});if(u.length)L.push(['warn',`สถานที่ปฏิบัติงานที่แยกทีมไม่ได้: ${u.map(([k,v])=>`${k} (${v})`).join(', ')}`]);}
+  else if(kind==='sales'){L.push(`อ่าน ${fmt(d.rows)} แถว ปี 2026`);(d.conflicts||[]).forEach(c=>L.push(['warn',`${c.k.replace('|',' ')}: พนักงานกรอกยอดร้านไม่ตรงกัน (CONFLICT) ใช้ ${fmt(c.used)} แทนผลรวม ${fmt(c.summed)}`]));const u=Object.entries(d.unknown||{});if(u.length)L.push(['warn',`รหัสสาขาที่ไม่รู้ว่าเป็นทีมไหน (ไม่นับ): ${u.map(([k,v])=>`${k} (${v} วัน)`).join(', ')}`]);}
+  else{L.push(`ชีท "${d.sheet}" · ${d.total} แถว · ปี 2026 ${d.inYear} แถว · นับ ${d.counted}`);const o=Object.entries(d.otherRequester||{});if(o.length)L.push(`ผู้แจ้งที่ไม่นับ: ${o.map(([k,v])=>`${k} (${v})`).join(', ')}`);}
+  return el('div',{class:'diag'},...L.map(x=>Array.isArray(x)?el('span',{class:x[0]},x[1]):el('span',{},x)));
+}
+function viewSettings(){
+  const wrap=el('div',{class:'admin-grid'});
+  const out1=el('div',{class:'diag'},el('span',{},'ดึงข้อมูลล่าสุด 4 ชุด: รายชื่อพนักงาน · ยอดขายรายวัน · ประเมิน SC · แจ้งความต้องการสินค้า'));
+  const b1=el('button',{class:'btn',type:'button'},'อัปเดตจาก Google Sheet');b1.addEventListener('click',()=>syncSheets(b1,out1));
+  wrap.append(el('div',{class:'panel'},el('h3',{},'ข้อมูลจาก Google Sheet'),b1,out1,stampTxt('รายชื่อพนักงาน',S.staff?.updatedAt),diagBox(S.staff?.diag,'staff'),stampTxt('ยอดขายรายวัน',S.sales?.updatedAt),diagBox(S.sales?.diag,'sales'),stampTxt('ประเมิน SC',S.audit?.updatedAt),diagBox(S.audit?.diag,'audit'),stampTxt('เบิกสินค้า',S.demand?.updatedAt),diagBox(S.demand?.diag,'demand')));
+  const out2=el('div',{class:'diag'},el('span',{},S.stocks.length?`มีสต็อกแล้ว ${S.stocks.length} ชุด ล่าสุด ${thDate(S.stocks.map(s=>s.stockDate).sort().pop())}`:'ยังไม่มีไฟล์สต็อก'));
+  const f2=el('input',{type:'file',accept:'.xlsx,.xls',id:'stockFile'});f2.addEventListener('change',()=>f2.files[0]&&uploadStock(f2.files[0],out2));
+  const out3=el('div',{class:'diag'},el('span',{},`รายชื่อ Focus ปัจจุบัน ${cfg().focus.length} รุ่น`));
+  const f3=el('input',{type:'file',accept:'.xlsx,.xls',id:'focusFile'});f3.addEventListener('change',()=>f3.files[0]&&uploadFocus(f3.files[0],out3));
+  wrap.append(el('div',{class:'panel'},el('h3',{},'สต็อก (ไฟล์ check stock / Main Stock)'),el('label',{class:'small muted'},'เลือกไฟล์ .xlsx ที่มีชีท Main Stock หรือ Stock Card',f2),out2,el('h3',{},'รายชื่อ Focus Product'),el('label',{class:'small muted'},'เลือกไฟล์ focus_product.xlsx',f3),out3));
+  const tb=el('tbody');
+  for(let m=1;m<=12&&!isSr();m++){const id=`${S.scope}-${ym(m)}`,d=S.monthly[id]||{};
+    const ins={sales:el('input',{type:'number',step:'0.01',value:d.sales??''}),target:el('input',{type:'number',value:d.target??''}),disc:el('input',{type:'number',step:'0.1',class:'s',value:d.disc!=null?(d.disc*100).toFixed(1):''}),eventDays:el('input',{type:'number',class:'s',value:d.eventDays??''})};
+    const sv=el('button',{class:'btn ghost small',type:'button'},'Save');sv.addEventListener('click',async()=>{sv.disabled=true;const n=v=>v===''?null:Number(v);
+      try{await S.db.doc(`monthly/${id}`).set(Object.assign({},d,{scope:S.scope,ym:ym(m),sales:n(ins.sales.value),target:n(ins.target.value),disc:ins.disc.value===''?null:Number(ins.disc.value)/100,eventDays:n(ins.eventDays.value),updatedAt:Date.now()}));toast(`บันทึก ${MONTHS[m-1]} แล้ว`);}catch(e){toast('บันทึกไม่สำเร็จ');}finally{sv.disabled=false;}});
+    tb.append(el('tr',{},el('td',{},MONTHS[m-1]),el('td',{},ins.target),el('td',{},ins.sales),el('td',{},ins.disc),el('td',{},ins.eventDays),el('td',{},sv)));}
+  wrap.append(el('div',{class:'panel',style:'grid-column:1/-1'},el('h3',{},`ตัวเลขรายเดือน · ${sup().title}`),isSr()?el('div',{class:'small muted'},'แถบ Supervisor ใช้ยอดรวม BKK + UPC อัตโนมัติ แก้ตัวเลขที่แถบ Supervisor BKK / UPC'):null,el('div',{class:'small muted'},'ส่วนลดใส่เป็น % เช่น 39.5 · เดือนที่ยังไม่ปิด ยอดขายและวันอีเว้นท์มาจากฟอร์มส่งยอดรายวัน ช่อง Sales ในตารางนี้ใช้กับเดือนที่ปิดแล้ว'),el('div',{class:'tscroll mini'},el('table',{},el('thead',{},el('tr',{},...['Month','Target','Sales','Disc %','Event Days',''].map(h=>el('th',{},h)))),tb))));
+  const s=sup(),sa=el('input',{type:'number',value:s.annualTarget??''}),se=el('input',{type:'number',value:s.eventDaysTarget??''});
+  const as=S.team[`allstar-${S.scope}-${YEAR}`]||{},av=el('input',{type:'number',step:'0.1',value:as.value??''}),an=el('input',{type:'text',value:as.note||''});
+  wrap.append(el('div',{class:'panel'},el('h3',{},'ข้อมูล Supervisor'),el('label',{class:'row small'},'เป้ายอดขายทั้งปี',sa),el('label',{class:'row small'},'เป้าวันอีเว้นท์/ปี',se),
+    el('button',{class:'btn small',type:'button',onclick:()=>saveCfg(c=>{const x=c.supervisors.find(v=>v.scope===S.scope);x.annualTarget=sa.value===''?null:+sa.value;x.eventDaysTarget=se.value===''?null:+se.value;})},'บันทึก'),
+    el('h3',{},`All Star ${YEAR} (สิ้นปี)`),el('label',{class:'row small'},'คะแนนเฉลี่ย %',av),el('label',{class:'row small'},'หมายเหตุ',an),
+    el('button',{class:'btn small',type:'button',onclick:async()=>{try{await S.db.doc(`team/allstar-${S.scope}-${YEAR}`).set({value:av.value===''?null:+av.value,note:an.value.trim()});toast('บันทึกแล้ว');}catch(e){toast('บันทึกไม่สำเร็จ');}}},'บันทึก All Star')));
+  const id=curYM(),lt=(cfg().liveTargets||{})[id]||{},closed=S.monthly[`BKK-${id}`]?.closed&&S.monthly[`UPC-${id}`]?.closed;
+  const tB=el('input',{type:'number',value:lt.BKK??''}),tU=el('input',{type:'number',value:lt.UPC??''}),tE=el('input',{type:'number',value:lt.event??''});
+  wrap.append(el('div',{class:'panel'},el('h3',{},`เป้าเดือน ${MONTHS[S.month-1]} ${YEAR} (เดือนที่ยังไม่ปิด)`),
+    closed?el('div',{class:'small muted'},'เดือนนี้ปิดแล้ว ใช้เป้าจากไฟล์ยอดขาย'):el('div',{class:'small muted'},'ใส่ตามแดชบอร์ดยอดขายหลัก · เป้าอีเว้นท์รวมจะหารเท่ากันตามจำนวนอีเว้นท์ที่มียอดในเดือนนั้น แล้วบวกเข้าทีมเจ้าของอีเว้นท์'),
+    el('label',{class:'row small'},'BKK (สาขา)',tB),el('label',{class:'row small'},'UPC (สาขา)',tU),el('label',{class:'row small'},'Event รวม',tE),
+    el('button',{class:'btn small',type:'button',disabled:closed||null,onclick:()=>saveCfg(c=>{c.liveTargets=c.liveTargets||{};const n=v=>v.value===''?null:+v.value;c.liveTargets[id]={BKK:n(tB),UPC:n(tU),event:n(tE)};})},'บันทึกเป้า')));
+  wrap.append(allstarPaste());
+  {const ymk=curYM(),rows=cfg().supervisors.map(sv=>{const o=dayOffFor(sv.scope,ymk);return {sv,off:el('input',{type:'text',value:o.off.join(' '),placeholder:'เช่น 1 2 7 8'}),sick:el('input',{type:'text',value:o.sick.join(' '),placeholder:'เช่น 17'})};});
+    const days=v=>[...new Set(v.split(/[\s,]+/).map(Number).filter(n=>Number.isInteger(n)&&n>=1&&n<=31))].sort((a,b)=>a-b);
+    wrap.append(el('div',{class:'panel'},el('h3',{},`Day Off · ${MONTHS[S.month-1]} ${YEAR}`),el('div',{class:'small muted'},'ใส่วันที่ เว้นวรรคหรือคั่นด้วย , · แสดงเป็นช่องสีแดงอ่อนในปฏิทิน Visit'),
+      ...rows.map(r=>el('div',{style:'display:flex;flex-direction:column;gap:4px'},el('b',{class:'small'},`${r.sv.title} (${SUP_NAME[r.sv.scope]||''})`),el('label',{class:'row small'},'Day Off',r.off),el('label',{class:'row small'},'ลาป่วย',r.sick))),
+      el('button',{class:'btn small',type:'button',onclick:()=>saveCfg(c=>{c.dayoff=c.dayoff||{};const m={};rows.forEach(r=>{const off=days(r.off.value),sick=days(r.sick.value);if(off.length||sick.length)m[r.sv.scope]={off,sick};});c.dayoff[ymk]=m;})},'บันทึกวันหยุด')));}
+  const ro=rosterIn(),am=cfg().aliases||{};
+  const ta=el('textarea',{rows:4,style:'width:100%',placeholder:'ชื่อในรายชื่อ = ชื่ออื่นที่กรอกในชีท เช่น\nกิ้ฟ = กุ๊บกิ๊บ, กิ๊ฟ'});
+  ta.value=Object.entries(am).map(([k,v])=>`${k} = ${v.join(', ')}`).join('\n');
+  wrap.append(el('div',{class:'panel'},el('h3',{},`รายชื่อ SC ทีม ${team()} · ${MONTHS[S.month-1]} (${ro.length} คน)`),
+    el('div',{class:'small muted'},S.staff?'ชีทข้อมูลพนักงาน BBYD ประกอบกับฟอร์มส่งยอดขาย · ไม่ส่งยอดเกิน 14 วัน = ออก · ไม่นับตั้งแต่เดือนที่ออก · พนักงานใหม่นับเมื่อครบ 14 วัน':'ยังไม่ได้ดึงชีทข้อมูลพนักงาน'),
+    el('div',{class:'chips'},...ro.map(r=>el('span',{class:'chip'},r.name))),
+    (()=>{const mp=mergedPeople();if(!mp)return null;const L=mp.filter(p=>p.scope===team()&&(p.note||p.src==='form'||(p.fromYM&&p.fromYM>curYM()&&p.fromYM<=ym(12))));
+      return L.length?el('div',{class:'diag'},el('b',{},'รวมกับฟอร์มส่งยอดขาย'),...L.map(p=>el('span',{},`${p.name}: ${[p.src==='form'?'มีในฟอร์มส่งยอด แต่ไม่มีในชีทพนักงาน':'',p.note,p.fromYM&&p.fromYM>curYM()?`เริ่มนับ ${MONTHS[+p.fromYM.slice(5)-1]} (ยังไม่ครบ 14 วัน)`:''].filter(Boolean).join(' · ')}`))):null;})(),
+    (()=>{const lo=el('textarea',{rows:2,style:'width:100%',placeholder:'ชื่อ = เดือนที่ออก เช่น\nญ่า2 = 2026-09'});lo.value=Object.entries(cfg().leftOverride||{}).map(([k,v])=>`${k} = ${v}`).join('\n');
+      return el('div',{style:'display:flex;flex-direction:column;gap:6px'},el('h3',{},'ออกแล้ว (ใส่เองเมื่อชีทยังไม่อัปเดต)'),el('div',{class:'small muted'},'ไม่นับตั้งแต่เดือนที่ใส่'),lo,
+        el('button',{class:'btn small',type:'button',onclick:()=>saveCfg(c=>{const o={};lo.value.split('\n').forEach(l=>{const [k,v]=l.split('=');if(k&&v&&/^\d{4}-\d{2}$/.test(v.trim()))o[k.trim()]=v.trim();});c.leftOverride=o;})},'บันทึก'));})(),
+    el('h3',{},'ชื่อเรียกอื่น'),el('div',{class:'small muted'},`ตั้งไว้ในระบบแล้ว: ${Object.entries(DEFAULT_ALIASES).map(([k,v])=>`${k} = ${v.join(', ')}`).join(' · ')} · เพิ่มได้บรรทัดละคน`),ta,
+    el('button',{class:'btn small',type:'button',onclick:()=>saveCfg(c=>{const o={};ta.value.split('\n').forEach(line=>{const [k,v]=line.split('=');if(!k||!v)return;const list=v.split(',').map(t=>t.trim()).filter(Boolean);if(k.trim()&&list.length)o[k.trim()]=list;});c.aliases=o;})},'บันทึกชื่อเรียกอื่น')));
+  return wrap;
+}
+
+/* ---------- drill-down sheet ---------- */
+function sheet(title,...kids){
+  let d=$('#sheet');
+  if(!d){d=el('dialog',{id:'sheet',class:'sheet','aria-label':'Detail'});document.body.append(d);d.addEventListener('click',e=>{if(e.target===d)d.close();});}
+  d.style.setProperty('--tc',tcVar(S.tab));
+  d.replaceChildren(el('div',{class:'sh-head'},el('h2',{},title),el('button',{class:'btn ghost small',type:'button',onclick:()=>d.close()},'ปิด')),el('div',{class:'sh-body'},...kids.flat().filter(Boolean)));
+  if(!d.open)d.showModal();d.scrollTop=0;
+}
+const withMonth=(m,fn)=>{const o=S.month;S.month=m;try{return fn();}finally{S.month=o;}};
+const peopleMonths=()=>{const out=[];for(let m=+PEOPLE_FROM.slice(5);m<=S.month;m++)out.push(m);return out;};
+// "as of" day for gap counting: last day of the chosen month, or the data date if earlier
+function asOfDay(){const end=new Date(YEAR,S.month,0),t=new Date();const d=t<end?t:end;return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+const daysBetween=(a,b)=>Math.round((new Date(b+'T00:00:00Z')-new Date(a+'T00:00:00Z'))/864e5);
+const LATE=7; // form entered more than 7 days after the visit = late
+const lagPill=x=>x&&x.lag!=null&&x.lag>LATE?el('span',{class:'pill warn'},`ลงช้า ${x.lag} วัน`):null;
+function lagStats(list){const v=list.map(x=>x.lag).filter(x=>x!=null);if(!v.length)return null;const s=v.slice().sort((a,b)=>a-b);return {n:v.length,avg:v.reduce((a,b)=>a+b,0)/v.length,med:s[s.length>>1],late:v.filter(x=>x>LATE).length};}
+// mini month trend: [{m,v,label,tone}]
+function trendEl(rows,max){
+  const w=el('div',{class:'trend',role:'img','aria-label':'Monthly trend'});
+  rows.forEach(r=>{const h=r.v==null||!max?0:Math.max(4,Math.min(1,r.v/max)*34);
+    w.append(el('div',{class:'tcol'+(r.m===S.month?' cur':'')},el('span',{class:'tv num'},r.label??'–'),el('i',{class:r.tone||'',style:`height:${h}px`}),el('span',{class:'tm'},MONTHS[r.m-1])));});
+  return w;
+}
+
+/* --- SC detail: every audit of one SC since June, by any Sup --- */
+const mean=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
+// ▲ +0.50 / ▼ -0.20 / ● 0.00 with colour; small moves (<0.05) count as unchanged
+function deltaEl(d,unit=''){if(d==null)return el('span',{class:'dl none'},'–');const c=d>=0.05?'up':d<=-0.05?'down':'flat';
+  return el('span',{class:'dl '+c},(c==='up'?'▲ +':c==='down'?'▼ ':'● ')+d.toFixed(2)+unit);}
+function scDetail(name){
+  const key=nameKey(name),ro=rosterIn(),items=S.audit?.diag?.items||[],ms=peopleMonths();
+  const all=(S.audit?.audits||[]).filter(a=>a.scope===team()&&a.ym>=PEOPLE_FROM&&a.ym<=curYM()&&!a.x&&canonOf(a.sc,ro)===key).sort((a,b)=>(b.d||'').localeCompare(a.d||''));
+  const byM=ms.map(m=>{const xs=all.filter(a=>a.ym===ym(m));return {m,xs,avg:mean(xs.map(a=>a.avg).filter(v=>v!=null)),exam:mean(xs.map(a=>a.exam).filter(v=>v!=null))};});
+  const withData=byM.filter(x=>x.avg!=null),last=withData[withData.length-1]||null,prev=withData[withData.length-2]||null;
+  const cur=byM[byM.length-1],teamCur=mean(auditsTeamAll().map(a=>a.avg).filter(v=>v!=null));
+  // header cards
+  const cards=el('div',{class:'stats'},
+    el('div',{class:'stat'},el('div',{class:'v num'},cur.avg==null?'–':cur.avg.toFixed(2)),el('div',{class:'k'},`คะแนนเฉลี่ย ${MONTHS[S.month-1]}`),
+      cur.avg!=null&&prev&&last===cur?el('div',{class:'small'},deltaEl(cur.avg-prev.avg),el('span',{class:'muted'},` เทียบ ${MONTHS[prev.m-1]} (${prev.avg.toFixed(2)})`)):cur.avg==null?el('div',{class:'small muted'},'ยังไม่ถูกประเมินเดือนนี้'):el('div',{class:'small muted'},'ยังไม่มีเดือนก่อนให้เทียบ')),
+    el('div',{class:'stat'},el('div',{class:'v num'},teamCur==null?'–':teamCur.toFixed(2)),el('div',{class:'k'},`ค่าเฉลี่ยทีม ${team()} · ${MONTHS[S.month-1]}`),
+      cur.avg!=null&&teamCur!=null?el('div',{class:'small'},deltaEl(cur.avg-teamCur),el('span',{class:'muted'},cur.avg-teamCur>=0.05?' สูงกว่าทีม':cur.avg-teamCur<=-0.05?' ต่ำกว่าทีม':' ใกล้เคียงทีม')):null),
+    el('div',{class:'stat'},el('div',{class:'v num'},String(cur.xs.length)),el('div',{class:'k'},`ครั้งที่ถูกประเมิน · ${MONTHS[S.month-1]}`),el('div',{class:'small'},cur.xs.length>=2?el('span',{class:'dl up'},'ครบ 2 ครั้ง'):el('span',{class:'dl down'},`ขาดอีก ${2-cur.xs.length} ครั้ง`))));
+  // score trend
+  const tr=trendEl(byM.map(x=>({m:x.m,v:x.avg,label:x.avg==null?'–':x.avg.toFixed(2),tone:x.avg==null?'':tone(x.avg/5,.8,.6)})),5);
+  // item matrix: per month avg, change vs previous assessed month, team this month
+  const teamItem={};itemStats(curYM()).forEach(r=>teamItem[r.i]=r.avg);
+  const per=byM.map(x=>{const o={};x.xs.forEach(a=>(a.s||[]).forEach((v,i)=>{if(v==null||!items[i])return;(o[i]=o[i]||[]).push(v);}));const r={};Object.keys(o).forEach(i=>r[i]=mean(o[i]));return r;});
+  const idx=[...new Set(per.flatMap(o=>Object.keys(o).map(Number)))];
+  const rows=idx.map(i=>{const vals=per.map(o=>o[i]??null),seen=vals.map((v,j)=>[v,j]).filter(x=>x[0]!=null),lastV=seen[seen.length-1],prevV=seen[seen.length-2];
+    return {i,c:items[i].c,l:items[i].l,vals,now:lastV?lastV[0]:null,chg:lastV&&prevV?lastV[0]-prevV[0]:null,team:teamItem[i]??null};});
+  const up=rows.filter(r=>r.chg!=null&&r.chg>=0.05).sort((a,b)=>b.chg-a.chg),down=rows.filter(r=>r.chg!=null&&r.chg<=-0.05).sort((a,b)=>a.chg-b.chg);
+  const weak=rows.filter(r=>r.now!=null).sort((a,b)=>a.now-b.now).slice(0,3),strong=rows.filter(r=>r.now!=null).sort((a,b)=>b.now-a.now).slice(0,3);
+  const li=(r,v)=>el('li',{},el('span',{},r.l),v);
+  const sumBox=rows.length?el('div',{class:'scsum'},
+    el('div',{class:'grp g-have'},el('h4',{class:'h-have'},`ดีขึ้น (${up.length})`),up.length?el('ul',{},...up.slice(0,5).map(r=>li(r,deltaEl(r.chg)))):el('div',{class:'empty'},'ไม่มี')),
+    el('div',{class:'grp g-miss'},el('h4',{class:'h-miss'},`แย่ลง (${down.length})`),down.length?el('ul',{},...down.slice(0,5).map(r=>li(r,deltaEl(r.chg)))):el('div',{class:'empty'},'ไม่มี')),
+    el('div',{class:'grp g-ex'},el('h4',{class:'h-ex'},'ต้องพัฒนา · คะแนนล่าสุดต่ำสุด'),el('ul',{},...weak.map(r=>li(r,el('span',{class:'pill '+tone(r.now/5,.8,.6)},r.now.toFixed(2)))))),
+    el('div',{class:'grp',style:'border-color:var(--accent);background:var(--accent-soft)'},el('h4',{style:'color:var(--accent)'},'จุดแข็ง · คะแนนล่าสุดสูงสุด'),el('ul',{},...strong.map(r=>li(r,el('span',{class:'pill '+tone(r.now/5,.8,.6)},r.now.toFixed(2))))))):null;
+  rows.sort((a,b)=>(a.now??9)-(b.now??9));
+  const itb=el('tbody');rows.forEach(r=>itb.append(el('tr',{},el('td',{class:'l wrap'},el('span',{class:'muted small'},r.c+' · '),r.l),
+    ...r.vals.map((v,j)=>el('td',{class:ms[j]===S.month?'cm':null},v==null?el('span',{class:'muted'},'–'):el('span',{class:'pill '+tone(v/5,.8,.6)},v.toFixed(1)))),
+    el('td',{},deltaEl(r.chg)),el('td',{},r.team==null||r.now==null?'–':deltaEl(r.now-r.team)))));
+  const list=el('div',{});all.forEach(a=>list.append(auditCard(a)));
+  sheet(`${name} · SC ทีม ${team()}`,
+    el('div',{class:'small muted'},`ทุกการประเมินตั้งแต่ ${MONTHS[ms[0]-1]} ถึง ${MONTHS[S.month-1]} ${YEAR} · ประเมินโดย Sup ทุกคน · ▲ ดีขึ้น ▼ แย่ลง ● เท่าเดิม`),
+    cards,el('h3',{},'คะแนนเฉลี่ยรายเดือน'),tr,
+    el('div',{class:'small muted'},byM.map(x=>`${MONTHS[x.m-1]} ${x.xs.length} ครั้ง${x.xs.length?' ('+[...new Set(x.xs.map(a=>'Sup'+evShort(a.ev)))].join(', ')+')':''}`).join(' · ')),
+    sumBox?el('h3',{},'สรุปรายหัวข้อ · เทียบครั้งล่าสุดกับครั้งก่อน'):null,sumBox,
+    rows.length?el('h3',{},'คะแนนรายหัวข้อทุกเดือน'):null,
+    rows.length?el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},el('th',{class:'l'},'หัวข้อ'),...ms.map(m=>el('th',{},MONTHS[m-1])),el('th',{},'เทียบครั้งก่อน'),el('th',{},'เทียบทีม'))),itb)):null,
+    rows.length?el('div',{class:'small muted'},'เทียบครั้งก่อน = เดือนล่าสุดที่ถูกประเมิน − เดือนก่อนหน้าที่ถูกประเมิน · เทียบทีม = คะแนนล่าสุด − ค่าเฉลี่ยทีมเดือนนี้'):null,
+    el('h3',{},`การประเมินทั้งหมด (${all.length})`),all.length?list:el('div',{class:'empty'},'ยังไม่ถูกประเมินตั้งแต่ มิ.ย.'));
+}
+
+/* --- branch detail: this board's visits to one branch since June --- */
+function branchDetail(code){
+  const all=(S.audit?.visits||[]).filter(v=>v.scope===team()&&v.ym>=PEOPLE_FROM&&v.ym<=curYM()&&evOK(v.ev)&&(v.br||v.brRaw)===code).sort((a,b)=>b.d.localeCompare(a.d));
+  const last=all[0],gap=last?daysBetween(last.d,asOfDay()):null;
+  const tr=trendEl(peopleMonths().map(m=>{const n=all.filter(v=>v.ym===ym(m)).length;return {m,v:n,label:String(n),tone:n>=3?'good':n>=1?'warn':'bad'};}),Math.max(3,...peopleMonths().map(m=>all.filter(v=>v.ym===ym(m)).length)));
+  const scs=(S.audit?.audits||[]).filter(a=>a.scope===team()&&a.ym===curYM()&&a.br===code&&!a.x);
+  const list=el('div',{});all.forEach(v=>list.append(visitCard(v)));
+  sheet(`${code}${MAIN[code]?' · '+MAIN[code].w:''}`,
+    el('div',{class:'stats'},stat(last?thDate(last.d):'–','เข้าครั้งล่าสุด'),stat(gap==null?'–':`${gap} วัน`,'ไม่ได้เข้ามาแล้ว'),stat(String(all.filter(v=>v.ym===curYM()).length),`ครั้ง · ${MONTHS[S.month-1]}`),stat(String(scs.length),`SC ที่ประเมินที่สาขานี้ · ${MONTHS[S.month-1]}`)),
+    el('h3',{},'จำนวน Visit รายเดือน'),tr,
+    scs.length?el('div',{class:'chips'},...scs.map(a=>el('span',{class:'chip'},a.sc,el('b',{},a.avg==null?'–':a.avg.toFixed(2))))):null,
+    el('h3',{},`Visit ทั้งหมด (${all.length})`),all.length?list:el('div',{class:'empty'},'ยังไม่มี Visit ตั้งแต่ มิ.ย.'));
+}
+
+/* --- one calendar day --- */
+function dayDetail(k,vs,lgs,off){
+  const list=el('div',{});vs.forEach(v=>list.append(visitCard(v)));
+  sheet(thDate(k),off?el('div',{class:'banner',style:'background:var(--bad-bg);color:var(--bad)'},off):null,
+    vs.length?list:null,lgs.length?el('div',{class:'diag'},...lgs.map(l=>el('span',{},el('b',{},logPlace(l.t)),` · ${l.t}`,l.lag>LATE?` · ลงช้า ${l.lag} วัน`:''))):null,
+    !vs.length&&!lgs.length?el('div',{class:'empty'},'ไม่มีบันทึกวันนี้'):null);
+}
+
+/* --- exam detail --- */
+function examDetail(name){
+  const key=nameKey(name),ro=rosterIn();
+  const all=(S.audit?.audits||[]).filter(a=>a.scope===team()&&a.ym>=PEOPLE_FROM&&a.ym<=curYM()&&a.exam!=null&&evOK(a.ev)&&canonOf(a.sc,ro)===key).sort((a,b)=>(b.d||'').localeCompare(a.d||''));
+  const tr=trendEl(peopleMonths().map(m=>{const xs=all.filter(a=>a.ym===ym(m)).map(a=>a.exam),v=xs.length?xs.reduce((a,b)=>a+b,0)/xs.length:null;return {m,v,label:v==null?'–':v.toFixed(1),tone:v==null?'':v>=4?'good':v>=3.3?'warn':'bad'};}),5);
+  const tb=el('tbody');all.forEach(a=>tb.append(el('tr',{},el('td',{},thDate(a.d)),el('td',{class:'l'},a.br||a.brRaw||'–'),el('td',{class:'l muted'},a.ev),el('td',{},el('span',{class:'pill '+(a.exam>=4?'good':a.exam>=3.3?'warn':'bad')},a.exam.toFixed(2))))));
+  sheet(`${name} · SC Exam`,el('h3',{},'คะแนนเฉลี่ยรายเดือน'),tr,el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},el('th',{},'Date'),el('th',{class:'l'},'Branch'),el('th',{class:'l'},'By'),el('th',{},'Exam'))),tb)));
+}
+
+/* --- team weak points: item averages across every Sup's audits of this team --- */
+function itemStats(ymk){
+  const items=S.audit?.diag?.items||[],recs=withMonth(+ymk.slice(5),()=>auditsTeamAll()),o={};
+  recs.forEach(a=>(a.s||[]).forEach((v,i)=>{if(v==null||!items[i])return;(o[i]=o[i]||[]).push({v,a});}));
+  return Object.keys(o).map(i=>({i:+i,c:items[i].c,l:items[i].l,n:o[i].length,avg:o[i].reduce((s,x)=>s+x.v,0)/o[i].length,list:o[i]}));
+}
+function itemBox(){
+  const cur=itemStats(curYM());if(!cur.length)return null;
+  const prevM=S.month-1,prev=prevM>=+PEOPLE_FROM.slice(5)?itemStats(ym(prevM)):[],pm={};prev.forEach(p=>pm[p.i]=p.avg);
+  cur.forEach(r=>{r.d=pm[r.i]!=null?r.avg-pm[r.i]:null;});
+  const so=S.itemSort||{k:'avg',dir:1},val=r=>so.k==='l'?r.c+' '+r.l:r[so.k];
+  const rows=cur.sort((a,b)=>{const x=val(a),y=val(b);if(x==null&&y==null)return a.avg-b.avg;if(x==null)return 1;if(y==null)return -1;return (typeof x==='string'?x.localeCompare(y,'th'):x-y)*so.dir||a.avg-b.avg;}),ro=rosterIn(),tb=el('tbody');
+  rows.forEach((r,j)=>{const d=r.d;
+    const tr=el('tr',{class:'click'+(j>=5?' more':''),tabindex:'0',onclick:()=>{const t=el('tbody');r.list.slice().sort((a,b)=>a.v-b.v).forEach(x=>{const k=canonOf(x.a.sc,ro),p=ro.find(y=>nameKey(y.name)===k);t.append(el('tr',{},el('td',{},p?p.name:x.a.sc),el('td',{class:'l'},x.a.br||x.a.brRaw||'–'),el('td',{class:'l muted'},x.a.ev),el('td',{},el('span',{class:'pill '+tone(x.v/5,.8,.6)},String(x.v)))));});
+      sheet(r.l,el('div',{class:'small muted'},`${r.c} · ${MONTHS[S.month-1]} · ${r.n} ครั้ง · เฉลี่ย ${r.avg.toFixed(2)}`),el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},el('th',{},'SC'),el('th',{class:'l'},'Branch'),el('th',{class:'l'},'By'),el('th',{},'Score'))),t)));}},
+      el('td',{class:'l wrap'},el('span',{class:'muted small'},r.c+' · '),r.l),el('td',{},el('span',{class:'pill '+tone(r.avg/5,.8,.6)},r.avg.toFixed(2))),
+      el('td',{class:'num '+(d==null?'muted':d>=0.05?'s-hi':d<=-0.05?'s-lo':'muted')},d==null?'–':(d>0?'+':'')+d.toFixed(2)),el('td',{class:'num muted'},String(r.n)));
+    tr.addEventListener('keydown',e=>{if(e.key==='Enter')tr.click();});tb.append(tr);});
+  const more=rows.length>5?el('button',{class:'btn ghost small',type:'button',onclick:()=>{S.itemAll=!S.itemAll;render();}},S.itemAll?'ย่อ':`ดูทั้งหมด ${rows.length} หัวข้อ`):null;
+  const th=(k,label,cls)=>{const on=so.k===k;return el('th',{class:cls||null,'aria-sort':on?(so.dir>0?'ascending':'descending'):'none'},el('button',{type:'button',class:'sortb'+(on?' on':''),onclick:()=>{S.itemSort=on?{k,dir:-so.dir}:{k,dir:k==='n'?-1:1};render();}},label,el('span',{class:'arr'},on?(so.dir>0?' ▲':' ▼'):' ↕')));};
+  return el('section',{class:'items'+(S.itemAll?' all':'')},el('h3',{},`คะแนนรายหัวข้อของทีม · ${MONTHS[S.month-1]}`),el('div',{class:'small muted'},'คะแนนเฉลี่ยรายหัวข้อจากการประเมินของ Sup ทุกคนในทีมนี้ · เทียบเดือนก่อน · กดหัวตารางเพื่อเรียงน้อยไปมาก / มากไปน้อย · กดหัวข้อเพื่อดูรายคน'),
+    el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},th('l','หัวข้อ','l'),th('avg','เฉลี่ย'),th('d','vs เดือนก่อน'),th('n','ครั้ง'))),tb)),more);
+}
+
+
+/* --- Analysis sub-tab: SC × month and item × month since June --- */
+function scMonthBox(){
+  const ms=peopleMonths(),ro=rosterIn(),tb=el('tbody');
+  const recs=(S.audit?.audits||[]).filter(a=>a.scope===team()&&a.ym>=PEOPLE_FROM&&a.ym<=curYM()&&!a.x);
+  const rows=ro.map(r=>{const k=nameKey(r.name),mine=recs.filter(a=>canonOf(a.sc,ro)===k);
+    const cells=ms.map(m=>{const xs=mine.filter(a=>a.ym===ym(m)),sc=xs.map(a=>a.avg).filter(v=>v!=null),on=rosterFor(team(),ym(m)).some(x=>nameKey(x.name)===k);return {n:xs.length,on,avg:sc.length?sc.reduce((a,b)=>a+b,0)/sc.length:null};});
+    const all=mine.map(a=>a.avg).filter(v=>v!=null);return {name:r.name,cells,avg:all.length?all.reduce((a,b)=>a+b,0)/all.length:null,n:mine.length};});
+  const so=S.scSort||{k:'avg',dir:1},val=r=>so.k==='name'?r.name:so.k==='n'?r.n:so.k==='avg'?r.avg:r.cells[so.k]?.avg;
+  rows.sort((a,b)=>{const x=val(a),y=val(b);if(x==null&&y==null)return 0;if(x==null)return 1;if(y==null)return -1;return (typeof x==='string'?x.localeCompare(y,'th'):x-y)*so.dir;});
+  rows.forEach(r=>{const tr=el('tr',{class:'click',tabindex:'0',onclick:()=>scDetail(r.name)},el('td',{},r.name),
+    ...r.cells.map((c,i)=>el('td',{class:ms[i]===S.month?'cm':null},c.n?el('span',{class:'pill '+(c.avg==null?'':tone(c.avg/5,.8,.6))},`${c.avg==null?'–':c.avg.toFixed(2)} · ${c.n}`):c.on?el('span',{class:'pill bad'},'0'):el('span',{class:'muted small',title:'ยังไม่อยู่ในทีม'},'–'))),
+    el('td',{},r.avg==null?'–':el('span',{class:'pill '+tone(r.avg/5,.8,.6)},r.avg.toFixed(2))),el('td',{class:'num'},String(r.n)));
+    tr.addEventListener('keydown',e=>{if(e.key==='Enter')tr.click();});tb.append(tr);});
+  const th=(k,label)=>{const on=so.k===k;return el('th',{class:k==='name'?'l':null},el('button',{type:'button',class:'sortb'+(on?' on':''),onclick:()=>{S.scSort=on?{k,dir:-so.dir}:{k,dir:k==='n'?-1:1};render();}},label,el('span',{class:'arr'},on?(so.dir>0?' ▲':' ▼'):' ↕')));};
+  return el('section',{class:'items all'},el('h3',{},`SC รายเดือน · ทีม ${team()}`),el('div',{class:'small muted'},'คะแนนเฉลี่ย · จำนวนครั้งที่ถูกประเมิน (Sup ทุกคน) · 0 สีแดง = อยู่ในทีมแต่ไม่ถูกประเมิน · – = ยังไม่อยู่ในทีม · รายชื่อ SC ของเดือนที่เลือก · กดหัวตารางเพื่อเรียง · กดชื่อเพื่อดูรายละเอียด'),
+    el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},th('name','SC'),...ms.map((m,i)=>th(i,MONTHS[m-1])),th('avg','เฉลี่ยรวม'),th('n','ครั้ง'))),tb)));
+}
+function itemMonthBox(){
+  const ms=peopleMonths();if(ms.length<2)return null;
+  const per=ms.map(m=>{const o={};itemStats(ym(m)).forEach(r=>o[r.i]=r);return o;});
+  const items=S.audit?.diag?.items||[],idx=[...new Set(per.flatMap(o=>Object.keys(o).map(Number)))];
+  const rows=idx.map(i=>({i,c:items[i].c,l:items[i].l,vals:per.map(o=>o[i]?o[i].avg:null)}));
+  rows.forEach(r=>{const v=r.vals.filter(x=>x!=null);r.first=v[0]??null;r.last=v[v.length-1]??null;r.chg=v.length>1?r.last-r.first:null;});
+  const so=S.imSort||{k:'chg',dir:1},val=r=>so.k==='l'?r.c+' '+r.l:so.k==='chg'?r.chg:r.vals[so.k];
+  rows.sort((a,b)=>{const x=val(a),y=val(b);if(x==null&&y==null)return 0;if(x==null)return 1;if(y==null)return -1;return (typeof x==='string'?x.localeCompare(y,'th'):x-y)*so.dir;});
+  const th=(k,label,cls)=>{const on=so.k===k;return el('th',{class:cls||null},el('button',{type:'button',class:'sortb'+(on?' on':''),onclick:()=>{S.imSort=on?{k,dir:-so.dir}:{k,dir:1};render();}},label,el('span',{class:'arr'},on?(so.dir>0?' ▲':' ▼'):' ↕')));};
+  const tb=el('tbody');rows.forEach(r=>tb.append(el('tr',{},el('td',{class:'l wrap'},el('span',{class:'muted small'},r.c+' · '),r.l),
+    ...r.vals.map((v,i)=>el('td',{class:ms[i]===S.month?'cm':null},v==null?'–':el('span',{class:'pill '+tone(v/5,.8,.6)},v.toFixed(2)))),
+    el('td',{class:'num '+(r.chg==null?'muted':r.chg>=0.05?'s-hi':r.chg<=-0.05?'s-lo':'muted')},r.chg==null?'–':(r.chg>0?'+':'')+r.chg.toFixed(2)))));
+  return el('section',{},el('h3',{},`คะแนนรายหัวข้อย้อนหลัง · ${MONTHS[ms[0]-1]}–${MONTHS[S.month-1]}`),el('div',{class:'small muted'},'คะแนนเฉลี่ยของทีมรายเดือน · เปลี่ยนแปลง = เดือนล่าสุดที่มีข้อมูล − เดือนแรก · ค่าเริ่มต้นเรียงหัวข้อที่แย่ลงมากที่สุดก่อน'),
+    el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},th('l','หัวข้อ','l'),...ms.map((m,i)=>th(i,MONTHS[m-1])),th('chg','เปลี่ยนแปลง'))),tb)));
+}
+/* ---------- BBY SC All Star (monthly ranking sent as an image, keyed in by the admin) ---------- */
+// team/allstar-m-YYYY-MM = {ym, reported (the % on the report), rows:[{r,n,s}], left:[names]}
+const AS_BOTTOM_PCT=()=>cfg().allstarBottomPct??20; // "รั้งท้าย" group = bottom 20% of SCs with a score, rounded
+const asBottomN=n=>Math.round(n*AS_BOTTOM_PCT()/100);
+// names on the All Star report that differ from the HR nickname, or a nickname used in both teams: [team, roster name]
+const AS_MIN_MONTHS=()=>cfg().allstarMinMonths??3; // months with a score needed to be ranked year-to-date
+const AS_MAP_DEFAULT={'เมย์ ชฎาพร':['UPC','เมย์'],'เมย์':['BKK','เมย์'],'ญ่า ธันวลัย':['BKK','ญ่า2']};
+const asMap=()=>Object.assign({},AS_MAP_DEFAULT,cfg().allstarMap||{});
+const asDoc=ymk=>S.team[`allstar-m-${ymk}`]||null;
+const asMonths=()=>Object.keys(S.team).filter(k=>k.startsWith('allstar-m-')).map(k=>k.slice(10)).sort();
+function asMonth(ymk,scope=S.scope){
+  const d=asDoc(ymk);if(!d)return null;
+  const rows=(d.rows||[]).filter(r=>r.s>0).sort((a,b)=>a.r-b.r),cut=Math.max(0,rows.length-asBottomN(rows.length));
+  rows.forEach((r,i)=>{r.bottom=i>=cut;});
+  const mine=scope==='SENIOR'?null:new Set(rosterFor(scope,ymk).flatMap(rosterKeys));
+  const ro=scope==='SENIOR'?null:rosterFor(scope,ymk);
+  const map=asMap();
+  const inTeam=r=>{if(!mine)return true;const m=map[r.n];if(m)return m[0]===scope&&ro.some(x=>nameKey(x.name)===nameKey(m[1]));return mine.has(nameKey(r.n))||ro.some(x=>canonOf(r.n,ro)===nameKey(x.name));};
+  const team=rows.filter(inTeam),avg=xs=>xs.length?xs.reduce((a,r)=>a+r.s,0)/xs.length:null;
+  return {d,rows,team,reported:d.reported??avg(rows.slice(0,cut)),cut6:avg(rows.slice(0,cut)),all:avg(rows),teamAvg:avg(team),teamBottom:team.filter(r=>r.bottom).length};
+}
+// latest All Star month at or before the selected month
+const asCurYM=()=>asMonths().filter(m=>m<=curYM()).pop()||null;
+function asPrevRank(name,ymk){const ms=asMonths().filter(m=>m<ymk),p=ms[ms.length-1];if(!p)return null;const x=(asDoc(p).rows||[]).find(r=>r.s>0&&nameKey(r.n)===nameKey(name));return x?x.r:null;}
+function asDetail(name){
+  const ms=asMonths(),k=nameKey(name);
+  const pts=ms.map(m=>{const x=(asDoc(m).rows||[]).find(r=>nameKey(r.n)===k);return {ym:m,s:x&&x.s>0?x.s:null,r:x&&x.s>0?x.r:null,n:(asDoc(m).rows||[]).filter(r=>r.s>0).length};});
+  const tr=trendEl(pts.map(p=>({m:+p.ym.slice(5),v:p.s,label:p.s==null?'–':p.s.toFixed(0)+'%',tone:p.s==null?'':tn(p.s,80,70)})),100);
+  const tb=el('tbody');pts.slice().reverse().forEach((p,i,a)=>{const prev=a[i+1];tb.append(el('tr',{class:+p.ym.slice(5)===S.month?'cur':null},el('td',{},MONTHS[+p.ym.slice(5)-1]),el('td',{},p.s==null?'–':el('span',{class:'pill '+tn(p.s,80,70)},p.s.toFixed(2)+'%')),
+    el('td',{class:'num'},p.r==null?'–':`${p.r}/${p.n}`),el('td',{},p.r!=null&&prev&&prev.r!=null?rankEl(prev.r-p.r):'–'),el('td',{},p.r!=null&&p.r>p.n-asBottomN(p.n)?el('span',{class:'pill bad'},'รั้งท้าย'):'')));});
+  sheet(`${name} · BBY SC All Star`,el('h3',{},'% Score รายเดือน'),tr,el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},el('th',{},'Month'),el('th',{},'% Score'),el('th',{},'อันดับ'),el('th',{},'เทียบเดือนก่อน'),el('th',{},''))),tb)));
+}
+const rankEl=d=>d>0?el('span',{class:'dl up'},`▲ ขึ้น ${d}`):d<0?el('span',{class:'dl down'},`▼ ลง ${-d}`):el('span',{class:'dl flat'},'● คงที่');
+function allstarBox(){
+  const ymk=asCurYM();
+  if(!ymk)return el('div',{class:'empty'},'ยังไม่มีข้อมูล All Star');
+  const a=asMonth(ymk),showAll=isSr()||S.asAll;
+  const list=showAll?a.rows:a.team,tb=el('tbody');
+  list.forEach(r=>{const p=asPrevRank(r.n,ymk),inT=a.team.includes(r);
+    const tr=el('tr',{class:'click'+(r.bottom?' asb':''),tabindex:'0',onclick:()=>asDetail(r.n)},el('td',{class:'num'},String(r.r)),el('td',{class:'l'},el('b',{},r.n),!isSr()&&showAll&&inT?el('span',{class:'pill',style:'margin-left:6px'},team()):null),
+      el('td',{},el('span',{class:'pill '+tn(r.s,80,70)},r.s.toFixed(2)+'%')),el('td',{},p==null?el('span',{class:'muted small',title:'เดือนก่อนไม่มีอันดับ'},'–'):rankEl(p-r.r)),el('td',{},r.bottom?el('span',{class:'pill bad'},'รั้งท้าย'):''));
+    tr.addEventListener('keydown',e=>{if(e.key==='Enter')tr.click();});tb.append(tr);});
+  const late=ymk!==curYM();
+  return el('div',{style:'display:flex;flex-direction:column;gap:10px'},
+    late?el('div',{class:'banner'},`ยังไม่มีอันดับของ ${MONTHS[S.month-1]} แสดงของ ${MONTHS[+ymk.slice(5)-1]} แทน`):null,
+    el('div',{class:'stats'},stat(fmt(a.reported,2)+'%',`ตามรายงาน · ${MONTHS[+ymk.slice(5)-1]} (ไม่นับกลุ่มรั้งท้าย)`),stat(fmt(a.all,2)+'%',`เฉลี่ยทุกคนที่มีคะแนน (${a.rows.length} คน)`),
+      isSr()?null:stat(a.teamAvg==null?'–':fmt(a.teamAvg,2)+'%',`เฉลี่ยทีม ${team()} (${a.team.length} คน)`),isSr()?null:stat(String(a.teamBottom),`คนในทีมที่อยู่กลุ่มรั้งท้าย ${asBottomN(a.rows.length)} อันดับ (${AS_BOTTOM_PCT()}%)`)),
+    a.cut6!=null&&Math.abs(a.cut6-a.reported)>=0.01?el('div',{class:'small muted'},`ถ้าตัดกลุ่มรั้งท้าย ${AS_BOTTOM_PCT()}% (${asBottomN(a.rows.length)} จาก ${a.rows.length} คน) จะได้ ${fmt(a.cut6,2)}% · รายงานเดือนนี้ตัด ${a.rows.length-(a.d.line||a.rows.length)} คน`):null,
+    isSr()?null:el('div',{class:'seg',style:'align-self:flex-start'},...[[false,`เฉพาะทีม ${team()}`],[true,'ทั้งหมด']].map(([v,l])=>el('button',{type:'button','aria-pressed':String(!!S.asAll===v),onclick:()=>{S.asAll=v;render();}},l))),
+    el('div',{class:'small muted'},`กดชื่อเพื่อดู % Score และอันดับทุกเดือน · แถวสีแดง = กลุ่มรั้งท้าย ${AS_BOTTOM_PCT()}% ล่างสุดของคนที่มีคะแนน`),
+    list.length?el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},el('th',{},'Rank'),el('th',{class:'l'},'SC'),el('th',{},'% Score'),el('th',{},'เทียบเดือนก่อน'),el('th',{},''))),tb)):el('div',{class:'empty'},'ไม่มี SC ของทีมนี้ในอันดับ'),
+    (a.d.left||[]).length?el('div',{class:'small muted'},`ลาออกแล้ว (0%): ${a.d.left.join(', ')}`):null);
+}
+function allstarPaste(){
+  // admin: paste the ranking as "ชื่อ คะแนน" one per line (rank = line order)
+  const mSel=el('select',{},...MONTHS.map((m,i)=>el('option',{value:ym(i+1),selected:i+1===S.month?true:null},`${m} ${YEAR}`)));
+  const rep=el('input',{type:'number',step:'0.01',placeholder:'เช่น 81.06'}),ta=el('textarea',{rows:8,style:'width:100%',placeholder:'วางตามลำดับอันดับ บรรทัดละคน เช่น\nหนิง 95.15\nกิ้ฟ 92.80\n...\nคนที่ลาออก (0%) ใส่ 0'});
+  const fill=()=>{const d=asDoc(mSel.value);rep.value=d?.reported??'';ta.value=d?[...(d.rows||[]).map(r=>`${r.n} ${r.s}`),...(d.left||[]).map(n=>`${n} 0`)].join('\n'):'';};fill();mSel.addEventListener('change',fill);
+  const out=el('div',{class:'small muted'});
+  const save=el('button',{class:'btn small',type:'button',onclick:async()=>{
+    const rows=[],left=[];ta.value.split('\n').map(l=>l.trim()).filter(Boolean).forEach(l=>{const m=l.replace(/%/g,'').match(/^(?:\d+[\s.)]+)?(.+?)\s+(-?\d+(?:\.\d+)?)$/);if(!m)return;const s=+m[2],n=m[1].trim();if(s>0)rows.push({r:rows.length+1,n,s});else left.push(n);});
+    if(!rows.length){out.textContent='อ่านรายการไม่ได้ ต้องเป็น "ชื่อ คะแนน" บรรทัดละคน';return;}
+    const sc=rows.map(r=>r.s),cut=Math.max(0,sc.length-asBottomN(sc.length)),calc=sc.slice(0,cut).reduce((a,b)=>a+b,0)/(cut||1);
+    try{await S.db.doc(`team/allstar-m-${mSel.value}`).set({ym:mSel.value,reported:rep.value===''?Math.round(calc*100)/100:+rep.value,rows,left,src:'paste',updatedAt:Date.now()});toast('บันทึก All Star แล้ว');out.textContent=`บันทึก ${rows.length} คน · ลาออก ${left.length} · ตัดกลุ่มรั้งท้ายได้ ${calc.toFixed(2)}%`;}catch(e){out.textContent='บันทึกไม่สำเร็จ';}}},'บันทึก All Star');
+  return el('div',{class:'panel'},el('h3',{},'BBY SC All Star รายเดือน'),el('div',{class:'small muted'},'ใส่ตามรูปที่ได้รับ · % ตามรายงานคือตัวเลขบนหัวตาราง (เว้นว่าง = คำนวณจากการตัดกลุ่มรั้งท้าย)'),
+    el('label',{class:'row small'},'เดือน',mSel),el('label',{class:'row small'},'% ตามรายงาน',rep),ta,save,out);
+}
+
+/* ---------- League (BBY SC All Star as a monthly league) ---------- */
+const TROPHY_SVG=`<svg viewBox="0 0 200 240" role="img" aria-label="BBY All Star trophy"><defs><linearGradient id="tg" x1="0" x2="1"><stop offset="0" stop-color="#8A6414"/><stop offset=".35" stop-color="#F6D77A"/><stop offset=".55" stop-color="#FFF1B8"/><stop offset=".75" stop-color="#E2B84A"/><stop offset="1" stop-color="#8A6414"/></linearGradient><linearGradient id="tgv" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FCE79A"/><stop offset="1" stop-color="#B88A24"/></linearGradient><linearGradient id="tgb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2F3A33"/><stop offset="1" stop-color="#17211C"/></linearGradient></defs><path d="M52 40 C20 40 18 92 62 104" fill="none" stroke="url(#tgv)" stroke-width="10" stroke-linecap="round"/><path d="M148 40 C180 40 182 92 138 104" fill="none" stroke="url(#tgv)" stroke-width="10" stroke-linecap="round"/><path d="M48 24 H152 V60 C152 100 130 124 100 128 C70 124 48 100 48 60 Z" fill="url(#tg)" stroke="#8A6414" stroke-width="2"/><ellipse cx="100" cy="24" rx="52" ry="7" fill="#FFF1B8" stroke="#8A6414" stroke-width="2"/><path d="M100 44 l7 14 15 2 -11 10 3 15 -14 -7 -14 7 3 -15 -11 -10 15 -2 z" fill="#FFF8DA" stroke="#B88A24" stroke-width="1.5"/><rect x="90" y="128" width="20" height="26" fill="url(#tg)" stroke="#8A6414" stroke-width="2"/><path d="M70 154 H130 L136 172 H64 Z" fill="url(#tg)" stroke="#8A6414" stroke-width="2"/><rect x="54" y="172" width="92" height="44" rx="5" fill="url(#tgb)"/><rect x="64" y="180" width="72" height="28" rx="3" fill="url(#tg)"/><text x="100" y="193" text-anchor="middle" font-family="Chakra Petch,Arial,sans-serif" font-weight="700" font-size="13" fill="#3A2A05">BBY</text><text x="100" y="204" text-anchor="middle" font-family="Chakra Petch,Arial,sans-serif" font-weight="700" font-size="8" letter-spacing="1" fill="#3A2A05">ALL STAR</text></svg>`;
+const trophyEl=cls=>{const d=el('div',{class:cls||'trophy'});d.innerHTML=TROPHY_SVG;return d;};
+// which team a league name belongs to in a month (All Star map first, then the HR roster)
+function asTeamOf(name,ymk){const m=asMap()[name];if(m)return m[0];const k=nameKey(name);for(const sc of ['BKK','UPC']){const ro=rosterFor(sc,ymk);if(ro.some(x=>nameKey(x.name)===k||canonOf(name,ro)===nameKey(x.name)))return sc;}
+  // not on the roster that month (e.g. still inside the 14-day grace): fall back to the HR sheet when the nickname is unique
+  const hr=[...new Set((S.staff?.people||[]).filter(p=>nameKey(p.name)===k).map(p=>p.scope))];return hr.length===1?hr[0]:null;}
+function leagueData(ymk){
+  const ms=asMonths().filter(m=>m<=ymk),cur=asMonth(ymk,'SENIOR');if(!cur)return null;
+  const byM={};ms.forEach(m=>{const a=asMonth(m,'SENIOR');byM[m]={rows:a.rows,map:Object.fromEntries(a.rows.map(r=>[nameKey(r.n),r]))};});
+  const prevM=ms[ms.indexOf(ymk)-1]||null,prev=prevM?byM[prevM]:null;
+  const top10Streak=n=>{let c=0;for(let i=ms.length-1;i>=0;i--){const r=byM[ms[i]].map[nameKey(n)];if(r&&r.r<=10)c++;else break;}return c;};
+  const best=n=>Math.min(...ms.map(m=>byM[m].map[nameKey(n)]?.r??999));
+  const rows=cur.rows.map(r=>{const p=prev?.map[nameKey(r.n)];return {...r,team:asTeamOf(r.n,ymk),prevR:p?p.r:null,prevS:p?p.s:null,prevBottom:p?p.bottom:null,move:p?p.r-r.r:null,gain:p?r.s-p.s:null,streak:top10Streak(r.n),best:best(r.n)};});
+  const champs=ms.map(m=>{const c=byM[m].rows[0];return c?{ym:m,n:c.n,s:c.s,team:asTeamOf(c.n,m)}:null;}).filter(Boolean);
+  // year to date: average % of every month with a score; ranked only with at least AS_MIN_MONTHS months
+  const ytdMap={};ms.forEach(m=>byM[m].rows.forEach(r=>{const k=nameKey(r.n);(ytdMap[k]=ytdMap[k]||{n:r.n,v:[]}).v.push(r.s);}));
+  const ytd=Object.values(ytdMap).map(x=>({n:x.n,months:x.v.length,avg:x.v.reduce((a,b)=>a+b,0)/x.v.length,team:asTeamOf(x.n,ymk)}));
+  const q=ytd.filter(x=>x.months>=AS_MIN_MONTHS()).sort((a,b)=>b.avg-a.avg);q.forEach((x,i)=>x.rank=i+1);
+  const yk={};ytd.forEach(x=>yk[nameKey(x.n)]=x);rows.forEach(r=>{const y=yk[nameKey(r.n)];r.ytd=y?y.avg:null;r.ytdN=y?y.months:0;r.ytdR=y&&y.rank?y.rank:null;});
+  return {ymk,prevM,cur,rows,champs,ms,ytd:q};
+}
+function viewLeague(){
+  const ymk=asCurYM();
+  if(!ymk)return el('div',{class:'panel'},el('h2',{},'League'),el('div',{class:'empty'},'ยังไม่มีข้อมูล BBY SC All Star'));
+  const L=leagueData(ymk),mName=MONTHS[+ymk.slice(5)-1],f=S.lgTeam||'ALL';
+  const top=L.ytd.slice(0,3),champ=top[0]||{n:'–',avg:0},mChamp=L.rows[0],range=`${MONTHS[+L.ms[0].slice(5)-1]}–${mName}`;
+  const tPill=t=>t?el('span',{class:'pill lt'},t):null;
+  // hero + podium
+  const podium=el('div',{class:'podium'},...[1,0,2].map(i=>{const r=top[i];if(!r)return el('div',{});return el('button',{type:'button',class:`pod p${i+1}`,onclick:()=>asDetail(r.n)},
+    el('span',{class:'medal'},String(i+1)),el('b',{},r.n),el('span',{class:'num'},r.avg.toFixed(2)+'%'),tPill(r.team),el('div',{class:'step'}));}));
+  const hero=el('section',{class:'panel lhero'},el('div',{class:'lh-l'},trophyEl('trophy'),
+      el('div',{},el('div',{class:'eyebrow'},`BBY SC All Star ${YEAR} · ผู้นำทั้งปี (${range})`),el('div',{class:'champ'},champ.n),el('div',{class:'champ-s num'},champ.avg.toFixed(2)+'%'),tPill(champ.team),
+        el('div',{class:'small muted',style:'margin-top:6px'},`เฉลี่ย % ทุกเดือนที่มีคะแนน · นับอันดับเมื่อมีคะแนนอย่างน้อย ${AS_MIN_MONTHS()} เดือน (${L.ytd.length} คน)`))),podium);
+  // awards
+  const withPrev=L.rows.filter(r=>r.move!=null);
+  // one award per person where possible, so more people get recognised
+  const used=new Set([mChamp.n]),pick=xs=>{const x=xs.find(r=>!used.has(r.n))||xs[0];if(x)used.add(x.n);return x;};
+  const mi=pick(withPrev.filter(r=>r.move>0).sort((a,b)=>b.move-a.move));
+  const cons=pick(L.rows.filter(r=>r.streak>=2).sort((a,b)=>b.streak-a.streak||a.r-b.r));
+  const gain=pick(withPrev.filter(r=>r.gain>0).sort((a,b)=>b.gain-a.gain));
+  const comeback=pick(withPrev.filter(r=>r.prevBottom&&!r.bottom).sort((a,b)=>b.move-a.move));
+  const award=(t,sub,r,val)=>r?el('button',{type:'button',class:'award',onclick:()=>asDetail(r.n)},el('div',{class:'aw-t'},t),el('div',{class:'aw-n'},r.n),el('div',{class:'aw-v num'},val),el('div',{class:'small muted'},sub)):el('div',{class:'award off'},el('div',{class:'aw-t'},t),el('div',{class:'small muted'},'เดือนนี้ไม่มี'));
+  const awards=el('section',{class:'panel'},el('h2',{},`รางวัลประจำเดือน · ${mName}`),el('div',{class:'awards'},
+    award('Champion of the Month',`อันดับ 1 ประจำ ${mName}`,mChamp,`${mChamp.s.toFixed(2)}%`),
+    award('Most Improved','ขึ้นอันดับมากที่สุด',mi||null,mi?`▲ ขึ้น ${mi.move} อันดับ`:''),
+    award('Top Score Gain','% เพิ่มขึ้นมากที่สุด',gain||null,gain?`+${gain.gain.toFixed(2)}%`:''),
+    award('Consistent Star','ติด Top 10 ต่อเนื่อง',cons||null,cons?`Top 10 · ${cons.streak} เดือนติด`:''),
+    award('Comeback','ออกจากกลุ่มรั้งท้ายได้',comeback||null,comeback?`▲ ${comeback.prevR} → ${comeback.r}`:'')));
+  // team battle
+  const tavg=t=>{const xs=L.rows.filter(r=>r.team===t);return {n:xs.length,avg:xs.length?xs.reduce((a,r)=>a+r.s,0)/xs.length:null,top10:xs.filter(r=>r.r<=10).length,crowns:L.champs.filter(c=>c.team===t).length};};
+  const B=tavg('BKK'),U=tavg('UPC'),lead=B.avg!=null&&U.avg!=null?(B.avg>=U.avg?'BKK':'UPC'):null;
+  const tcard=(t,x)=>el('div',{class:'tb'+(lead===t?' lead':'')},el('div',{class:'tb-h'},el('b',{},t),lead===t?el('span',{class:'pill good'},'นำ'):null),el('div',{class:'tb-v num'},x.avg==null?'–':x.avg.toFixed(2)+'%'),
+    el('div',{class:'small muted'},`${x.n} คน · ติด Top 10 ${x.top10} คน · แชมป์ ${x.crowns} เดือน`));
+  const battle=el('section',{class:'panel'},el('h2',{},'ทีมต่อทีม · ค่าเฉลี่ย % Score'),el('div',{class:'tbattle'},tcard('BKK',B),el('div',{class:'vs'},'VS'),tcard('UPC',U)));
+  // league table
+  const sortY=S.lgSort==='ytd',list=L.rows.filter(r=>f==='ALL'||r.team===f).sort((a,b)=>sortY?((a.ytdR??999)-(b.ytdR??999)||(b.ytd??0)-(a.ytd??0)):a.r-b.r),tb=el('tbody');
+  list.forEach(r=>{const mv=r.move==null?el('span',{class:'muted small'},'–'):rankEl(r.move);
+    const bar=el('div',{class:'lbar'},el('i',{style:`width:${Math.min(100,r.s)}%`}));
+    const tr=el('tr',{class:'click'+(r.bottom?' lbot':'')+(r.r<=3?' ltop':''),tabindex:'0',onclick:()=>asDetail(r.n)},
+      el('td',{class:'num lrk'},r.r<=3?el('span',{class:`medal m${r.r}`},String(r.r)):String(r.r)),el('td',{},mv),
+      el('td',{class:'l'},el('b',{},r.n),' ',tPill(r.team),r.streak>=3?el('span',{class:'pill good',style:'margin-left:4px'},`Top 10 × ${r.streak}`):null),
+      el('td',{class:'l lsc'},el('span',{class:'num'},r.s.toFixed(2)+'%'),bar),
+      el('td',{},r.ytd==null?'–':el('span',{class:'pill '+(r.ytdR?tn(r.ytd,80,70):''),title:`${r.ytdN} เดือน`},r.ytd.toFixed(2)+'%'),el('span',{class:'small muted',style:'margin-left:6px'},`${r.ytdN} ด.`)),
+      el('td',{class:'num'},r.ytdR?(r.ytdR<=3?el('span',{class:`medal m${r.ytdR}`},String(r.ytdR)):String(r.ytdR)):el('span',{class:'muted small',title:`ต้องมีคะแนนอย่างน้อย ${AS_MIN_MONTHS()} เดือน`},'ยังไม่ครบ')));
+    tr.addEventListener('keydown',e=>{if(e.key==='Enter')tr.click();});tb.append(tr);});
+  const nb=asBottomN(L.rows.length);
+  const table=el('section',{class:'panel'},el('div',{class:'row',style:'justify-content:space-between'},el('h2',{},`ตารางลีก · ${mName}`),
+      el('div',{class:'row'},el('div',{class:'seg'},...[['month',`เรียงตาม ${mName}`],['ytd','เรียงทั้งปี']].map(([k,l])=>el('button',{type:'button','aria-pressed':String((S.lgSort||'month')===k),onclick:()=>{S.lgSort=k;render();}},l))),
+      el('div',{class:'seg'},...[['ALL','ทั้งหมด'],['BKK','BKK'],['UPC','UPC']].map(([k,l])=>el('button',{type:'button','aria-pressed':String(f===k),onclick:()=>{S.lgTeam=k;render();}},l))))),
+    el('div',{class:'small muted'},`อันดับรวมทั้งบริษัท · ▲▼ เทียบ ${L.prevM?MONTHS[+L.prevM.slice(5)-1]:'เดือนก่อน'} · แถบอ่อน = กลุ่มที่ต้องเร่ง ${nb} อันดับล่าง (${AS_BOTTOM_PCT()}%) · กดชื่อเพื่อดูประวัติของตัวเอง`),
+    el('div',{class:'tscroll'},el('table',{class:'ltable'},el('thead',{},el('tr',{},el('th',{},`# ${mName}`),el('th',{},'+/-'),el('th',{class:'l'},'SC'),el('th',{class:'l'},`% ${mName}`),el('th',{},'เฉลี่ยทั้งปี'),el('th',{},'อันดับปี'))),tb)));
+  // hall of fame
+  const hof=el('section',{class:'panel'},el('h2',{},'Hall of Fame · แชมป์รายเดือน'),el('div',{class:'hof'},...L.champs.slice().reverse().map(c=>el('button',{type:'button',class:'hofc'+(c.ym===ymk?' cur':''),onclick:()=>asDetail(c.n)},
+    trophyEl('trophy sm'),el('div',{},el('div',{class:'small muted'},`${MONTHS[+c.ym.slice(5)-1]} ${YEAR}`),el('b',{},c.n),el('div',{class:'num small'},c.s.toFixed(2)+'%'),tPill(c.team))))));
+  return el('div',{style:'display:flex;flex-direction:column;gap:16px'},ymk!==curYM()?el('div',{class:'banner'},`ยังไม่มีอันดับของ ${MONTHS[S.month-1]} แสดงของ ${mName} แทน`):null,hero,awards,table,battle,hof);
+}
+
+/* --- Overview: things to act on + monthly trends --- */
+function actionBox(){
+  if(!peopleOK())return null;
+  const vs=visitStats(),tc=teamCoverage(),ds=demandStats(),asOf=asOfDay(),items=[];
+  const allV=(S.audit?.visits||[]).filter(v=>v.scope===team()&&evOK(v.ev)&&v.d<=asOf);
+  const notYet=vs.br.filter(b=>!vs.by[b]);
+  if(notYet.length)items.push(['bad',`สาขาที่ยังไม่ได้เข้าเดือนนี้ ${notYet.length} สาขา`,notYet.join(' · '),()=>go('visit')]);
+  const stale=vs.br.map(b=>{const l=allV.filter(v=>v.br===b).map(v=>v.d).sort().pop();return {b,gap:l?daysBetween(l,asOf):null};}).filter(x=>x.gap!=null&&x.gap>14&&vs.by[x.b]);
+  if(stale.length)items.push(['warn',`สาขาที่ไม่ได้เข้าเกิน 14 วัน ${stale.length} สาขา`,stale.map(x=>`${x.b} ${x.gap} วัน`).join(' · '),()=>branchDetail(stale[0].b)]);
+  const zero=tc.rows.filter(r=>!r.n);
+  if(zero.length)items.push(['bad',`SC ที่ยังไม่ถูกประเมินเดือนนี้ ${zero.length} คน`,zero.map(r=>r.name).join(' · '),()=>go('audit')]);
+  const mine=[...visitsMonth(),...auditsMonth()],ls=lagStats(mine);
+  if(ls&&ls.late)items.push(['warn',`ลงฟอร์มช้าเกิน ${LATE} วัน ${ls.late} จาก ${ls.n} รายการ`,`เฉลี่ยลงหลังวันที่ไปจริง ${ls.avg.toFixed(1)} วัน`,()=>go('visit')]);
+  const open=ds.recs.filter(r=>!r.done);
+  if(open.length)items.push(['warn',`แจ้งความต้องการสินค้าที่ยังไม่ Done ${open.length} รายการ`,open.slice(0,4).map(r=>r.item).join(' · ')+(open.length>4?' …':''),()=>go('demand')]);
+  const box=el('section',{class:'panel act'},el('h2',{},`สิ่งที่ต้องดู · ${MONTHS[S.month-1]}`));
+  if(!items.length)box.append(el('div',{class:'empty'},'ไม่มีเรื่องค้างเดือนนี้'));
+  items.forEach(([t,h,d,fn])=>box.append(el('button',{type:'button',class:'actrow '+t,onclick:fn},el('b',{},h),el('span',{class:'small muted'},d),el('span',{class:'go'},'ดู →'))));
+  return box;
+}
+function trendBox(){
+  if(!peopleOK())return null;
+  const ms=peopleMonths();if(ms.length<2)return null;
+  const V=ms.map(m=>withMonth(m,()=>{const s=visitStats();return {m,v:s.br.length?s.visited/s.br.length:null,label:`${s.visited}/${s.br.length}`,tone:s.tone==='none'?'':s.tone};}));
+  const A=ms.map(m=>withMonth(m,()=>{const s=auditStats();return {m,v:s.ro.length?s.c1/s.ro.length:null,label:`${s.c1}/${s.ro.length}`,tone:tn(s.ro.length?s.c1/s.ro.length:null,1,.5)};}));
+  const Q=ms.map(m=>withMonth(m,()=>{const s=auditStats();return {m,v:s.avg,label:s.avg==null?'–':s.avg.toFixed(2),tone:s.avg==null?'':tn(s.avg/5,.8,.6)};}));
+  const E=ms.map(m=>withMonth(m,()=>{const s=examStats();return {m,v:s.avg,label:s.avg==null?'–':s.avg.toFixed(2),tone:s.avg==null?'':tn(s.avg,4,3.3)};}));
+  const D=ms.map(m=>withMonth(m,()=>{const s=demandStats();return {m,v:s.times,label:String(s.times),tone:tn(s.times,8,1)};}));
+  const L=ms.map(m=>withMonth(m,()=>{const s=lagStats([...visitsMonth(),...auditsMonth()]);return {m,v:s?s.avg:null,label:s?s.avg.toFixed(1):'–',tone:s?(s.avg<=3?'good':s.avg<=LATE?'warn':'bad'):''};}));
+  const AS=ms.map(m=>{const y=ym(m),a=asDoc(y)?asMonth(y):null,v=a?(isSr()?a.reported:a.teamAvg):null;return {m,v,label:v==null?'–':v.toFixed(0)+'%',tone:v==null?'':tn(v,80,70)};});
+  const card=(t,rows,max,sub,tab)=>el('div',{class:'tcard',style:tab?`--tc:${tcVar(tab)}`:null},el('div',{class:'small'},el('b',{},t)),sub?el('div',{class:'small muted'},sub):null,trendEl(rows,max));
+  return el('section',{class:'panel'},el('h2',{},'แนวโน้มรายเดือน'),el('div',{class:'small muted'},`ตั้งแต่ ${MONTHS[ms[0]-1]} · เดือนที่เลือกเป็นสีเข้ม`),
+    el('div',{class:'tgrid'},card('Visit · สาขาที่เข้าแล้ว',V,1,null,'visit'),card('SC Audit · SC ที่ประเมินแล้ว',A,1,null,'audit'),card('คะแนน Audit เฉลี่ย',Q,5,'เต็ม 5','audit'),card('SC Exam เฉลี่ย',E,5,'เต็ม 5','team'),card(isSr()?'BBY SC All Star · ตามรายงาน':`BBY SC All Star · เฉลี่ยทีม ${team()}`,AS,100,null,'league'),card('Product Demand · ครั้ง',D,Math.max(8,...D.map(x=>x.v||0)),null,'demand'),card('ลงฟอร์มหลังวันที่ไปจริง · วัน',L,Math.max(LATE*2,...L.map(x=>x.v||0)),'ยิ่งน้อยยิ่งดี','visit')));
+}
+
+/* --- demand by model --- */
+function demandByModel(recs){
+  const g={};recs.forEach(r=>{const k=r.item;(g[k]=g[k]||[]).push(r);});
+  const rows=Object.entries(g).map(([k,xs])=>({k,xs,times:xs.length,qty:xs.reduce((a,r)=>a+(r.qty||0),0),open:xs.filter(r=>!r.done).length})).sort((a,b)=>b.times-a.times||b.qty-a.qty);
+  const tb=el('tbody');rows.forEach(r=>{const tr=el('tr',{class:'click',tabindex:'0',onclick:()=>{const t=el('tbody');r.xs.forEach(x=>t.append(el('tr',{},el('td',{},thDate(x.d)),el('td',{class:'l'},x.size?`#${x.size}`:'–'),el('td',{class:'l wrap muted'},x.skin||''),el('td',{class:'num'},fmt(x.qty)),el('td',{class:'l'},x.by),el('td',{class:'l'},x.done?el('span',{class:'pill good'},'Done'):el('span',{class:'pill warn'},'ยังไม่ Done')))));
+      sheet(r.k,el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},...['Date','Size','Skin','Qty','By','Status'].map((h,i)=>el('th',{class:[1,2,4,5].includes(i)?'l':null},h)))),t)));}},
+    el('td',{class:'l wrap'},r.k),el('td',{class:'num'},String(r.times)),el('td',{class:'num'},fmt(r.qty)),el('td',{},r.open?el('span',{class:'pill warn'},`ค้าง ${r.open}`):el('span',{class:'pill good'},'ครบ')));
+    tr.addEventListener('keydown',e=>{if(e.key==='Enter')tr.click();});tb.append(tr);});
+  return el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},el('th',{class:'l'},'Model'),el('th',{},'ครั้ง'),el('th',{},'ชิ้น'),el('th',{},'Status'))),tb));
+}
+
+/* --- Manager (admin only): compare Sups, calibration, where field time goes --- */
+function supMonth(scope,m){
+  return withMonth(m,()=>{const o=S.scope;S.scope=scope;try{
+    const vs=visitStats(),as=auditStats(),ls=lagStats([...visitsMonth(),...auditsMonth()]),dof=dayOffFor(scope,curYM());
+    const days=new Date(YEAR,m,0).getDate(),work=days-dof.off.length-dof.sick.length,hasOff=dof.off.length||dof.sick.length;
+    const logs=(S.audit?.logs||[]).filter(l=>l.scope===team()&&l.ym===curYM()&&evOK(l.ev)).length;
+    const fieldDays=new Set(visitsMonth().map(v=>v.d)).size;
+    return {vs,as,ls,work:hasOff?work:null,fieldDays,logs};}finally{S.scope=o;}});
+}
+function viewManager(){
+  if(!S.canAdmin)return el('div',{class:'panel'},el('div',{class:'empty'},'เฉพาะผู้ดูแล'));
+  const sups=cfg().supervisors,ms=peopleMonths().filter(m=>m>=+PEOPLE_FROM.slice(5));
+  const tb=el('tbody');
+  sups.forEach(sv=>{const r=supMonth(sv.scope,S.month);
+    tb.append(el('tr',{},el('td',{},el('b',{},sv.title),el('div',{class:'small muted'},SUP_NAME[sv.scope]||'')),
+      el('td',{class:'num'},`${r.vs.visited}/${r.vs.br.length}`),el('td',{class:'num'},String(r.vs.total)),el('td',{class:'num'},String(r.as.recs.length)),
+      el('td',{},r.as.avg==null?'–':el('span',{class:'pill '+tone(r.as.avg/5,.8,.6)},r.as.avg.toFixed(2))),
+      el('td',{class:'num'},r.ls?r.ls.avg.toFixed(1):'–'),el('td',{class:'num'},r.ls?`${r.ls.late}/${r.ls.n}`:'–'),
+      el('td',{class:'num'},r.work==null?'–':String(r.work)),el('td',{class:'num'},String(r.fieldDays)),el('td',{class:'num'},String(r.logs)),
+      el('td',{class:'num'},r.work?(r.vs.total/r.work).toFixed(2):'–')));});
+  // calibration: average score each Sup gives, by month
+  const ctb=el('tbody');
+  sups.filter(sv=>sv.scope!=='UPC'||true).forEach(sv=>{ctb.append(el('tr',{},el('td',{},sv.scope==='UPC'?'คุณมิ้ว (ส.ค. ว่าง · ก่อนนั้นคุณโบว์)':`${SUP_NAME[sv.scope]||sv.title}`),...ms.map(m=>{const r=supMonth(sv.scope,m);return el('td',{},r.as.avg==null?'–':el('span',{class:'pill '+tone(r.as.avg/5,.8,.6)},`${r.as.avg.toFixed(2)} · ${r.as.recs.length}`));})));});
+  // field time vs branch size: visits (all Sups) vs branch tier and share of sales
+  const L=S.sales?.months?.[curYM()],btb=el('tbody'),allV=(S.audit?.visits||[]).filter(v=>v.ym===curYM()&&v.br&&MAIN[v.br]);
+  ['BKK','UPC'].forEach(sc=>{const br=mainIn(sc),tot=br.reduce((a,b)=>a+(L?.[sc]?.branches?.[b]||0),0),vt=allV.filter(v=>MAIN[v.br].s===sc).length;
+    br.sort((a,b)=>(L?.[sc]?.branches?.[b]||0)-(L?.[sc]?.branches?.[a]||0)).forEach(b=>{const s=L?.[sc]?.branches?.[b]||0,n=allV.filter(v=>v.br===b).length,ss=tot?s/tot:null,vsh=vt?n/vt:null;
+      btb.append(el('tr',{class:'click',tabindex:'0',onclick:()=>{const o=S.scope;S.scope=sc;try{branchDetail(b);}finally{S.scope=o;}}},el('td',{},el('b',{},b)),el('td',{class:'l muted'},sc),el('td',{class:'l'},MAIN[b].tier),el('td',{class:'num'},fmt(s)),el('td',{class:'num'},pct(ss,0)),el('td',{class:'num'},String(n)),el('td',{class:'num'},pct(vsh,0)),
+        el('td',{},ss!=null&&vsh!=null&&vt?(vsh+0.08<ss?el('span',{class:'pill warn'},'Visit น้อยกว่าขนาด'):vsh>ss+0.08?el('span',{class:'pill'},'Visit มากกว่าขนาด'):el('span',{class:'pill good'},'สมดุล')):'–')));});});
+  const ev=Object.entries(S.audit?.diag?.unknownEvaluators||{});
+  return el('div',{style:'display:flex;flex-direction:column;gap:16px'},
+    el('section',{class:'panel'},el('h2',{},`Manager · เทียบ Sup · ${MONTHS[S.month-1]} ${YEAR}`),el('div',{class:'small muted'},'แถบนี้เห็นเฉพาะผู้ดูแลบอร์ด ไม่อยู่ในหน้าเว็บที่ Sup เปิด'),
+      el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},...['Sup','สาขาที่เข้า','Visit','Audit','คะแนนที่ให้','ลงช้าเฉลี่ย (วัน)',`ช้าเกิน ${LATE} วัน`,'วันทำงาน','วันที่ลงสาขา','วัน Office/อื่นๆ','Visit/วันทำงาน'].map((h,i)=>el('th',{class:i?null:'l'},h)))),tb)),
+      el('div',{class:'small muted'},'วันทำงาน = วันในเดือน − Day Off − ลาป่วย (ต้องใส่วันหยุดที่ Settings) · ลงช้า = วันที่ส่งฟอร์ม − วันที่ไปจริง'),
+      ev.length?el('div',{class:'diag'},el('span',{class:'warn'},`ผู้ประเมินในชีทที่บอร์ดไม่นับ: ${ev.map(([k,v])=>`${k} (${v})`).join(', ')}`)):null),
+    el('section',{class:'panel'},el('h2',{},'มาตรฐานการให้คะแนน (Calibration)'),el('div',{class:'small muted'},'คะแนนเฉลี่ยที่แต่ละ Sup ให้ SC · จำนวนครั้ง · ถ้าห่างกันต่อเนื่อง อาจใช้เกณฑ์ไม่ตรงกัน'),
+      el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},el('th',{},'Sup'),...ms.map(m=>el('th',{},MONTHS[m-1])))),ctb))),
+    el('section',{class:'panel'},el('h2',{},`Visit เทียบขนาดสาขา · ${MONTHS[S.month-1]}`),el('div',{class:'small muted'},'สัดส่วนยอดขายของสาขาในทีม เทียบสัดส่วน Visit ของทุก Sup · ต่างกันเกิน 8 จุดจะขึ้นป้าย · กดสาขาเพื่อดู Visit'),
+      el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},...['Branch','Team','Tier','Sales','สัดส่วนยอด','Visit','สัดส่วน Visit',''].map((h,i)=>el('th',{class:[1,2].includes(i)?'l':null},h)))),btb))));
+}
+
+/* ---------- render ---------- */
+const VIEWS={league:viewLeague,manager:viewManager,overview:viewOverview,sales:viewSales,audit:viewAudit,visit:viewVisit,focus:viewFocus,demand:viewDemand,team:viewTeam,settings:viewSettings};
+const SCOPE_SUB={SENIOR:'ภาพรวมทั้งหมด BKK + UPC',BKK:'BKK',UPC:'UPC'};
+function viewPick(){return el('div',{class:'panel',style:'max-width:800px'},el('h3',{},'เลือกดูข้อมูลของ Supervisor'),el('div',{class:'small muted'},'กดเลือกก่อนเพื่อแสดงข้อมูล เปลี่ยนได้ตลอดจากปุ่มด้านบน'),
+  el('div',{class:'pick'},...cfg().supervisors.map(s=>el('button',{type:'button',onclick:()=>{S.scope=s.scope;render();window.scrollTo({top:0});}},el('b',{},s.title),el('span',{},SCOPE_SUB[s.scope]||'')))));}
+function render(){renderHeader();const v=$('#view');
+  if(!S.scope){v.dataset.tab='pick';v.replaceChildren(viewPick());return;}
+  if(S.tab==='settings'&&v.dataset.tab==='settings'&&v.contains(document.activeElement))return; // don't wipe inputs while typing
+  const t=(S.tab==='settings'||S.tab==='manager')&&!S.canAdmin?'overview':S.tab;v.dataset.tab=t;v.replaceChildren((VIEWS[t]||viewOverview)());}
+
+render();
+(async()=>{
+  const c=window.claude;if(!c||!c.use){banner('เปิดหน้านี้ใน Claude เพื่อดูข้อมูล');return;}
+  const [db,user]=await Promise.all([c.use('db'),c.use('user')]);S.db=db;S.user=user;
+  if(!db){banner('ยังเชื่อมฐานข้อมูลไม่ได้ในมุมมองนี้');return;}
+  if(user)S.canAdmin=await user.canEdit();
+  if(S.canAdmin)c.use('mcp').then(m=>{S.mcp=m;});
+  const err=e=>{if(e&&e.code==='revoked')banner('สิทธิ์การเข้าถึงหน้านี้เปลี่ยนไป');};
+  db.doc('config/main').onSnapshot(s=>{S.config=s.exists?s.data():null;render();},err);
+  db.collection('monthly').onSnapshot(q=>{const o={};q.docs.forEach(d=>o[d.id]=d.data());S.monthly=o;render();},err);
+  db.collection('team').onSnapshot(q=>{const o={};q.docs.forEach(d=>o[d.id]=d.data());S.team=o;render();},err);
+  db.doc('sync/audit').onSnapshot(s=>{S.audit=s.exists?s.data():null;render();},err);
+  db.doc('sync/demand').onSnapshot(s=>{S.demand=s.exists?s.data():null;render();},err);
+  db.doc('sync/sales').onSnapshot(s=>{S.sales=s.exists?s.data():null;render();},err);
+  db.doc('sync/staff').onSnapshot(s=>{S.staff=s.exists?s.data():null;render();},err);
+  db.collection('stock').onSnapshot(q=>{S.stocks=q.docs.map(d=>d.data());render();},err);
+})();
+})();
+</script>
