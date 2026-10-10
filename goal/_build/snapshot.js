@@ -8,9 +8,15 @@ const rd=f=>{const j=JSON.parse(fs.readFileSync(f,'utf8'));return j&&j.data&&typ
 const col=c=>{const d=path.join(dataDir,c);if(!fs.existsSync(d))return {};const o={};for(const f of fs.readdirSync(d))if(f.endsWith('.json'))o[f.slice(0,-5)]=rd(path.join(d,f));return o;};
 const docs={};for(const [c,o] of Object.entries({config:col('config'),sync:col('sync')}))for(const [id,v] of Object.entries(o))docs[`${c}/${id}`]=v;
 const cols={monthly:col('monthly'),team:col('team'),stock:col('stock')};
+// public snapshot carries no sales figures: keep event days only
+(()=>{const c=docs['config/main'];if(c){delete c.liveTargets;delete c.discountPeriods;(c.supervisors||[]).forEach(v=>{v.annualTarget=null;});}
+ const sl=docs['sync/sales'];if(sl){const ev=x=>x?{events:(x.events||[]).map(e=>({code:e.code,days:e.days})),eventDays:x.eventDays??null}:x;
+  const m={};for(const [k,v] of Object.entries(sl.months||{}))m[k]={lastDate:v.lastDate,BKK:ev(v.BKK),UPC:ev(v.UPC)};
+  docs['sync/sales']={updatedAt:sl.updatedAt,months:m,sc:sl.sc||[]};}
+ for(const [k,v] of Object.entries(cols.monthly))cols.monthly[k]={closed:v.closed,scope:v.scope,ym:v.ym,eventDays:v.eventDays??null,events:(v.events||[]).map(e=>({code:e.code,days:e.days}))};})();
 const src=process.env.PAGE||path.join(__dirname,'goal-setting.html');
 const page=fs.readFileSync(src,'utf8');
-const stub=`<script>(function(){const D=${JSON.stringify({docs,cols}).replace(/</g,'\\u003c')};
+const stub=`<script>window.__NO_SALES=true;(function(){const D=${JSON.stringify({docs,cols}).replace(/</g,'\\u003c')};
 const snap=d=>({docs:d.map(([id,x])=>({id,exists:true,data:()=>x})),size:d.length,empty:!d.length});
 const db={doc:p=>({onSnapshot:n=>{setTimeout(()=>{const v=D.docs[p];n({exists:!!v,data:()=>v});},0);return()=>{}},set:async()=>{throw {code:'read_only'}}}),
  collection:p=>({onSnapshot:n=>{setTimeout(()=>n(snap(Object.entries(D.cols[p]||{}))),0);return()=>{}}})};

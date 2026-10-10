@@ -323,6 +323,7 @@ function canonOf(sc,ro){const k=nameKey(sc);const r=ro.find(x=>rosterKeys(x).inc
 
 const S={auditSub:store.get('gs2.auditSub')||'cov',scope:null, /* no default: viewer picks a supervisor first */month:Number(store.get('gs2.month'))||(new Date().getFullYear()===YEAR?new Date().getMonth()+1:9),tab:store.get('gs2.tab')||'overview',
   config:null,monthly:{},team:{},audit:null,demand:null,sales:null,staff:null,stocks:[],db:null,user:null,mcp:null,canAdmin:false,openBr:{}};
+const NO_SALES=!!window.__NO_SALES; // public snapshot: sales figures removed, events only
 const DEFAULT_CFG={supervisors:[{scope:'SENIOR',title:'Supervisor'},{scope:'BKK',title:'Supervisor BKK'},{scope:'UPC',title:'Supervisor UPC'}],roster:[],focus:[],discountPeriods:[],liveTargets:{}};
 const cfg=()=>S.config||DEFAULT_CFG;
 const sup=()=>cfg().supervisors.find(s=>s.scope===S.scope)||{};
@@ -449,7 +450,7 @@ function focusStats(){
 const PRE_TXT='เริ่มบันทึกตั้งแต่ มิ.ย. 2569';
 const TAB_C={overview:'--accent',sales:'--c-sales',audit:'--c-audit',visit:'--c-visit',focus:'--c-focus',demand:'--c-demand',team:'--c-exam',league:'--c-exam',manager:'--c-mgr',settings:'--ink3'};
 const tcVar=k=>`var(${TAB_C[k]||'--accent'})`;
-const TABS=[['overview','Overview'],['sales','Sales & Events'],['audit','SC Audit'],['visit','Visit'],['focus','Focus Product'],['demand','Product Demand'],['team','SC Exam / All Star'],['league','League']];
+const TABS=[['overview','Overview'],['sales',NO_SALES?'Events':'Sales & Events'],['audit','SC Audit'],['visit','Visit'],['focus','Focus Product'],['demand','Product Demand'],['team','SC Exam / All Star'],['league','League']];
 function renderHeader(){
   const seg=$('#scopeSeg');seg.replaceChildren();
   cfg().supervisors.forEach(s=>seg.append(el('button',{type:'button','aria-pressed':String(s.scope===S.scope),onclick:()=>{S.scope=s.scope;render();}},s.title)));
@@ -480,13 +481,13 @@ function viewOverview(){
   const lastDisc=per.length?per[per.length-1]:null;
   const evT=s.eventDaysTarget,noData=[['',PRE_TXT,'mute']];
   const box=el('section',{class:'score'});
-  box.append(
-    kpi({code:'1.1',w:'40%',name:'Sales Achievement',big:st.curAch!=null?pct(st.curAch):st.cur.sales!=null?'ยังไม่มีเป้า':'–',
+  box.append(...[
+    NO_SALES?null:kpi({code:'1.1',w:'40%',name:'Sales Achievement',big:st.curAch!=null?pct(st.curAch):st.cur.sales!=null?'ยังไม่มีเป้า':'–',
       tone:st.cur.live?'live':tn(st.curAch,1,.85),cap:st.cur.live?`${m} · ข้อมูลถึง ${thDate(st.cur.asOf)} ยังไม่ปิดเดือน`:m,
       rows:[['ยอดขาย',fmt(st.cur.sales)],['เป้า',fmt(st.cur.target)],[`YTD Jan–${st.lastClosed?MONTHS[st.lastClosed-1]:''}`,pct(st.ytdAch),tn(st.ytdAch,1,.85)],['เฉลี่ยรายเดือน',pct(st.avgAch),tn(st.avgAch,1,.85)],
         s.annualTarget?['เทียบเป้าทั้งปี',pct(st.ytdAll/s.annualTarget)]:null],
       rule:'≥105% = 5 · 100–104% = 4.5 · 90–99% = 4 · 85–89% = 3 · <85% = 2',tab:'sales'}),
-    kpi({code:'1.2',w:'10%',name:'Discount',big:st.cur.disc!=null?pct(st.cur.disc):lastDisc?pct(lastDisc.v):'–',
+    NO_SALES?null:kpi({code:'1.2',w:'10%',name:'Discount',big:st.cur.disc!=null?pct(st.cur.disc):lastDisc?pct(lastDisc.v):'–',
       cap:st.cur.disc!=null?m:lastDisc?lastDisc.label:'',
       rows:[[m,st.cur.disc!=null?pct(st.cur.disc):'–',st.cur.disc!=null?null:'mute'],...per.map(p=>[p.label,pct(p.v)])],
       rule:'เทียบปี 2025 · ส่วนลดลดลง ≥1% = 5 · เท่าเดิม = 3 · เพิ่ม 1% = 1 · เพิ่ม >1% = 0',tab:'sales'}),
@@ -515,7 +516,7 @@ function viewOverview(){
     (()=>{const y=asCurYM(),a=y?asMonth(y):null,ps=asMonths().filter(m=>y&&m<y),p=ps.length?asMonth(ps[ps.length-1]):null;return kpi({code:'4.2',w:'10%',name:'BBY SC All Star',big:a?fmt(a.reported,2)+'%':'–',tone:a?tn(a.reported,80,70):'none',cap:a?`${MONTHS[+y.slice(5)-1]} · ตามรายงาน`+(y!==curYM()?' (ยังไม่มีของเดือนนี้)':''):'',
       rows:a?[p?['เทียบเดือนก่อน',`${a.reported-p.reported>=0?'+':''}${(a.reported-p.reported).toFixed(2)}`,a.reported-p.reported>=0?'good':'bad']:null,['เฉลี่ยทุกคน',fmt(a.all,2)+'%'],isSr()?null:[`ทีม ${team()} (${a.team.length} คน)`,a.teamAvg==null?'–':fmt(a.teamAvg,2)+'%'],isSr()?null:['ในกลุ่มรั้งท้าย',`${a.teamBottom} คน`,a.teamBottom?'bad':'good']]:[['','ยังไม่มีข้อมูล','mute']],
       rule:'เฉลี่ย >80% = 5 · >70% = 4 · 60–70% = 3 · <60% = 0',tab:'team'});})()
-  );
+  ].filter(Boolean));
   return el('div',{class:'panel',style:'background:transparent;border:0;padding:0'},(!S.audit||!S.demand||!S.sales)?el('div',{class:'banner'},'ยังดึงข้อมูลจาก Google Sheet ไม่ครบ ตัวเลขบางข้อจึงยังเป็น 0'+(S.canAdmin?' · กดอัปเดตได้ที่แถบ Settings':'')):null,
     el('div',{class:'legend'},el('span',{},`${m} ${YEAR}`),stampTxt('อัปเดต',S.audit?.updatedAt),el('span',{class:'key good'},'ถึงเกณฑ์'),el('span',{class:'key warn'},'ใกล้เกณฑ์'),el('span',{class:'key bad'},'ต่ำกว่าเกณฑ์')),box,trendBox(),actionBox());
 }
@@ -565,6 +566,7 @@ function viewSales(){
     tgt?el('div',{},barEl(st.evYTD/tgt),el('div',{class:'small muted',style:'margin-top:4px'},`เหลืออีก ${fmt(Math.max(0,tgt-st.evYTD))} วัน · เฉลี่ย ${avgPerMonth.toFixed(0)} วัน/เดือน (${nEv} เดือนที่มีข้อมูล) ถ้าเท่าเดิมทั้งปีจะได้ประมาณ ${fmt(Math.round(avgPerMonth*12))} วัน`)):el('div',{class:'small muted'},'ยังไม่ได้กำหนดเป้าวันอีเว้นท์ของทีมนี้ (ตั้งได้ที่ Settings)'),
     el('div',{class:'legend'},el('span',{},'แท่ง = จำนวนวันอีเว้นท์รายเดือน (นับวันที่ส่งฟอร์ม รวมหลายอีเว้นท์ในวันเดียวกัน)')),evChart,
     el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},...['Month','Event Days','Cum. Days','Events','Detail'].map((h,i)=>el('th',{class:i===4?'l':null},h)))),tb2)));
+  if(NO_SALES)return el('div',{style:'display:flex;flex-direction:column;gap:16px'},eventBox);
   return el('div',{style:'display:flex;flex-direction:column;gap:16px'},salesBox,eventBox);
 }
 
