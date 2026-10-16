@@ -22,3 +22,7 @@ const tmp=path.join(__dirname,'_out','goal-setting.html');fs.writeFileSync(tmp,p
 process.env.PAGE=tmp;process.argv=[process.argv[0],'snapshot.js',dd,pw,path.join(__dirname,'..','index.html')];require('./snapshot.js');
 const s=out.sales||JSON.parse(fs.readFileSync(path.join(dd,'sync','sales.json'),'utf8'));const m=s.months||(s.data&&s.data.months)||{};const last=Object.keys(m).sort().pop();
 console.log(log.join('\n'));if(last)console.log('sales last date',m[last].lastDate,'BKK',m[last].BKK.sales,'UPC',m[last].UPC.sales);
+// every source must be refreshed: a skipped sheet leaves the board silently stale (demand was stuck at 29 Sep this way)
+const dmd=out.demand||(()=>{try{const j=JSON.parse(fs.readFileSync(path.join(dd,'sync','demand.json'),'utf8'));return j.data||j;}catch(e){return null;}})();
+const dLast=dmd&&dmd.rows&&dmd.rows.length?dmd.rows.map(r=>r.d).sort().pop():null;console.log('demand last date',dLast,out.demand?'(refreshed)':'(NOT refreshed)');
+const miss=['staff','sales','audit','demand'].filter(k=>!out[k]);if(miss.length)console.log('WARNING not refreshed:',miss.join(', '));
