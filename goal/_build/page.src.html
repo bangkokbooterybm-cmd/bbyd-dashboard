@@ -273,7 +273,20 @@ details.br[open] summary{border-bottom:1px solid var(--line)}
 .diag .warn{color:var(--warn)}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--ground);padding:9px 16px;border-radius:10px;font-size:13px;box-shadow:var(--shadow);z-index:10}
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* ---- motion: plays on page open / tab or supervisor change only (#view.anim), off for reduced motion ---- */
+@keyframes gb-x{from{transform:scaleX(0)}}
+@keyframes gb-y{from{transform:scaleY(0)}}
+@keyframes gb-fade{from{opacity:0}}
+@keyframes gb-up{from{opacity:0;transform:translateY(18px)}}
+@keyframes gb-toast-in{from{opacity:0;transform:translate(-50%,10px)}}
+@keyframes gb-toast-out{to{opacity:0;transform:translate(-50%,10px)}}
+.anim :is(.bar,.lbar,.fbar) i{transform-origin:left center;animation:gb-x .7s cubic-bezier(.2,.7,.2,1) both}
+.anim .tcol i{transform-origin:center bottom;animation:gb-y .5s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0)*40ms)}
+.anim .chart .gb-b{transform-box:fill-box;transform-origin:center bottom;animation:gb-y .55s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0)*45ms)}
+.anim .chart .gb-l{animation:gb-fade .3s ease-out both;animation-delay:calc(var(--i,0)*45ms + .35s)}
+.sheet[open]{animation:gb-up .24s cubic-bezier(.2,.7,.2,1)} .sheet[open]::backdrop{animation:gb-fade .24s ease-out}
+.toast:not([hidden]){animation:gb-toast-in .2s ease-out} .toast.out{animation:gb-toast-out .18s ease-in forwards}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after,::backdrop{animation:none!important;transition:none!important}}
 </style>
 
 <div class="wrap">
@@ -373,7 +386,7 @@ const rosterIn=()=>rosterFor(team(),curYM());
 const peopleOK=()=>curYM()>=PEOPLE_FROM;
 const otherScope=()=>team()==='BKK'?'UPC':'BKK';
 const curYM=()=>ym(S.month);
-function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,3000);}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.remove('out');t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>{t.classList.add('out');toast._t=setTimeout(()=>{t.hidden=true;t.classList.remove('out');},180);},3000);}
 function banner(m){const b=$('#banner');b.hidden=!m;b.textContent=m||'';}
 function tone(v,g,w){if(v==null||!isFinite(v))return '';return v>=g?'good':v>=w?'warn':'bad';}
 function barEl(v){const b=el('div',{class:'bar'});const i=el('i');i.style.width=Math.max(0,Math.min(1,v||0))*100+'%';b.append(i);return b;}
@@ -531,7 +544,7 @@ function barChart(vals,{fmtLbl,colorOf,refLine,refLabel,yFmt,step,label}){
   if(refLine!=null&&!(Math.abs((refLine/step)-Math.round(refLine/step))<1e-9)){const yy=y(refLine);add('line',{x1:P.l,x2:W-P.r,y1:yy,y2:yy,stroke:'var(--ink3)','stroke-width':1.2});}
   if(refLabel&&refLine!=null)add('text',{x:W-P.r,y:y(refLine)-4,'text-anchor':'end'},refLabel);
   vals.forEach((v,i)=>{const x=P.l+i*bw;add('text',{x:x+bw/2,y:H-8,'text-anchor':'middle'},MONTHS[i]);if(v==null)return;
-    add('rect',{x:x+bw*.2,y:y(v),width:bw*.6,height:Math.max(1,y(0)-y(v)),rx:3,fill:colorOf(v),opacity:i+1===S.month?1:.72});add('text',{x:x+bw/2,y:y(v)-5,'text-anchor':'middle',class:'lbl'},fmtLbl(v));});
+    add('rect',{x:x+bw*.2,y:y(v),width:bw*.6,height:Math.max(1,y(0)-y(v)),rx:3,fill:colorOf(v),opacity:i+1===S.month?1:.72,class:'gb-b',style:`--i:${i}`});add('text',{x:x+bw/2,y:y(v)-5,'text-anchor':'middle',class:'lbl gb-l',style:`--i:${i}`},fmtLbl(v));});
   return svg;
 }
 function liveNote(rows){const r=rows.find(x=>x.live);if(!r)return null;const id=ym(r.m),lt=(cfg().liveTargets||{})[id],L=S.sales.months[id];
@@ -856,7 +869,7 @@ function sheet(title,...kids){
   if(!d){d=el('dialog',{id:'sheet',class:'sheet','aria-label':'Detail'});document.body.append(d);d.addEventListener('click',e=>{if(e.target===d)d.close();});}
   d.style.setProperty('--tc',tcVar(S.tab));
   d.replaceChildren(el('div',{class:'sh-head'},el('h2',{},title),el('button',{class:'btn ghost small',type:'button',onclick:()=>d.close()},'ปิด')),el('div',{class:'sh-body'},...kids.flat().filter(Boolean)));
-  if(!d.open)d.showModal();d.scrollTop=0;
+  if(!d.open){d.classList.add('anim');d.showModal();}else d.classList.remove('anim');d.scrollTop=0;
 }
 const withMonth=(m,fn)=>{const o=S.month;S.month=m;try{return fn();}finally{S.month=o;}};
 const peopleMonths=()=>{const out=[];for(let m=+PEOPLE_FROM.slice(5);m<=S.month;m++)out.push(m);return out;};
@@ -869,8 +882,8 @@ function lagStats(list){const v=list.map(x=>x.lag).filter(x=>x!=null);if(!v.leng
 // mini month trend: [{m,v,label,tone}]
 function trendEl(rows,max){
   const w=el('div',{class:'trend',role:'img','aria-label':'Monthly trend'});
-  rows.forEach(r=>{const h=r.v==null||!max?0:Math.max(4,Math.min(1,r.v/max)*34);
-    w.append(el('div',{class:'tcol'+(r.m===S.month?' cur':'')},el('span',{class:'tv num'},r.label??'–'),el('i',{class:r.tone||'',style:`height:${h}px`}),el('span',{class:'tm'},MONTHS[r.m-1])));});
+  rows.forEach((r,ri)=>{const h=r.v==null||!max?0:Math.max(4,Math.min(1,r.v/max)*34);
+    w.append(el('div',{class:'tcol'+(r.m===S.month?' cur':'')},el('span',{class:'tv num'},r.label??'–'),el('i',{class:r.tone||'',style:`height:${h}px;--i:${ri}`}),el('span',{class:'tm'},MONTHS[r.m-1])));});
   return w;
 }
 
@@ -1253,7 +1266,7 @@ function viewPick(){return el('div',{class:'panel',style:'max-width:800px'},el('
 function render(){renderHeader();const v=$('#view');
   if(!S.scope){v.dataset.tab='pick';v.replaceChildren(viewPick());return;}
   if(S.tab==='settings'&&v.dataset.tab==='settings'&&v.contains(document.activeElement))return; // don't wipe inputs while typing
-  const t=(S.tab==='settings'||S.tab==='manager')&&!S.canAdmin?'overview':S.tab;v.dataset.tab=t;v.replaceChildren((VIEWS[t]||viewOverview)());}
+  const t=(S.tab==='settings'||S.tab==='manager')&&!S.canAdmin?'overview':S.tab;const ak=t+'|'+S.scope;if(ak!==render._ak){render._ak=ak;render._until=Date.now()+1600;}v.classList.toggle('anim',Date.now()<render._until);v.dataset.tab=t;v.replaceChildren((VIEWS[t]||viewOverview)());}
 
 render();
 (async()=>{
