@@ -140,7 +140,8 @@ var GSProc = (function () {
       var bs = scopeOfBranch(br);
       var cross = bs && bs !== scope; if (cross) diag.crossScope++; // kept but flagged: team boards skip it, the Senior board shows it outside the KPI
       var mName = norm(r[c.month]), mNum = TH_MONTH[mName] || (d ? d.getMonth() + 1 : null);
-      var ymAudit = mNum ? '2026-' + pad(mNum) : null;
+      // count by the visit date (agreed 17 Oct 2026); the month picked in the form is used only when the date is missing
+      var ymAudit = d ? ymd(d).slice(0, 7) : (mNum ? '2026-' + pad(mNum) : null);
       if (d && mNum && d.getMonth() + 1 !== mNum) diag.monthDateMismatch++;
       var isNum = function (v) { return typeof v === 'number' || (v !== null && v !== '' && !isNaN(+v)); };
       var sArr = scoreCols.map(function (i) { return isNum(r[i]) ? Number(r[i]) : null; });

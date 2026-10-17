@@ -809,7 +809,7 @@ function diagBox(d,kind){
     const ue=Object.entries(d.unknownEvaluators||{});if(ue.length)L.push(['warn',`ผู้ประเมินที่ไม่นับ: ${ue.map(([k,v])=>`${k} (${v})`).join(', ')}`]);
     const ub=Object.entries(d.unknownBranches||{});if(ub.length)L.push(['warn',`ชื่อสาขาที่แปลงเป็นรหัสไม่ได้: ${ub.map(([k,v])=>`${k} (${v})`).join(', ')}`]);
     if(d.crossScope)L.push(`ไม่นับ ${d.crossScope} แถวที่ Sup ประเมินสาขาของอีกทีม`);
-    if(d.monthDateMismatch)L.push(['warn',`${d.monthDateMismatch} รายการ เดือนที่เลือกไม่ตรงกับวันที่ประเมิน (นับตามเดือนที่เลือก)`]);}
+    if(d.monthDateMismatch)L.push(['warn',`${d.monthDateMismatch} รายการ เดือนที่เลือกไม่ตรงกับวันที่ประเมิน (นับตามวันที่เข้าประเมิน)`]);}
   else if(kind==='staff'){L.push(`อ่าน ${d.total} คน · นับ ${d.people} คน`);if(d.notSales.length)L.push(`ไม่ใช่พนักงานขาย: ${d.notSales.join(', ')}`);if(d.leftNoDate.length)L.push(`ลาออกแต่ไม่มีวันที่ (ใช้วันส่งยอดล่าสุดแทน): ${d.leftNoDate.join(', ')}`);
     const u=Object.entries(d.unknownLoc||{});if(u.length)L.push(['warn',`สถานที่ปฏิบัติงานที่แยกทีมไม่ได้: ${u.map(([k,v])=>`${k} (${v})`).join(', ')}`]);}
   else if(kind==='sales'){L.push(`อ่าน ${fmt(d.rows)} แถว ปี 2026`);(d.conflicts||[]).forEach(c=>L.push(['warn',`${c.k.replace('|',' ')}: พนักงานกรอกยอดร้านไม่ตรงกัน (CONFLICT) ใช้ ${fmt(c.used)} แทนผลรวม ${fmt(c.summed)}`]));const u=Object.entries(d.unknown||{});if(u.length)L.push(['warn',`รหัสสาขาที่ไม่รู้ว่าเป็นทีมไหน (ไม่นับ): ${u.map(([k,v])=>`${k} (${v} วัน)`).join(', ')}`]);}
