@@ -656,26 +656,33 @@ const OTHER_PLACES=['SEM','PDPS','TTVS','HHNS','TMTS','TMTE','TMNE','ZENE','ICDE
 // other places a Sup wrote in the visit note (e.g. 'PHCL , PHCM'): shown next to the visit, not counted in KPI
 function notePlaces(v){const known=new Set([...Object.keys(MAIN),...OTHER_PLACES,'JCPE','PKCE2']),own=v.br||v.brRaw,t=(v.notes||[]).map(n=>n.t).join(' ').toUpperCase();return [...new Set((t.match(/[A-Z0-9]{3,5}/g)||[]).filter(x=>known.has(x)&&x!==own))];}
 function logPlace(t){const known=new Set([...Object.keys(MAIN),...OTHER_PLACES]),m=(String(t).toUpperCase().match(/[A-Z0-9]{3,5}/g)||[]).find(x=>known.has(x));if(m)return m;const x=String(t).trim();return x.length>12?x.slice(0,12)+'…':x;}
-// Sup days off, kept in config/main.dayoff[YYYY-MM][scope] = {off:[day numbers], sick:[day numbers]}
-function dayOffFor(scope,ymk){const x=((cfg().dayoff||{})[ymk]||{})[scope]||{};return {off:x.off||[],sick:x.sick||[]};}
+// Sup days off, kept in config/main.dayoff[YYYY-MM][scope] = {off,hol,biz,sick:[day numbers]}
+const OFF_KINDS=[['off','Day Off'],['hol','Public Holiday'],['biz','Personal Leave'],['sick','Sick Leave']],OFF_LABEL=Object.fromEntries(OFF_KINDS);
+function dayOffFor(scope,ymk){const x=((cfg().dayoff||{})[ymk]||{})[scope]||{};return {off:x.off||[],hol:x.hol||[],biz:x.biz||[],sick:x.sick||[]};}
+// a form entry with no branch whose note says the Sup was off that day (e.g. "day off", "วันหยุดนักขัตฤกษ์")
+function logOffKind(t){const s=String(t||'').trim().toLowerCase();return /นักขัตฤกษ์|public holiday/.test(s)?'hol':/ลากิจ|personal leave/.test(s)?'biz':/ลาป่วย|sick leave/.test(s)?'sick':/day ?off|วันหยุด|^หยุด/.test(s)?'off':null;}
+// day number -> kind for the current Sup: Settings first, then what the Sup sent through the form
+function offMap(scope,ymk){const o=dayOffFor(scope,ymk),m=new Map();['sick','biz','hol','off'].forEach(k=>o[k].forEach(d=>{if(!m.has(d))m.set(d,k);}));
+  (S.audit?.logs||[]).filter(l=>l.scope===team()&&l.ym===ymk&&evOK(l.ev)).forEach(l=>{const k=logOffKind(l.t),d=+l.d.slice(8);if(k&&!m.has(d))m.set(d,k);});return m;}
+function offSummary(m){const n={};m.forEach(k=>n[k]=(n[k]||0)+1);return OFF_KINDS.filter(([k])=>n[k]).map(([k,l])=>`${l} ${n[k]} วัน`).join(' · ');}
 function visitCal(st,logs){
   const [y,m]=curYM().split('-').map(Number),days=new Date(y,m,0).getDate(),lead=(new Date(y,m-1,1).getDay()+6)%7;
   const t=new Date(),todayK=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
   const by={};st.all.forEach(v=>(by[v.d]=by[v.d]||[]).push(v));
   const lg={};logs.forEach(l=>(lg[l.d]=lg[l.d]||[]).push(l));
-  const dof=dayOffFor(S.scope,curYM()),offSet=new Set(dof.off),sickSet=new Set(dof.sick);
+  const om=offMap(S.scope,curYM());
   const g=el('div',{class:'vcal',role:'grid','aria-label':'Visit calendar'});
   ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach((d,i)=>g.append(el('div',{class:'dow'+(i>4?' we':'')},d)));
   for(let i=0;i<lead;i++)g.append(el('div',{class:'day blank'}));
   for(let d=1;d<=days;d++){
     const k=`${curYM()}-${String(d).padStart(2,'0')}`,vs=(by[k]||[]).slice().sort((a,b)=>String(a.br||a.brRaw).localeCompare(String(b.br||b.brRaw)));
-    const isOff=offSet.has(d)||sickSet.has(d);
+    const offK=om.get(d),isOff=!!offK,offL=isOff?OFF_LABEL[offK]:null;
     const c=el('div',{class:'day'+(isOff?' off':vs.length||lg[k]?' has':'')+(k===todayK?' today':'')},el('div',{class:'dn num'},String(d)));
-    if(isOff)c.append(el('div',{class:'offt'},sickSet.has(d)?'Sick Leave':'Day Off'));
+    if(isOff)c.append(el('div',{class:'offt'},offL));
     vs.forEach(v=>c.append(el('div',{class:'vb'+(v.x?' ex':v.audits?' ok':''),title:`${v.br||v.brRaw}${v.audits?` · ประเมิน ${v.audits} คน`:' · Visit อย่างเดียว'}${v.x?' · ไม่นับ KPI':''}`},v.br||v.brRaw)));
     {const have=new Set([...vs.map(v=>v.br||v.brRaw),...(lg[k]||[]).map(l=>logPlace(l.t))]);vs.forEach(v=>notePlaces(v).forEach(x=>{if(have.has(x))return;have.add(x);c.append(el('div',{class:'vb nt',title:`จากความเห็นของ ${v.br||v.brRaw} · ไม่นับ KPI`},x));}));}
-    (lg[k]||[]).forEach(l=>c.append(el('div',{class:'vb oth',title:`${l.t} · นอก KPI`},logPlace(l.t))));
-    if(vs.length||lg[k]||isOff){c.classList.add('tap');c.tabIndex=0;c.setAttribute('role','button');const off=isOff?(sickSet.has(d)?'Sick Leave':'Day Off'):null,fn=()=>dayDetail(k,vs,lg[k]||[],off);c.addEventListener('click',fn);c.addEventListener('keydown',e=>{if(e.key==='Enter')fn();});}
+    (lg[k]||[]).filter(l=>!logOffKind(l.t)).forEach(l=>c.append(el('div',{class:'vb oth',title:`${l.t} · นอก KPI`},logPlace(l.t))));
+    if(vs.length||lg[k]||isOff){c.classList.add('tap');c.tabIndex=0;c.setAttribute('role','button');const fn=()=>dayDetail(k,vs,lg[k]||[],offL);c.addEventListener('click',fn);c.addEventListener('keydown',e=>{if(e.key==='Enter')fn();});}
     g.append(c);
   }
   const tail=(lead+days)%7;if(tail)for(let i=tail;i<7;i++)g.append(el('div',{class:'day blank'}));
@@ -697,7 +704,7 @@ function viewVisit(){
     logs.length?el('h3',{},'บันทึกวันที่ไม่ได้ระบุสาขา'):null,
     logs.length?el('div',{class:'diag'},...logs.map(l=>el('span',{},el('b',{},thDate(l.d)),` · ${l.ev} · ${l.t}`))):null,
     el('h3',{},`Visit Calendar · ${sup().title||'Supervisor'} (${SUP_NAME[S.scope]||''}) · ${MONTHS[S.month-1]} ${YEAR}`),
-    el('div',{class:'legend vlg'},el('span',{class:'vli'},el('span',{class:'vb ok'},'CODE'),'Visit + ประเมิน SC'),el('span',{class:'vli'},el('span',{class:'vb'},'CODE'),'Visit อย่างเดียว'),isSr()?el('span',{class:'key',style:'color:var(--brass)'},'UPC (ไม่นับ KPI)'):null,logs.length?el('span',{class:'key',style:'color:var(--ink2)'},'Office / นอกสาขาที่ดูแล (ไม่นับ KPI)'):null,st.all.some(v=>notePlaces(v).length)?el('span',{class:'vli'},el('span',{class:'vb nt'},'CODE'),'สาขาที่เขียนไว้ในความเห็น (ไม่นับ KPI)'):null,(()=>{const o=dayOffFor(S.scope,curYM());return o.off.length||o.sick.length?el('span',{class:'key bad'},`Day Off ${o.off.length} วัน`+(o.sick.length?` · ลาป่วย ${o.sick.length} วัน`:'')):null;})()),
+    el('div',{class:'legend vlg'},el('span',{class:'vli'},el('span',{class:'vb ok'},'CODE'),'Visit + ประเมิน SC'),el('span',{class:'vli'},el('span',{class:'vb'},'CODE'),'Visit อย่างเดียว'),isSr()?el('span',{class:'key',style:'color:var(--brass)'},'UPC (ไม่นับ KPI)'):null,logs.length?el('span',{class:'key',style:'color:var(--ink2)'},'Office / นอกสาขาที่ดูแล (ไม่นับ KPI)'):null,st.all.some(v=>notePlaces(v).length)?el('span',{class:'vli'},el('span',{class:'vb nt'},'CODE'),'สาขาที่เขียนไว้ในความเห็น (ไม่นับ KPI)'):null,(()=>{const t=offSummary(offMap(S.scope,curYM()));return t?el('span',{class:'key bad'},t):null;})()),
     el('div',{class:'tscroll'},visitCal(st,logs)));
 }
 
@@ -842,11 +849,12 @@ function viewSettings(){
     el('label',{class:'row small'},'BKK (สาขา)',tB),el('label',{class:'row small'},'UPC (สาขา)',tU),el('label',{class:'row small'},'Event รวม',tE),
     el('button',{class:'btn small',type:'button',disabled:closed||null,onclick:()=>saveCfg(c=>{c.liveTargets=c.liveTargets||{};const n=v=>v.value===''?null:+v.value;c.liveTargets[id]={BKK:n(tB),UPC:n(tU),event:n(tE)};})},'บันทึกเป้า')));
   wrap.append(allstarPaste());
-  {const ymk=curYM(),rows=cfg().supervisors.map(sv=>{const o=dayOffFor(sv.scope,ymk);return {sv,off:el('input',{type:'text',value:o.off.join(' '),placeholder:'เช่น 1 2 7 8'}),sick:el('input',{type:'text',value:o.sick.join(' '),placeholder:'เช่น 17'})};});
+  {const ymk=curYM(),ph={off:'เช่น 1 2 7 8',hol:'เช่น 13 23',biz:'เช่น 20',sick:'เช่น 17'};
+    const rows=cfg().supervisors.map(sv=>{const o=dayOffFor(sv.scope,ymk),inp={};OFF_KINDS.forEach(([k])=>inp[k]=el('input',{type:'text',value:o[k].join(' '),placeholder:ph[k]}));return {sv,inp};});
     const days=v=>[...new Set(v.split(/[\s,]+/).map(Number).filter(n=>Number.isInteger(n)&&n>=1&&n<=31))].sort((a,b)=>a-b);
-    wrap.append(el('div',{class:'panel'},el('h3',{},`Day Off · ${MONTHS[S.month-1]} ${YEAR}`),el('div',{class:'small muted'},'ใส่วันที่ เว้นวรรคหรือคั่นด้วย , · แสดงเป็นช่องสีแดงอ่อนในปฏิทิน Visit'),
-      ...rows.map(r=>el('div',{style:'display:flex;flex-direction:column;gap:4px'},el('b',{class:'small'},`${r.sv.title} (${SUP_NAME[r.sv.scope]||''})`),el('label',{class:'row small'},'Day Off',r.off),el('label',{class:'row small'},'ลาป่วย',r.sick))),
-      el('button',{class:'btn small',type:'button',onclick:()=>saveCfg(c=>{c.dayoff=c.dayoff||{};const m={};rows.forEach(r=>{const off=days(r.off.value),sick=days(r.sick.value);if(off.length||sick.length)m[r.sv.scope]={off,sick};});c.dayoff[ymk]=m;})},'บันทึกวันหยุด')));}
+    wrap.append(el('div',{class:'panel'},el('h3',{},`Day Off · ${MONTHS[S.month-1]} ${YEAR}`),el('div',{class:'small muted'},'ใส่วันที่ เว้นวรรคหรือคั่นด้วย , · Public Holiday = วันหยุดนักขัตฤกษ์ · Personal Leave = ลากิจ · แสดงเป็นช่องสีแดงในปฏิทิน Visit · วันที่ Sup ลงในฟอร์มว่าวันหยุด/ลา ก็เป็นสีแดงเองโดยไม่ต้องใส่ซ้ำ'),
+      ...rows.map(r=>el('div',{style:'display:flex;flex-direction:column;gap:4px'},el('b',{class:'small'},`${r.sv.title} (${SUP_NAME[r.sv.scope]||''})`),...OFF_KINDS.map(([k,l])=>el('label',{class:'row small'},l,r.inp[k])))),
+      el('button',{class:'btn small',type:'button',onclick:()=>saveCfg(c=>{c.dayoff=c.dayoff||{};const m={};rows.forEach(r=>{const x={};OFF_KINDS.forEach(([k])=>{const v=days(r.inp[k].value);if(v.length)x[k]=v;});if(Object.keys(x).length)m[r.sv.scope]=x;});c.dayoff[ymk]=m;})},'บันทึกวันหยุด')));}
   const ro=rosterIn(),am=cfg().aliases||{};
   const ta=el('textarea',{rows:4,style:'width:100%',placeholder:'ชื่อในรายชื่อ = ชื่ออื่นที่กรอกในชีท เช่น\nกิ้ฟ = กุ๊บกิ๊บ, กิ๊ฟ'});
   ta.value=Object.entries(am).map(([k,v])=>`${k} = ${v.join(', ')}`).join('\n');
@@ -1220,9 +1228,9 @@ function demandByModel(recs){
 /* --- Manager (admin only): compare Sups, calibration, where field time goes --- */
 function supMonth(scope,m){
   return withMonth(m,()=>{const o=S.scope;S.scope=scope;try{
-    const vs=visitStats(),as=auditStats(),ls=lagStats([...visitsMonth(),...auditsMonth()]),dof=dayOffFor(scope,curYM());
-    const days=new Date(YEAR,m,0).getDate(),work=days-dof.off.length-dof.sick.length,hasOff=dof.off.length||dof.sick.length;
-    const logs=(S.audit?.logs||[]).filter(l=>l.scope===team()&&l.ym===curYM()&&evOK(l.ev)).length;
+    const vs=visitStats(),as=auditStats(),ls=lagStats([...visitsMonth(),...auditsMonth()]),om=offMap(scope,curYM());
+    const days=new Date(YEAR,m,0).getDate(),work=days-om.size,hasOff=om.size>0;
+    const logs=(S.audit?.logs||[]).filter(l=>l.scope===team()&&l.ym===curYM()&&evOK(l.ev)&&!logOffKind(l.t)).length;
     const fieldDays=new Set(visitsMonth().map(v=>v.d)).size;
     return {vs,as,ls,work:hasOff?work:null,fieldDays,logs};}finally{S.scope=o;}});
 }
@@ -1250,7 +1258,7 @@ function viewManager(){
   return el('div',{style:'display:flex;flex-direction:column;gap:16px'},
     el('section',{class:'panel'},el('h2',{},`Manager · เทียบ Sup · ${MONTHS[S.month-1]} ${YEAR}`),el('div',{class:'small muted'},'แถบนี้เห็นเฉพาะผู้ดูแลบอร์ด ไม่อยู่ในหน้าเว็บที่ Sup เปิด'),
       el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},...['Sup','สาขาที่เข้า','Visit','Audit','คะแนนที่ให้','ลงช้าเฉลี่ย (วัน)',`ช้าเกิน ${LATE} วัน`,'วันทำงาน','วันที่ลงสาขา','วัน Office/อื่นๆ','Visit/วันทำงาน'].map((h,i)=>el('th',{class:i?null:'l'},h)))),tb)),
-      el('div',{class:'small muted'},'วันทำงาน = วันในเดือน − Day Off − ลาป่วย (ต้องใส่วันหยุดที่ Settings) · ลงช้า = วันที่ส่งฟอร์ม − วันที่ไปจริง'),
+      el('div',{class:'small muted'},'วันทำงาน = วันในเดือน − Day Off − Public Holiday − Personal Leave − Sick Leave (จาก Settings หรือที่ Sup ลงในฟอร์ม) · ลงช้า = วันที่ส่งฟอร์ม − วันที่ไปจริง'),
       ev.length?el('div',{class:'diag'},el('span',{class:'warn'},`ผู้ประเมินในชีทที่บอร์ดไม่นับ: ${ev.map(([k,v])=>`${k} (${v})`).join(', ')}`)):null),
     el('section',{class:'panel'},el('h2',{},'มาตรฐานการให้คะแนน (Calibration)'),el('div',{class:'small muted'},'คะแนนเฉลี่ยที่แต่ละ Sup ให้ SC · จำนวนครั้ง · ถ้าห่างกันต่อเนื่อง อาจใช้เกณฑ์ไม่ตรงกัน'),
       el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},el('th',{},'Sup'),...ms.map(m=>el('th',{},MONTHS[m-1])))),ctb))),
