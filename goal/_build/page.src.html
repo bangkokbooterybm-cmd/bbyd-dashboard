@@ -643,7 +643,7 @@ function stat(v,k){return el('div',{class:'stat'},el('div',{class:'v num'},v),el
 function visitCard(v){
   const type=v.x?el('span',{class:'pill ex'},v.audits?`UPC · ประเมิน ${v.audits} คน · ไม่นับ KPI`:'UPC · ไม่นับ KPI'):v.audits?el('span',{class:'pill good'},`Visit + ประเมิน ${v.audits} คน`):el('span',{class:'pill'},'Visit อย่างเดียว');
   const notes=v.notes||[],ro=rosterIn();
-  const sum=[el('span',{class:'num'},thDate(v.d)),(()=>{const xs=notePlaces(v);return el('span',{class:'vbr'},el('b',{},v.br||v.brRaw),...xs.map(x=>el('span',{class:'pill nt',title:'จากความเห็น · ไม่นับ KPI'},'+'+x)));})(),el('span',{class:'muted small hide-s'},v.ev),el('span',{style:'display:flex;gap:6px;flex-wrap:wrap'},type,lagPill(v)),
+  const sum=[el('span',{class:'num'},thDate(v.d)),(()=>{const xs=notePlaces(v);return el('span',{class:'vbr'},el('b',{},vCode(v)),...xs.map(x=>el('span',{class:'pill nt',title:'จากความเห็น · ไม่นับ KPI'},'+'+x)));})(),el('span',{class:'muted small hide-s'},v.ev),el('span',{style:'display:flex;gap:6px;flex-wrap:wrap'},type,lagPill(v)),
     el('span',{class:'small cnt hide-s'+(notes.length?'':' none')},notes.length?`ความเห็น ${notes.length} ▾`:'–')];
   if(!notes.length){const d=el('div',{class:'au plain vis'});d.append(el('div',{class:'sumrow'},...sum));return d;}
   const d=el('details',{class:'au vis'});d.append(el('summary',{},...sum),
@@ -653,8 +653,11 @@ function visitCard(v){
 }
 // rows with no branch picked: the place is typed in the note (SEM = office, PDPS, TTVS…). Show the first known code, else the note itself
 const OTHER_PLACES=['SEM','PDPS','TTVS','HHNS','TMTS','TMTE','TMNE','ZENE','ICDE','JCPE','PKCE','EMPL','EMPM'];
+// form branch picked as plain "Events": the event is the code written in the note (PKCE, JCPE…); Turtle Village = TTVS. Display only, KPI unchanged
+const PLACE_ALIAS={'TURTLE VILLAGE':'TTVS'},EVENT_CODES=['PKCE','PKCE2','JCPE','TMTE','TMNE','ZENE','ICDE'];
+function vCode(v){if(v.br)return v.br;const raw=String(v.brRaw||'').trim(),a=PLACE_ALIAS[raw.toUpperCase()];if(a)return a;if(/^event/i.test(raw)){const m=((v.notes||[]).map(n=>n.t).join(' ').toUpperCase().match(/[A-Z0-9]{3,5}/g)||[]).find(x=>EVENT_CODES.includes(x));if(m)return m;}return raw;}
 // other places a Sup wrote in the visit note (e.g. 'PHCL , PHCM'): shown next to the visit, not counted in KPI
-function notePlaces(v){const known=new Set([...Object.keys(MAIN),...OTHER_PLACES,'JCPE','PKCE2']),own=v.br||v.brRaw,t=(v.notes||[]).map(n=>n.t).join(' ').toUpperCase();return [...new Set((t.match(/[A-Z0-9]{3,5}/g)||[]).filter(x=>known.has(x)&&x!==own))];}
+function notePlaces(v){const known=new Set([...Object.keys(MAIN),...OTHER_PLACES,'JCPE','PKCE2']),own=vCode(v),t=(v.notes||[]).map(n=>n.t).join(' ').toUpperCase();return [...new Set((t.match(/[A-Z0-9]{3,5}/g)||[]).filter(x=>known.has(x)&&x!==own))];}
 function logPlace(t){const known=new Set([...Object.keys(MAIN),...OTHER_PLACES]),m=(String(t).toUpperCase().match(/[A-Z0-9]{3,5}/g)||[]).find(x=>known.has(x));if(m)return m;const x=String(t).trim();return x.length>12?x.slice(0,12)+'…':x;}
 // Sup days off, kept in config/main.dayoff[YYYY-MM][scope] = {off,hol,biz,sick:[day numbers]}
 const OFF_KINDS=[['off','Day Off'],['hol','Public Holiday'],['biz','Personal Leave'],['sick','Sick Leave']],OFF_LABEL=Object.fromEntries(OFF_KINDS);
@@ -675,12 +678,12 @@ function visitCal(st,logs){
   ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach((d,i)=>g.append(el('div',{class:'dow'+(i>4?' we':'')},d)));
   for(let i=0;i<lead;i++)g.append(el('div',{class:'day blank'}));
   for(let d=1;d<=days;d++){
-    const k=`${curYM()}-${String(d).padStart(2,'0')}`,vs=(by[k]||[]).slice().sort((a,b)=>String(a.br||a.brRaw).localeCompare(String(b.br||b.brRaw)));
+    const k=`${curYM()}-${String(d).padStart(2,'0')}`,vs=(by[k]||[]).slice().sort((a,b)=>vCode(a).localeCompare(vCode(b)));
     const offK=om.get(d),isOff=!!offK,offL=isOff?OFF_LABEL[offK]:null;
     const c=el('div',{class:'day'+(isOff?' off':vs.length||lg[k]?' has':'')+(k===todayK?' today':'')},el('div',{class:'dn num'},String(d)));
     if(isOff)c.append(el('div',{class:'offt'},offL));
-    vs.forEach(v=>c.append(el('div',{class:'vb'+(v.x?' ex':v.audits?' ok':''),title:`${v.br||v.brRaw}${v.audits?` · ประเมิน ${v.audits} คน`:' · Visit อย่างเดียว'}${v.x?' · ไม่นับ KPI':''}`},v.br||v.brRaw)));
-    {const have=new Set([...vs.map(v=>v.br||v.brRaw),...(lg[k]||[]).map(l=>logPlace(l.t))]);vs.forEach(v=>notePlaces(v).forEach(x=>{if(have.has(x))return;have.add(x);c.append(el('div',{class:'vb nt',title:`จากความเห็นของ ${v.br||v.brRaw} · ไม่นับ KPI`},x));}));}
+    vs.forEach(v=>c.append(el('div',{class:'vb'+(v.x?' ex':v.audits?' ok':''),title:`${vCode(v)}${v.audits?` · ประเมิน ${v.audits} คน`:' · Visit อย่างเดียว'}${v.x?' · ไม่นับ KPI':''}`},vCode(v))));
+    {const have=new Set([...vs.map(v=>vCode(v)),...(lg[k]||[]).map(l=>logPlace(l.t))]);vs.forEach(v=>notePlaces(v).forEach(x=>{if(have.has(x))return;have.add(x);c.append(el('div',{class:'vb nt',title:`จากความเห็นของ ${vCode(v)} · ไม่นับ KPI`},x));}));}
     (lg[k]||[]).filter(l=>!logOffKind(l.t)).forEach(l=>c.append(el('div',{class:'vb oth',title:`${l.t} · นอก KPI`},logPlace(l.t))));
     if(vs.length||lg[k]||isOff){c.classList.add('tap');c.tabIndex=0;c.setAttribute('role','button');const fn=()=>dayDetail(k,vs,lg[k]||[],offL);c.addEventListener('click',fn);c.addEventListener('keydown',e=>{if(e.key==='Enter')fn();});}
     g.append(c);
