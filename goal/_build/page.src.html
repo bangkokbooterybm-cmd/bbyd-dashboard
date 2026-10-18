@@ -1320,6 +1320,8 @@ const ppYM=()=>S.month>=7?ym(S.month):null;
 const ppTeamOf=br=>GSProc.scopeOfBranch(br)||(/^(PKC|PHC|SMU|SMA|JCP)/.test(br||'')?'UPC':br?'BKK':null);
 function ppFind(name){const P=ppCore();if(!P)return null;const pr=P.profile||[];const ex=pr.find(p=>p.sc===name);if(ex)return ex.sc;
   const k=nameKey(name),c=pr.filter(p=>nameKey(p.sc)===k);if(c.length===1)return c[0].sc;if(c.length>1){const t=c.find(p=>ppTeamOf(p.home_branch)===team());return (t||c[0]).sc;}return null;}
+function ppTenureDays(p){if(!p||!p.start_date)return null;const d=Math.floor((Date.now()-new Date(p.start_date+'T00:00:00+07:00'))/864e5);return d<0?null:d;}
+function ppTenure(d){return d==null?'–':d<30?d+' วัน':d<365?Math.floor(d/30)+' เดือน':(d/365).toFixed(1)+' ปี';}
 function ppChip(s,why){return s==null?el('span',{class:'ppchip na',title:why||'รอข้อมูล'},'–'):el('span',{class:'ppchip',style:`background:${plv(s,PSL)[2]}`},sN(s));}
 function ppLabel(isY,cur){return isY?`YTD 2026 (Jul–${cur?MONTHS[+cur.slice(5)-1]:''})`:`${MONTHS[S.month-1]} ${YEAR}${ppYM()===cur?' · MTD':''}`;}
 function viewPassport(){
@@ -1332,16 +1334,17 @@ function viewPassport(){
   const head=[el('h2',{},`SC Passport · ${ppLabel(isY,cur)}`),el('div',{class:'stamp'},'สมุดพก SC · ข้อมูลยอดขายถึง ',el('b',{},thDate(P.asof)),` · ประเมิน SC ถึง ${thDate(P.evalAsof)} · เริ่มนับ Jul 2026 · คะแนนเต็ม 5`),el('div',{class:'row'},seg,tseg)];
   if(!isY&&!ymk)return el('div',{class:'panel'},...head,el('div',{class:'empty'},'Passport เริ่มนับตั้งแต่ Jul 2026 เลือกเดือน Jul ขึ้นไปจากเมนูด้านบน หรือกด YTD'));
   if(!isY&&!yms.includes(ymk))return el('div',{class:'panel'},...head,el('div',{class:'empty'},`ยังไม่มีข้อมูลของ ${MONTHS[S.month-1]} ${YEAR}`));
-  const names=new Set((P.profile||[]).map(p=>p.sc));
-  let rows=(isY?P.ytd||[]:months.filter(r=>r.ym===ymk)).filter(r=>names.has(r.sc)).map(r=>({...r,tm:ppTeamOf(r.branch)}));
+  const prof=new Map((P.profile||[]).map(p=>[p.sc,p]));
+  let rows=(isY?P.ytd||[]:months.filter(r=>r.ym===ymk)).filter(r=>prof.has(r.sc)).map(r=>{const p=prof.get(r.sc);return {...r,tm:ppTeamOf(r.branch),level:p.level||null,tenure:ppTenureDays(p)};});
   if(tm!=='ALL')rows=rows.filter(r=>r.tm===tm);
   const sc=rows.filter(r=>r.total!=null),avg=mean(sc.map(r=>r.total)),wt=rows.filter(r=>r.ach!=null);
   const sk=S.ppSort||'total',sd=S.ppDir||-1;
   rows.sort((a,b)=>{const A=a[sk],B=b[sk];if(A==null&&B==null)return a.sc.localeCompare(b.sc,'th');if(A==null)return 1;if(B==null)return -1;return (typeof A==='string'?A.localeCompare(B,'th'):A-B)*sd||((b.ach??-1)-(a.ach??-1));});
-  const th=(k,l,c)=>el('th',{class:c||null},el('button',{type:'button',class:'sortb'+(sk===k?' on':''),onclick:()=>{if(S.ppSort===k)S.ppDir=-(S.ppDir||-1);else{S.ppSort=k;S.ppDir=k==='sc'||k==='branch'?1:-1;}render();}},l,el('span',{class:'arr'},sk===k?(sd>0?' ▲':' ▼'):' ↕')));
+  const th=(k,l,c)=>el('th',{class:c||null},el('button',{type:'button',class:'sortb'+(sk===k?' on':''),onclick:()=>{if(S.ppSort===k)S.ppDir=-(S.ppDir||-1);else{S.ppSort=k;S.ppDir=k==='sc'||k==='branch'||k==='level'?1:-1;}render();}},l,el('span',{class:'arr'},sk===k?(sd>0?' ▲':' ▼'):' ↕')));
   const tb=el('tbody');rows.forEach((r,i)=>{const L=r.total!=null?plv(r.total,PSL):null;
     tb.append(el('tr',{class:'click',tabindex:'0',onclick:()=>ppSheet(r.sc),onkeydown:e=>{if(e.key==='Enter')ppSheet(r.sc);}},
-      el('td',{class:'muted'},String(i+1)),el('td',{class:'l'},el('b',{},r.sc)),el('td',{class:'l muted'},r.branch||'–'),
+      el('td',{class:'muted'},String(i+1)),el('td',{class:'l'},el('b',{},r.sc)),el('td',{class:'l muted'},r.branch||'–'),el('td',{class:'l small'},r.level||'–'),
+      el('td',{class:'num small'},ppTenure(r.tenure),r.tenure!=null&&r.tenure<=90?el('span',{class:'pill ex',style:'margin-left:6px'},'New'):null),
       el('td',{class:'l num'},el('b',{style:L?`color:${L[2]}`:''},r.total!=null?r.total.toFixed(2):'–'),el('span',{class:'pptbar'},el('i',{style:`width:${(r.total||0)/5*100}%;background:${L?L[2]:'transparent'}`}))),
       el('td',{class:'l small'},r.band||'–'),el('td',{class:'num'},kb(r.sales)),el('td',{class:'num muted'},kb(r.target)),
       el('td',{class:'num',style:r.ach!=null?`color:${plv(r.ach,PAL)[1]};font-weight:600`:''},r.ach!=null?r.ach.toFixed(1)+'%':'ไม่มีเป้า'),
@@ -1351,7 +1354,7 @@ function viewPassport(){
     el('div',{class:'stats'},stat(avg==null?'–':avg.toFixed(2),`คะแนนเฉลี่ย (${sc.length} คน)`),stat(String(sc.filter(r=>r.total>=4).length),'คะแนน ≥ 4.0'),stat(String(sc.filter(r=>r.total<3).length),'คะแนน < 3.0'),stat(`${wt.filter(r=>r.ach>=100).length}/${wt.length}`,'ยอดขายถึงเป้าส่วนตัว')),
     el('div',{class:'legend'},...PSL.map(L=>el('span',{class:'ppkey',style:`--c:${L[2]}`},`${L[1]} ${L[0]>=0?'≥'+L[0]:'<2'}`))),
     el('div',{class:'small muted'},'กดชื่อ SC เพื่อเปิดสมุดพกรายคน · SC Audit นับตามเดือนที่ระบุในฟอร์มประเมิน (ประจำเดือน) · ยอดขาย = ยอดส่วนตัวเทียบเป้าส่วนตัว · เดือนปัจจุบันเทียบเป้าถึงวันนี้ · เกณฑ์ที่ยังไม่มีข้อมูลไม่นับ แล้วคิดคะแนนจากน้ำหนักที่เหลือ'),
-    el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},el('th',{},'#'),th('sc','SC','l'),th('branch','Branch','l'),th('total','Total / 5','l'),th('band','Band','l'),th('sales','Sales'),th('target','Target'),th('ach','Ach %'),
+    el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},el('th',{},'#'),th('sc','SC','l'),th('branch','Branch','l'),th('level','Level','l'),th('tenure','Tenure'),th('total','Total / 5','l'),th('band','Band','l'),th('sales','Sales'),th('target','Target'),th('ach','Ach %'),
       ...PK.map(k=>th('s_'+k.k,`${k.sh} ${PW[k.k]}%`)),th('evals','Audit ครั้ง'))),tb)),
     rows.length?null:el('div',{class:'empty'},'ไม่มี SC ในทีมนี้ช่วงนี้'));
 }
@@ -1360,8 +1363,8 @@ function ppSheet(name){
   let ymk=ppYM();if(!isY&&(!ymk||!yms.includes(ymk)))ymk=cur;
   const pLabel=isY?ppLabel(true,cur):`${MONTHS[+ymk.slice(5)-1]} ${YEAR}${ymk===cur?' · MTD':''}`;
   const p=(P.profile||[]).find(x=>x.sc===name)||{},r=isY?(P.ytd||[]).find(x=>x.sc===name):months.find(x=>x.sc===name&&x.ym===ymk);
-  const isNew=p.tenure_days!=null&&p.tenure_days<=90;
-  const ten=p.tenure_days==null?'–':p.tenure_days>=365?(p.tenure_days/365).toFixed(1)+' ปี':Math.round(p.tenure_days/30)+' เดือน';
+  const tdays=ppTenureDays(p),isNew=tdays!=null&&tdays<=90;
+  const ten=ppTenure(tdays);
   const prof=el('div',{class:'ppprof'},el('div',{class:'ppbadge'},name.slice(0,1)),el('div',{},el('div',{class:'ppname'},name,isNew?el('span',{class:'pill ex',style:'margin-left:8px'},'New SC'):null),
     el('div',{class:'ppfacts'},...[['Code',p.code],['Level',p.level],['Start',thDate(p.start_date)],['Tenure',ten],['Area',p.area],['Home branch',p.home_branch]].map(([k,v])=>el('span',{},k+' ',el('b',{},v||'–'))))));
   const vals=P.values||[];
@@ -1401,7 +1404,7 @@ function ppSheet(name){
       el('td',{},el('b',{style:`color:${plv(x.avg,PSL)[2]}`},f2(x.avg))),...['SM','PK','RP','SK'].map(k=>el('td',{class:'muted'},f2(x[k]))),el('td',{class:'l wrap'},x.note||'–')))))):el('div',{class:'empty'},'ไม่มีการประเมินในช่วงนี้');
   // onboarding (new SC only)
   const ob=P.onboarding||[],stages=[...new Set(ob.map(x=>x.stage))];
-  const onb=isNew&&ob.length?[el('h3',{},`Onboarding · อยู่ในช่วง 90 วันแรก (วันที่ ${p.tenure_days})`),el('div',{class:'small muted'},'เป้าหมายตามช่วงเวลาจาก SC Passport สำหรับ SC ใหม่ · ยังไม่มีบันทึกการประเมินทดลองงานและการติ๊ก checklist'),
+  const onb=isNew&&ob.length?[el('h3',{},`Onboarding · อยู่ในช่วง 90 วันแรก (วันที่ ${tdays})`),el('div',{class:'small muted'},'เป้าหมายตามช่วงเวลาจาก SC Passport สำหรับ SC ใหม่ · ยังไม่มีบันทึกการประเมินทดลองงานและการติ๊ก checklist'),
     el('div',{class:'ppob'},...stages.map(s=>{const its=ob.filter(x=>x.stage===s);return el('div',{},el('h4',{},`${s} · ${its[0].phase}`),el('ul',{},...its.map(x=>el('li',{},x.item))));}))]:[];
   sheet(`${name} · SC Passport`,el('div',{class:'small muted'},pLabel+' · เปลี่ยนเดือน/YTD ได้จากแท็บ SC Passport'),prof,valBox,el('h3',{},'My Goal · Goal Setting 2026'),goal,kpis,trend,
     el('h3',{},'My Growth · จากการประเมิน SC ตั้งแต่ Jul'),growth,el('h3',{},`Coaching & Feedback · ${ev.length} ครั้ง`),log,...onb);
