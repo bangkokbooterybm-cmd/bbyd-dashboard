@@ -294,7 +294,9 @@ details.br[open] summary{border-bottom:1px solid var(--line)}
 .ppkey{display:inline-flex;align-items:center;gap:5px}.ppkey::before{content:"";width:9px;height:9px;border-radius:3px;background:var(--c)}
 .ppprof{display:flex;gap:14px;align-items:center;padding:12px 14px;border-radius:12px;background:linear-gradient(135deg,#24573F,#3B7354);color:#F4F1E6}
 .ppbadge{flex:none;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font:700 22px var(--disp);background:#C9A227;color:#1d2a22}
-.ppname{font:700 20px var(--disp)}.ppfacts{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;opacity:.92}.ppfacts b{font-weight:600;color:#fff}
+.ppname{font:700 20px var(--disp)}
+.ppimg{width:72px;height:90px;border-radius:12px;object-fit:cover;border:2px solid rgba(255,255,255,.85);background:#C9A227}
+.ppwho{display:inline-flex;align-items:center;gap:8px}.ppav{flex:none;width:28px;height:28px;border-radius:50%;object-fit:cover;background:var(--sunk);display:inline-block}.ppfacts{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;opacity:.92}.ppfacts b{font-weight:600;color:#fff}
 .ppval{border-radius:12px;padding:12px 14px;background:color-mix(in srgb,var(--c-pass) 10%,var(--surface));border:1px solid color-mix(in srgb,var(--c-pass) 30%,var(--line));display:flex;flex-direction:column;gap:8px}
 .ppval-h{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;align-items:baseline}.ppval-q{font-size:12px;color:var(--brass);font-style:italic}
 .ppval-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
@@ -1320,6 +1322,7 @@ const ppYM=()=>S.month>=7?ym(S.month):null;
 const ppTeamOf=br=>GSProc.scopeOfBranch(br)||(/^(PKC|PHC|SMU|SMA|JCP)/.test(br||'')?'UPC':br?'BKK':null);
 function ppFind(name){const P=ppCore();if(!P)return null;const pr=P.profile||[];const ex=pr.find(p=>p.sc===name);if(ex)return ex.sc;
   const k=nameKey(name),c=pr.filter(p=>nameKey(p.sc)===k);if(c.length===1)return c[0].sc;if(c.length>1){const t=c.find(p=>ppTeamOf(p.home_branch)===team());return (t||c[0]).sc;}return null;}
+function ppPhoto(n){return S.pp?.photos?.photos?.[n]||S.pp?.photos2?.photos?.[n]||null;}
 function ppTenureDays(p){if(!p||!p.start_date)return null;const d=Math.floor((Date.now()-new Date(p.start_date+'T00:00:00+07:00'))/864e5);return d<0?null:d;}
 function ppTenure(d){return d==null?'–':d<30?d+' วัน':d<365?Math.floor(d/30)+' เดือน':(d/365).toFixed(1)+' ปี';}
 function ppChip(s,why){return s==null?el('span',{class:'ppchip na',title:why||'รอข้อมูล'},'–'):el('span',{class:'ppchip',style:`background:${plv(s,PSL)[2]}`},sN(s));}
@@ -1343,7 +1346,7 @@ function viewPassport(){
   const th=(k,l,c)=>el('th',{class:c||null},el('button',{type:'button',class:'sortb'+(sk===k?' on':''),onclick:()=>{if(S.ppSort===k)S.ppDir=-(S.ppDir||-1);else{S.ppSort=k;S.ppDir=k==='sc'||k==='branch'||k==='level'?1:-1;}render();}},l,el('span',{class:'arr'},sk===k?(sd>0?' ▲':' ▼'):' ↕')));
   const tb=el('tbody');rows.forEach((r,i)=>{const L=r.total!=null?plv(r.total,PSL):null;
     tb.append(el('tr',{class:'click',tabindex:'0',onclick:()=>ppSheet(r.sc),onkeydown:e=>{if(e.key==='Enter')ppSheet(r.sc);}},
-      el('td',{class:'muted'},String(i+1)),el('td',{class:'l'},el('b',{},r.sc)),el('td',{class:'l muted'},r.branch||'–'),el('td',{class:'l small'},r.level||'–'),
+      el('td',{class:'muted'},String(i+1)),el('td',{class:'l'},el('span',{class:'ppwho'},ppPhoto(r.sc)?el('img',{class:'ppav',src:ppPhoto(r.sc),alt:''}):el('span',{class:'ppav'}),el('b',{},r.sc))),el('td',{class:'l muted'},r.branch||'–'),el('td',{class:'l small'},r.level||'–'),
       el('td',{class:'num small'},ppTenure(r.tenure),r.tenure!=null&&r.tenure<=90?el('span',{class:'pill ex',style:'margin-left:6px'},'New'):null),
       el('td',{class:'l num'},el('b',{style:L?`color:${L[2]}`:''},r.total!=null?r.total.toFixed(2):'–'),el('span',{class:'pptbar'},el('i',{style:`width:${(r.total||0)/5*100}%;background:${L?L[2]:'transparent'}`}))),
       el('td',{class:'l small'},r.band||'–'),el('td',{class:'num'},kb(r.sales)),el('td',{class:'num muted'},kb(r.target)),
@@ -1354,7 +1357,7 @@ function viewPassport(){
     el('div',{class:'stats'},stat(avg==null?'–':avg.toFixed(2),`คะแนนเฉลี่ย (${sc.length} คน)`),stat(String(sc.filter(r=>r.total>=4).length),'คะแนน ≥ 4.0'),stat(String(sc.filter(r=>r.total<3).length),'คะแนน < 3.0'),stat(`${wt.filter(r=>r.ach>=100).length}/${wt.length}`,'ยอดขายถึงเป้าส่วนตัว')),
     el('div',{class:'legend'},...PSL.map(L=>el('span',{class:'ppkey',style:`--c:${L[2]}`},`${L[1]} ${L[0]>=0?'≥'+L[0]:'<2'}`))),
     el('div',{class:'small muted'},'กดชื่อ SC เพื่อเปิดสมุดพกรายคน · SC Audit นับตามเดือนที่ระบุในฟอร์มประเมิน (ประจำเดือน) · ยอดขาย = ยอดส่วนตัวเทียบเป้าส่วนตัว · เดือนปัจจุบันเทียบเป้าถึงวันนี้ · เกณฑ์ที่ยังไม่มีข้อมูลไม่นับ แล้วคิดคะแนนจากน้ำหนักที่เหลือ'),
-    el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},el('th',{},'#'),th('sc','SC','l'),th('branch','Branch','l'),th('level','Level','l'),th('tenure','Tenure'),th('total','Total / 5','l'),th('band','Band','l'),th('sales','Sales'),th('target','Target'),th('ach','Ach %'),
+    el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},el('th',{},'#'),th('sc','SC','l'),th('branch','Branch','l'),th('level','Level','l'),th('tenure','อายุงาน'),th('total','Total / 5','l'),th('band','Band','l'),th('sales','Sales'),th('target','Target'),th('ach','Ach %'),
       ...PK.map(k=>th('s_'+k.k,`${k.sh} ${PW[k.k]}%`)),th('evals','Audit ครั้ง'))),tb)),
     rows.length?null:el('div',{class:'empty'},'ไม่มี SC ในทีมนี้ช่วงนี้'));
 }
@@ -1365,8 +1368,8 @@ function ppSheet(name){
   const p=(P.profile||[]).find(x=>x.sc===name)||{},r=isY?(P.ytd||[]).find(x=>x.sc===name):months.find(x=>x.sc===name&&x.ym===ymk);
   const tdays=ppTenureDays(p),isNew=tdays!=null&&tdays<=90;
   const ten=ppTenure(tdays);
-  const prof=el('div',{class:'ppprof'},el('div',{class:'ppbadge'},name.slice(0,1)),el('div',{},el('div',{class:'ppname'},name,isNew?el('span',{class:'pill ex',style:'margin-left:8px'},'New SC'):null),
-    el('div',{class:'ppfacts'},...[['Code',p.code],['Level',p.level],['Start',thDate(p.start_date)],['Tenure',ten],['Area',p.area],['Home branch',p.home_branch]].map(([k,v])=>el('span',{},k+' ',el('b',{},v||'–'))))));
+  const prof=el('div',{class:'ppprof'},(()=>{const u=ppPhoto(name);return u?el('img',{class:'ppbadge ppimg',src:u,alt:name}):el('div',{class:'ppbadge'},name.replace(/^[เแโใไ]/,'').slice(0,1));})(),el('div',{},el('div',{class:'ppname'},name,isNew?el('span',{class:'pill ex',style:'margin-left:8px'},'New SC'):null),
+    el('div',{class:'ppfacts'},...[['รหัสพนักงาน',p.code],['Level',p.level],['Start',thDate(p.start_date)],['อายุงาน',ten],['Area',p.area],['Home branch',p.home_branch]].map(([k,v])=>el('span',{},k+' ',el('b',{},v||'–'))))));
   const vals=P.values||[];
   const valBox=vals.length?el('section',{class:'ppval'},el('div',{class:'ppval-h'},el('span',{class:'eyebrow'},'BBY Values · คัมภีร์ของ SC'),el('span',{class:'ppval-q'},'“'+vals.map(v=>v.meaning).join(' ')+'”')),
     el('div',{class:'ppval-row'},...vals.map(v=>el('div',{},el('span',{class:'ppval-no'},'NO. '+v.no),el('b',{},v.title),el('span',{},v.meaning))))):null;
@@ -1434,7 +1437,7 @@ render();
   db.doc('sync/demand').onSnapshot(s=>{S.demand=s.exists?s.data():null;render();},err);
   db.doc('sync/sales').onSnapshot(s=>{S.sales=s.exists?s.data():null;render();},err);
   db.doc('sync/staff').onSnapshot(s=>{S.staff=s.exists?s.data():null;render();},err);
-  S.pp={};['core','evals','items'].forEach(k=>db.doc('passport/'+k).onSnapshot(s=>{S.pp={...S.pp,[k]:s.exists?s.data():null};render();},err));
+  S.pp={};['core','evals','items','photos','photos2'].forEach(k=>db.doc('passport/'+k).onSnapshot(s=>{S.pp={...S.pp,[k]:s.exists?s.data():null};render();},err));
   db.collection('stock').onSnapshot(q=>{S.stocks=q.docs.map(d=>d.data());render();},err);
 })();
 })();

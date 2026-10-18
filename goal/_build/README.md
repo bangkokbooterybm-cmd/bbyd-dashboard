@@ -15,4 +15,4 @@ Refresh (every 3 days, scheduled):
    then commit `goal/index.html` only.
 Never commit `_out/` or any downloaded data.
 
-SC Passport (`passport/core|evals|items`) is per-SC data incl. personal sales (approved for Sups 18 Oct 2026); no branch or company totals.
+SC Passport (`passport/core|evals|items|photos|photos2`) is per-SC data incl. personal sales (approved for Sups 18 Oct 2026); no branch or company totals.
