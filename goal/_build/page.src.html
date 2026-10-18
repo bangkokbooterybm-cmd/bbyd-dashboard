@@ -7,7 +7,7 @@
   --accent:#2F6B4F; --accent-soft:#DCEBE2; --brass:#8A6A1F; --brass-bg:#F3EAD2;
   --good:#2E7D4F; --good-bg:#DDF0E3; --orng:#C2571A; --orng-bg:#FBE3D3; --ylw:#A88408; --ylw-bg:#F6EDC6; --warn:#9A6A0C; --warn-bg:#F7EBCF; --bad:#B3412F; --bad-bg:#F6DEDA;
   --shadow:0 1px 2px rgba(23,33,28,.06),0 4px 14px rgba(23,33,28,.05);
-  --c-sales:#2E7D4F; --c-event:#B07A0A; --c-demand:#13867F; --c-focus:#C2571A; --c-visit:#2F6FB0; --c-audit:#7A4FB5; --c-exam:#B8860B; --c-mgr:#8A6A1F;
+  --c-sales:#2E7D4F; --c-event:#B07A0A; --c-demand:#13867F; --c-focus:#C2571A; --c-visit:#2F6FB0; --c-audit:#7A4FB5; --c-exam:#B8860B; --c-mgr:#8A6A1F; --c-pass:#2F6B4F;
   --disp:"Chakra Petch","IBM Plex Sans Thai",system-ui,sans-serif;
   --body:"IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;
 }
@@ -17,7 +17,7 @@
   --accent:#6FBF95; --accent-soft:#1F3A2C; --brass:#D9B866; --brass-bg:#3A3018;
   --good:#6FCB92; --good-bg:#1D3727; --orng:#F0955A; --orng-bg:#3F2616; --ylw:#E2C24E; --ylw-bg:#3A3212; --warn:#E3B45A; --warn-bg:#3A2F17; --bad:#EE8B79; --bad-bg:#3D211C;
   --shadow:0 1px 2px rgba(0,0,0,.3);
-  --c-sales:#6FCB92; --c-event:#E2C24E; --c-demand:#4FC7BE; --c-focus:#F0955A; --c-visit:#7FB2EE; --c-audit:#B79AE8; --c-exam:#E2C24E; --c-mgr:#D9B866;
+  --c-sales:#6FCB92; --c-event:#E2C24E; --c-demand:#4FC7BE; --c-focus:#F0955A; --c-visit:#7FB2EE; --c-audit:#B79AE8; --c-exam:#E2C24E; --c-mgr:#D9B866; --c-pass:#7CC79F;
 }}
 :root[data-theme="dark"]{
   color-scheme:dark;
@@ -25,7 +25,7 @@
   --accent:#6FBF95; --accent-soft:#1F3A2C; --brass:#D9B866; --brass-bg:#3A3018;
   --good:#6FCB92; --good-bg:#1D3727; --orng:#F0955A; --orng-bg:#3F2616; --ylw:#E2C24E; --ylw-bg:#3A3212; --warn:#E3B45A; --warn-bg:#3A2F17; --bad:#EE8B79; --bad-bg:#3D211C;
   --shadow:0 1px 2px rgba(0,0,0,.3);
-  --c-sales:#6FCB92; --c-event:#E2C24E; --c-demand:#4FC7BE; --c-focus:#F0955A; --c-visit:#7FB2EE; --c-audit:#B79AE8; --c-exam:#E2C24E; --c-mgr:#D9B866;
+  --c-sales:#6FCB92; --c-event:#E2C24E; --c-demand:#4FC7BE; --c-focus:#F0955A; --c-visit:#7FB2EE; --c-audit:#B79AE8; --c-exam:#E2C24E; --c-mgr:#D9B866; --c-pass:#7CC79F;
 }
 *{box-sizing:border-box}
 body{background:var(--ground);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.55;padding-inline:16px;padding-block:0 48px}
@@ -287,6 +287,40 @@ details.br[open] summary{border-bottom:1px solid var(--line)}
 .sheet[open]{animation:gb-up .24s cubic-bezier(.2,.7,.2,1)} .sheet[open]::backdrop{animation:gb-fade .24s ease-out}
 .toast:not([hidden]){animation:gb-toast-in .2s ease-out} .toast.out{animation:gb-toast-out .18s ease-in forwards}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after,::backdrop{animation:none!important;transition:none!important}}
+#view[data-tab=passport]{--tc:var(--c-pass)}
+.ppchip{display:inline-block;min-width:30px;text-align:center;font:600 12px var(--disp);padding:2px 7px;border-radius:99px;color:#fff}
+.ppchip.na{background:var(--sunk);color:var(--ink3)}
+.pptbar{display:inline-block;vertical-align:middle;width:56px;height:6px;margin-left:8px;border-radius:99px;background:var(--sunk);overflow:hidden}.pptbar i{display:block;height:100%}
+.ppkey{display:inline-flex;align-items:center;gap:5px}.ppkey::before{content:"";width:9px;height:9px;border-radius:3px;background:var(--c)}
+.ppprof{display:flex;gap:14px;align-items:center;padding:12px 14px;border-radius:12px;background:linear-gradient(135deg,#24573F,#3B7354);color:#F4F1E6}
+.ppbadge{flex:none;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font:700 22px var(--disp);background:#C9A227;color:#1d2a22}
+.ppname{font:700 20px var(--disp)}.ppfacts{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;opacity:.92}.ppfacts b{font-weight:600;color:#fff}
+.ppval{border-radius:12px;padding:12px 14px;background:color-mix(in srgb,var(--c-pass) 10%,var(--surface));border:1px solid color-mix(in srgb,var(--c-pass) 30%,var(--line));display:flex;flex-direction:column;gap:8px}
+.ppval-h{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;align-items:baseline}.ppval-q{font-size:12px;color:var(--brass);font-style:italic}
+.ppval-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.ppval-row>div{display:flex;flex-direction:column;gap:1px;border-left:3px solid #C9A227;padding-left:9px}
+.ppval-row b{font:600 14px var(--disp);color:var(--c-pass)}.ppval-row span{font-size:12px;color:var(--ink2)}.ppval-row .ppval-no{font:600 10px var(--disp);letter-spacing:.08em;color:var(--brass)}
+.ppgoal{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.ppring{flex:none;width:104px;height:104px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--c) calc(var(--p)*1%),var(--sunk) 0)}
+.ppring>div{width:80px;height:80px;border-radius:50%;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}.ppring b{font:700 24px var(--disp)}
+.ppheadline{font:600 14px var(--body)}
+.ppcomp{display:flex;height:10px;border-radius:99px;overflow:hidden;background:var(--sunk)}.ppcomp i{display:block;height:100%}
+.ppkpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.ppk{border:1px solid var(--line);border-top:4px solid var(--kc);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:4px;background:linear-gradient(170deg,color-mix(in srgb,var(--kc) 10%,var(--surface)) 0,var(--surface) 110px)}
+.ppk-h{display:flex;justify-content:space-between;gap:6px;align-items:baseline}.ppk-h b{font:600 13px var(--disp)}
+.ppbig{font:700 26px var(--disp);line-height:1.1}.ppbig small{font-size:12px;color:var(--ink3);font-weight:500}
+.ppk ul{list-style:none;margin:4px 0 0;padding:0;font-size:12px;display:flex;flex-direction:column;gap:1px}
+.ppk li{display:flex;justify-content:space-between;gap:8px;padding:1px 6px;border-radius:5px;color:var(--ink3)}.ppk li.on{background:color-mix(in srgb,var(--kc) 18%,var(--surface));color:var(--ink);font-weight:600}
+.pp2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.pptrend{display:flex;gap:10px;align-items:flex-end;height:120px;padding-top:4px}
+.ppc{flex:1;max-width:60px;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:3px}
+.ppc i{display:block;width:26px;border-radius:5px 5px 0 0}.ppc .tv{font:600 11px var(--disp);color:var(--ink2)}.ppc .tm{font-size:11px;color:var(--ink3)}
+.ppli{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.ppli li{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:6px 10px;border-radius:8px;border-left:4px solid var(--c);background:var(--sunk);font-size:13px}
+.ppli small{color:var(--ink3);font-size:11px}.ppli b{font:700 15px var(--disp);color:var(--c)}
+.ppob{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.ppob>div{background:var(--sunk);border-radius:10px;padding:10px 12px}.ppob h4{margin:0 0 6px;font:600 12px var(--body);color:var(--c-pass)}
+.ppob ul{margin:0;padding-left:16px;font-size:12px;display:flex;flex-direction:column;gap:2px}
 </style>
 
 <div class="wrap">
@@ -334,7 +368,7 @@ function aliasMap(){const out={};const add=(c,list)=>(list||[]).forEach(a=>{cons
 const rosterKeys=r=>{const am=aliasMap(),own=nameKey(r.name);return [own,...(r.aliases||[]).map(nameKey),...Object.keys(am).filter(k=>nameKey(am[k])===own)].filter(Boolean);};
 function canonOf(sc,ro){const k=nameKey(sc);const r=ro.find(x=>rosterKeys(x).includes(k));if(r)return nameKey(r.name);const am=aliasMap();return am[k]?nameKey(am[k]):k;}
 
-const S={auditSub:store.get('gs2.auditSub')||'cov',scope:null, /* no default: viewer picks a supervisor first */month:Number(store.get('gs2.month'))||(new Date().getFullYear()===YEAR?new Date().getMonth()+1:9),tab:store.get('gs2.tab')||'overview',
+const S={auditSub:store.get('gs2.auditSub')||'cov',scope:null, /* no default: viewer picks a supervisor first */month:Number(store.get('gs2.month'))||(new Date().getFullYear()===YEAR?new Date().getMonth()+1:9),tab:store.get('gs2.tab')||'overview',ppView:store.get('gs2.ppView')||'month',
   config:null,monthly:{},team:{},audit:null,demand:null,sales:null,staff:null,stocks:[],db:null,user:null,mcp:null,canAdmin:false,openBr:{}};
 const NO_SALES=!!window.__NO_SALES; // public snapshot: sales figures removed, events only
 const DEFAULT_CFG={supervisors:[{scope:'SENIOR',title:'Supervisor'},{scope:'BKK',title:'Supervisor BKK'},{scope:'UPC',title:'Supervisor UPC'}],roster:[],focus:[],discountPeriods:[],liveTargets:{}};
@@ -461,9 +495,9 @@ function focusStats(){
 
 /* ---------- header / tabs ---------- */
 const PRE_TXT='เริ่มบันทึกตั้งแต่ มิ.ย. 2569';
-const TAB_C={overview:'--accent',sales:'--c-sales',audit:'--c-audit',visit:'--c-visit',focus:'--c-focus',demand:'--c-demand',team:'--c-exam',league:'--c-exam',manager:'--c-mgr',settings:'--ink3'};
+const TAB_C={overview:'--accent',sales:'--c-sales',audit:'--c-audit',visit:'--c-visit',focus:'--c-focus',demand:'--c-demand',team:'--c-exam',league:'--c-exam',manager:'--c-mgr',settings:'--ink3',passport:'--c-pass'};
 const tcVar=k=>`var(${TAB_C[k]||'--accent'})`;
-const TABS=[['overview','Overview'],['sales',NO_SALES?'Events':'Sales & Events'],['audit','SC Audit'],['visit','Visit'],['focus','Focus Product'],['demand','Product Demand'],['team','SC Exam / All Star'],['league','League']];
+const TABS=[['overview','Overview'],['sales',NO_SALES?'Events':'Sales & Events'],['audit','SC Audit'],['passport','SC Passport'],['visit','Visit'],['focus','Focus Product'],['demand','Product Demand'],['team','SC Exam / All Star'],['league','League']];
 function renderHeader(){
   const seg=$('#scopeSeg');seg.replaceChildren();
   cfg().supervisors.forEach(s=>seg.append(el('button',{type:'button','aria-pressed':String(s.scope===S.scope),onclick:()=>{S.scope=s.scope;render();}},s.title)));
@@ -931,7 +965,9 @@ function scDetail(name){
     ...r.vals.map((v,j)=>el('td',{class:ms[j]===S.month?'cm':null},v==null?el('span',{class:'muted'},'–'):el('span',{class:'pill '+tone(v/5,.8,.6)},v.toFixed(1)))),
     el('td',{},deltaEl(r.chg)),el('td',{},r.team==null||r.now==null?'–':deltaEl(r.now-r.team)))));
   const list=el('div',{});all.forEach(a=>list.append(auditCard(a)));
+  const ppN=ppFind(name);
   sheet(`${name} · SC ทีม ${team()}`,
+    ppN?el('button',{class:'btn small',type:'button',style:'align-self:flex-start',onclick:()=>ppSheet(ppN)},'เปิด SC Passport →'):null,
     el('div',{class:'small muted'},`ทุกการประเมินตั้งแต่ ${MONTHS[ms[0]-1]} ถึง ${MONTHS[S.month-1]} ${YEAR} · ประเมินโดย Sup ทุกคน · ▲ ดีขึ้น ▼ แย่ลง ● เท่าเดิม`),
     cards,el('h3',{},'คะแนนเฉลี่ยรายเดือน'),tr,
     el('div',{class:'small muted'},byM.map(x=>`${MONTHS[x.m-1]} ${x.xs.length} ครั้ง${x.xs.length?' ('+[...new Set(x.xs.map(a=>'Sup'+evShort(a.ev)))].join(', ')+')':''}`).join(' · ')),
@@ -1264,7 +1300,114 @@ function viewManager(){
 }
 
 /* ---------- render ---------- */
-const VIEWS={league:viewLeague,manager:viewManager,overview:viewOverview,sales:viewSales,audit:viewAudit,visit:viewVisit,focus:viewFocus,demand:viewDemand,team:viewTeam,settings:viewSettings};
+/* ---------- SC Passport · ทุก SC · ยอดขายรายคนเท่านั้น ไม่มียอดรวมรายสาขา ---------- */
+const PW={sales:50,stock:10,vdd:10,exam:10,scaudit:10,audit:10};
+const PK=[
+ {k:'sales',t:'1.1 Sales Achievement',sh:'Sales',c:'var(--c-sales)',lad:[['≥105%',5],['100–104%',4.5],['90–99%',4],['85–89%',3],['<85%',2]],note:'เทียบเป้าส่วนตัว'},
+ {k:'stock',t:'2.1 Stock 100%',sh:'Stock',c:'var(--c-visit)',lad:[['100% (ไม่มีแจ้งสินค้าหาย)',5],['<100%',1]]},
+ {k:'vdd',t:'2.2 Reduce VDD',sh:'VDD',c:'var(--c-focus)',lad:[['5 ชิ้น/เดือน',5],['4 ชิ้น',4],['3 ชิ้น',3],['2 ชิ้น',2],['1 ชิ้น',1],['0 ชิ้น',0]],note:'ยอดส่วนตัว'},
+ {k:'exam',t:'3.1 SC Exam',sh:'Exam',c:'var(--c-exam)',lad:[['≥4.5',5],['4.0–4.49',4],['3.5–3.99',3],['<3.5',2]],note:'ปีละ 2 ครั้ง'},
+ {k:'scaudit',t:'3.2 SC Audit',sh:'SC Audit',c:'var(--c-audit)',lad:[['≥4.0',5],['3.5–3.99',4],['3.0–3.49',3],['<3.0',0]],note:'ประเมินโดย Supervisor'},
+ {k:'audit',t:'3.3 Audit',sh:'Audit',c:'var(--c-demand)',lad:[['ไม่มี compliance issue',5],['1 ครั้ง/ปี',3],['>1 ครั้ง/ปี',0]],note:'นับรวมรายปี'}];
+const PSL=[[4.5,'Excellent','var(--good)'],[4,'Good','var(--c-pass)'],[3.5,'Fair','var(--ylw)'],[3,'Standard','var(--warn)'],[2,'Below','var(--orng)'],[-1,'Critical','var(--bad)']];
+const PAL=[[100,'var(--good)'],[90,'var(--ylw)'],[80,'var(--orng)'],[-1,'var(--bad)']];
+const plv=(v,L)=>L.find(x=>v>=x[0]);
+const kb=v=>v==null?'–':v>=1e6?(v/1e6).toFixed(1)+'m':v>=1e3?Math.round(v/1e3)+'k':String(Math.round(v));
+const f2=v=>v==null?'–':(+v).toFixed(2);
+const sN=s=>s==null?'–':(Number.isInteger(s)?String(s):s.toFixed(1));
+const ppCore=()=>S.pp?.core||null;
+const ppYM=()=>S.month>=7?ym(S.month):null;
+const ppTeamOf=br=>GSProc.scopeOfBranch(br)||(/^(PKC|PHC|SMU|SMA|JCP)/.test(br||'')?'UPC':br?'BKK':null);
+function ppFind(name){const P=ppCore();if(!P)return null;const pr=P.profile||[];const ex=pr.find(p=>p.sc===name);if(ex)return ex.sc;
+  const k=nameKey(name),c=pr.filter(p=>nameKey(p.sc)===k);if(c.length===1)return c[0].sc;if(c.length>1){const t=c.find(p=>ppTeamOf(p.home_branch)===team());return (t||c[0]).sc;}return null;}
+function ppChip(s,why){return s==null?el('span',{class:'ppchip na',title:why||'รอข้อมูล'},'–'):el('span',{class:'ppchip',style:`background:${plv(s,PSL)[2]}`},sN(s));}
+function ppLabel(isY,cur){return isY?`YTD 2026 (Jul–${cur?MONTHS[+cur.slice(5)-1]:''})`:`${MONTHS[S.month-1]} ${YEAR}${ppYM()===cur?' · MTD':''}`;}
+function viewPassport(){
+  const P=ppCore(),isY=S.ppView==='ytd';
+  const seg=el('div',{class:'seg subtabs',role:'group'},...[['month','รายเดือน'],['ytd','YTD (ก.ค.–ปัจจุบัน)']].map(([k,l])=>el('button',{type:'button','aria-pressed':String((isY?'ytd':'month')===k),onclick:()=>{S.ppView=k;store.set('gs2.ppView',k);render();}},l)));
+  const tm=S.ppTeam||(S.scope==='BKK'||S.scope==='UPC'?S.scope:'ALL');
+  const tseg=el('div',{class:'seg subtabs',role:'group'},...[['ALL','ทุกทีม'],['BKK','BKK'],['UPC','UPC']].map(([k,l])=>el('button',{type:'button','aria-pressed':String(tm===k),onclick:()=>{S.ppTeam=k;render();}},l)));
+  if(!P)return el('div',{class:'panel'},el('h2',{},'SC Passport'),el('div',{class:'empty'},'ยังไม่มีข้อมูล Passport ในหน้านี้'));
+  const months=P.months||[],yms=[...new Set(months.map(r=>r.ym))].sort(),cur=yms[yms.length-1],ymk=ppYM();
+  const head=[el('h2',{},`SC Passport · ${ppLabel(isY,cur)}`),el('div',{class:'stamp'},'สมุดพก SC · ข้อมูลยอดขายถึง ',el('b',{},thDate(P.asof)),` · ประเมิน SC ถึง ${thDate(P.evalAsof)} · เริ่มนับ Jul 2026 · คะแนนเต็ม 5`),el('div',{class:'row'},seg,tseg)];
+  if(!isY&&!ymk)return el('div',{class:'panel'},...head,el('div',{class:'empty'},'Passport เริ่มนับตั้งแต่ Jul 2026 เลือกเดือน Jul ขึ้นไปจากเมนูด้านบน หรือกด YTD'));
+  if(!isY&&!yms.includes(ymk))return el('div',{class:'panel'},...head,el('div',{class:'empty'},`ยังไม่มีข้อมูลของ ${MONTHS[S.month-1]} ${YEAR}`));
+  const names=new Set((P.profile||[]).map(p=>p.sc));
+  let rows=(isY?P.ytd||[]:months.filter(r=>r.ym===ymk)).filter(r=>names.has(r.sc)).map(r=>({...r,tm:ppTeamOf(r.branch)}));
+  if(tm!=='ALL')rows=rows.filter(r=>r.tm===tm);
+  const sc=rows.filter(r=>r.total!=null),avg=mean(sc.map(r=>r.total)),wt=rows.filter(r=>r.ach!=null);
+  const sk=S.ppSort||'total',sd=S.ppDir||-1;
+  rows.sort((a,b)=>{const A=a[sk],B=b[sk];if(A==null&&B==null)return a.sc.localeCompare(b.sc,'th');if(A==null)return 1;if(B==null)return -1;return (typeof A==='string'?A.localeCompare(B,'th'):A-B)*sd||((b.ach??-1)-(a.ach??-1));});
+  const th=(k,l,c)=>el('th',{class:c||null},el('button',{type:'button',class:'sortb'+(sk===k?' on':''),onclick:()=>{if(S.ppSort===k)S.ppDir=-(S.ppDir||-1);else{S.ppSort=k;S.ppDir=k==='sc'||k==='branch'?1:-1;}render();}},l,el('span',{class:'arr'},sk===k?(sd>0?' ▲':' ▼'):' ↕')));
+  const tb=el('tbody');rows.forEach((r,i)=>{const L=r.total!=null?plv(r.total,PSL):null;
+    tb.append(el('tr',{class:'click',tabindex:'0',onclick:()=>ppSheet(r.sc),onkeydown:e=>{if(e.key==='Enter')ppSheet(r.sc);}},
+      el('td',{class:'muted'},String(i+1)),el('td',{class:'l'},el('b',{},r.sc)),el('td',{class:'l muted'},r.branch||'–'),
+      el('td',{class:'l num'},el('b',{style:L?`color:${L[2]}`:''},r.total!=null?r.total.toFixed(2):'–'),el('span',{class:'pptbar'},el('i',{style:`width:${(r.total||0)/5*100}%;background:${L?L[2]:'transparent'}`}))),
+      el('td',{class:'l small'},r.band||'–'),el('td',{class:'num'},kb(r.sales)),el('td',{class:'num muted'},kb(r.target)),
+      el('td',{class:'num',style:r.ach!=null?`color:${plv(r.ach,PAL)[1]};font-weight:600`:''},r.ach!=null?r.ach.toFixed(1)+'%':'ไม่มีเป้า'),
+      ...PK.map(k=>el('td',{},ppChip(r['s_'+k.k],k.k==='sales'&&r.ach==null?'ไม่มีเป้า':'รอข้อมูล'))),
+      el('td',{class:'num muted'},r.evals?String(r.evals):'–')));});
+  return el('div',{class:'panel'},...head,
+    el('div',{class:'stats'},stat(avg==null?'–':avg.toFixed(2),`คะแนนเฉลี่ย (${sc.length} คน)`),stat(String(sc.filter(r=>r.total>=4).length),'คะแนน ≥ 4.0'),stat(String(sc.filter(r=>r.total<3).length),'คะแนน < 3.0'),stat(`${wt.filter(r=>r.ach>=100).length}/${wt.length}`,'ยอดขายถึงเป้าส่วนตัว')),
+    el('div',{class:'legend'},...PSL.map(L=>el('span',{class:'ppkey',style:`--c:${L[2]}`},`${L[1]} ${L[0]>=0?'≥'+L[0]:'<2'}`))),
+    el('div',{class:'small muted'},'กดชื่อ SC เพื่อเปิดสมุดพกรายคน · SC Audit นับตามเดือนที่ระบุในฟอร์มประเมิน (ประจำเดือน) · ยอดขาย = ยอดส่วนตัวเทียบเป้าส่วนตัว · เดือนปัจจุบันเทียบเป้าถึงวันนี้ · เกณฑ์ที่ยังไม่มีข้อมูลไม่นับ แล้วคิดคะแนนจากน้ำหนักที่เหลือ'),
+    el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},el('th',{},'#'),th('sc','SC','l'),th('branch','Branch','l'),th('total','Total / 5','l'),th('band','Band','l'),th('sales','Sales'),th('target','Target'),th('ach','Ach %'),
+      ...PK.map(k=>th('s_'+k.k,`${k.sh} ${PW[k.k]}%`)),th('evals','Audit ครั้ง'))),tb)),
+    rows.length?null:el('div',{class:'empty'},'ไม่มี SC ในทีมนี้ช่วงนี้'));
+}
+function ppSheet(name){
+  const P=ppCore();if(!P)return;const isY=S.ppView==='ytd',months=P.months||[],yms=[...new Set(months.map(r=>r.ym))].sort(),cur=yms[yms.length-1];
+  let ymk=ppYM();if(!isY&&(!ymk||!yms.includes(ymk)))ymk=cur;
+  const pLabel=isY?ppLabel(true,cur):`${MONTHS[+ymk.slice(5)-1]} ${YEAR}${ymk===cur?' · MTD':''}`;
+  const p=(P.profile||[]).find(x=>x.sc===name)||{},r=isY?(P.ytd||[]).find(x=>x.sc===name):months.find(x=>x.sc===name&&x.ym===ymk);
+  const isNew=p.tenure_days!=null&&p.tenure_days<=90;
+  const ten=p.tenure_days==null?'–':p.tenure_days>=365?(p.tenure_days/365).toFixed(1)+' ปี':Math.round(p.tenure_days/30)+' เดือน';
+  const prof=el('div',{class:'ppprof'},el('div',{class:'ppbadge'},name.slice(0,1)),el('div',{},el('div',{class:'ppname'},name,isNew?el('span',{class:'pill ex',style:'margin-left:8px'},'New SC'):null),
+    el('div',{class:'ppfacts'},...[['Code',p.code],['Level',p.level],['Start',thDate(p.start_date)],['Tenure',ten],['Area',p.area],['Home branch',p.home_branch]].map(([k,v])=>el('span',{},k+' ',el('b',{},v||'–'))))));
+  const vals=P.values||[];
+  const valBox=vals.length?el('section',{class:'ppval'},el('div',{class:'ppval-h'},el('span',{class:'eyebrow'},'BBY Values · คัมภีร์ของ SC'),el('span',{class:'ppval-q'},'“'+vals.map(v=>v.meaning).join(' ')+'”')),
+    el('div',{class:'ppval-row'},...vals.map(v=>el('div',{},el('span',{class:'ppval-no'},'NO. '+v.no),el('b',{},v.title),el('span',{},v.meaning))))):null;
+  // goal
+  const t=r?r.total:null,L=t!=null?plv(t,PSL):null;
+  const comp=el('div',{class:'ppcomp'}),leg=el('div',{class:'legend'});
+  if(r&&t!=null&&r.coverage)PK.forEach(k=>{const s=r['s_'+k.k];if(s==null)return;const c=PW[k.k]*s/r.coverage;comp.append(el('i',{style:`width:${c/5*100}%;background:${k.c}`,title:`${k.sh} +${c.toFixed(2)}`}));leg.append(el('span',{class:'ppkey',style:`--c:${k.c}`},`${k.sh} +${c.toFixed(2)}`));});
+  const goal=el('div',{class:'ppgoal'},el('div',{class:'ppring',style:`--c:${L?L[2]:'var(--line)'};--p:${(t||0)/5*100}`},el('div',{},el('b',{class:'num'},t!=null?t.toFixed(2):'–'),el('span',{class:'small muted'},'of 5'))),
+    el('div',{style:'flex:1;min-width:220px;display:flex;flex-direction:column;gap:6px'},
+      el('div',{class:'ppheadline'},!r?`ไม่มีข้อมูลของ ${name} ในช่วงนี้`:t!=null?[el('span',{class:'ppchip',style:`background:${L[2]}`},L[1]),r.band?` อยู่กลุ่ม ${r.band} ของทีม`:'']:'ยังไม่คิดคะแนนรวม เพราะช่วงนี้ไม่มีเป้ายอดขายส่วนตัว'),
+      el('div',{class:'small muted'},pLabel+(r&&r.coverage?` · คิดจากเกณฑ์ที่มีข้อมูล ${r.coverage}% ของน้ำหนักทั้งหมด`:'')),comp,leg));
+  const kpis=el('div',{class:'ppkpis'},...PK.map(k=>{const s=r?r['s_'+k.k]:null;let big,cap;
+    if(k.k==='sales'&&r&&r.ach!=null){big=el('div',{class:'ppbig num',style:`color:${plv(r.ach,PAL)[1]}`},r.ach.toFixed(1)+'%',el('small',{},` · ${sN(s)}/5`));
+      cap=`Sales ${kb(r.sales)} · Target ${kb(r.target)}`+(!isY&&r.partial?` · เป้าถึงวันนี้ ${kb(r.pace_target)} · ทั้งเดือน ${r.ach_full}%`:'');}
+    else{big=el('div',{class:'ppbig num',style:s!=null?`color:${plv(s,PSL)[2]}`:'color:var(--ink3)'},sN(s),el('small',{},' / 5'));
+      cap=k.k==='sales'?(r&&r.sales?`Sales ${kb(r.sales)} · ไม่มีเป้าส่วนตัว`:'ไม่มีเป้าส่วนตัว'):k.k==='scaudit'?(r&&r.evals?`คะแนนประเมินเฉลี่ย ${f2(r.scaudit_avg)} (${r.evals} ครั้ง)`:'ยังไม่ถูกประเมินในช่วงนี้'):k.k==='stock'?'ไม่มีแจ้งสินค้าหาย':'รอข้อมูล';}
+    const on=s!=null?k.lad.findIndex(([,v])=>v===s):-1;
+    return el('div',{class:'ppk',style:`--kc:${k.c}`},el('div',{class:'ppk-h'},el('b',{},k.t),el('span',{class:'pill'},PW[k.k]+'%')),big,el('div',{class:'small muted'},cap),k.note?el('div',{class:'small muted'},k.note):null,
+      el('ul',{},...k.lad.map(([a,v],i)=>el('li',{class:i===on?'on':null},el('span',{},a),el('b',{},String(v))))));}));
+  // trend
+  const mine=months.filter(x=>x.sc===name).sort((a,b)=>a.ym<b.ym?-1:1);
+  const col=(m,h,c,lab)=>el('div',{class:'ppc'},el('span',{class:'tv num'},lab),el('i',{style:`height:${Math.max(3,Math.min(100,h))}%;background:${c}`}),el('span',{class:'tm'},MONTHS[+m.slice(5)-1]+(m===cur?'*':'')));
+  const trend=el('div',{class:'pp2'},
+    el('div',{},el('h3',{},'Sales Ach % รายเดือน'),el('div',{class:'pptrend'},...mine.map(x=>x.ach==null?col(x.ym,0,'var(--line)','–'):col(x.ym,x.ach/2,plv(x.ach,PAL)[1],x.ach.toFixed(0)+'%')))),
+    el('div',{},el('h3',{},'คะแนนรวม รายเดือน'),el('div',{class:'pptrend'},...mine.map(x=>x.total==null?col(x.ym,0,'var(--line)','–'):col(x.ym,x.total/5*100,plv(x.total,PSL)[2],x.total.toFixed(2))))));
+  // growth
+  const items=(S.pp?.items?.rows||[]).filter(x=>x.sc===name).sort((a,b)=>b.avg-a.avg||b.times-a.times);
+  const li=(x,c)=>el('li',{style:`--c:${c}`},el('span',{},x.item,el('small',{},` ${x.category} · ${x.times} ครั้ง`)),el('b',{class:'num'},x.avg.toFixed(2)));
+  const growth=items.length?el('div',{class:'pp2'},el('div',{},el('h3',{class:'h-have'},'จุดแข็ง · คะแนนสูงสุด 3 ข้อ'),el('ul',{class:'ppli'},...items.slice(0,3).map(x=>li(x,'var(--good)')))),
+    el('div',{},el('h3',{class:'h-miss'},'ต้องพัฒนา · คะแนนต่ำสุด 3 ข้อ'),el('ul',{class:'ppli'},...items.slice(-3).reverse().map(x=>li(x,'var(--bad)'))))):el('div',{class:'empty'},'ยังไม่ถูกประเมินตั้งแต่ Jul 2026');
+  // coaching log
+  let ev=(S.pp?.evals?.rows||[]).filter(x=>x.sc===name);const evYM=x=>x.ym||(x.date||'').slice(0,7);if(!isY)ev=ev.filter(x=>evYM(x)===ymk);ev.sort((a,b)=>a.date<b.date?1:-1);
+  const log=ev.length?el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},...['วันที่','ผู้ประเมิน','สาขา','เฉลี่ย','SM','PK','RP','SK','ข้อเสนอแนะ'].map((h,i)=>el('th',{class:i<3||i===8?'l':null},h)))),
+    el('tbody',{},...ev.map(x=>el('tr',{},el('td',{class:'l'},thDate(x.date),evYM(x)!==(x.date||'').slice(0,7)?el('div',{class:'small muted'},`นับเป็นของ ${MONTHS[+evYM(x).slice(5)-1]}`):null),el('td',{class:'l'},x.evaluator),el('td',{class:'l'},x.branch||'–'),
+      el('td',{},el('b',{style:`color:${plv(x.avg,PSL)[2]}`},f2(x.avg))),...['SM','PK','RP','SK'].map(k=>el('td',{class:'muted'},f2(x[k]))),el('td',{class:'l wrap'},x.note||'–')))))):el('div',{class:'empty'},'ไม่มีการประเมินในช่วงนี้');
+  // onboarding (new SC only)
+  const ob=P.onboarding||[],stages=[...new Set(ob.map(x=>x.stage))];
+  const onb=isNew&&ob.length?[el('h3',{},`Onboarding · อยู่ในช่วง 90 วันแรก (วันที่ ${p.tenure_days})`),el('div',{class:'small muted'},'เป้าหมายตามช่วงเวลาจาก SC Passport สำหรับ SC ใหม่ · ยังไม่มีบันทึกการประเมินทดลองงานและการติ๊ก checklist'),
+    el('div',{class:'ppob'},...stages.map(s=>{const its=ob.filter(x=>x.stage===s);return el('div',{},el('h4',{},`${s} · ${its[0].phase}`),el('ul',{},...its.map(x=>el('li',{},x.item))));}))]:[];
+  sheet(`${name} · SC Passport`,el('div',{class:'small muted'},pLabel+' · เปลี่ยนเดือน/YTD ได้จากแท็บ SC Passport'),prof,valBox,el('h3',{},'My Goal · Goal Setting 2026'),goal,kpis,trend,
+    el('h3',{},'My Growth · จากการประเมิน SC ตั้งแต่ Jul'),growth,el('h3',{},`Coaching & Feedback · ${ev.length} ครั้ง`),log,...onb);
+  const d=$('#sheet');if(d)d.style.setProperty('--tc','var(--c-pass)');
+}
+const VIEWS={passport:viewPassport,league:viewLeague,manager:viewManager,overview:viewOverview,sales:viewSales,audit:viewAudit,visit:viewVisit,focus:viewFocus,demand:viewDemand,team:viewTeam,settings:viewSettings};
 const SCOPE_SUB={SENIOR:'ภาพรวมทั้งหมด BKK + UPC',BKK:'BKK',UPC:'UPC'};
 function viewPick(){return el('div',{class:'panel',style:'max-width:800px'},el('h3',{},'เลือกดูข้อมูลของ Supervisor'),el('div',{class:'small muted'},'กดเลือกก่อนเพื่อแสดงข้อมูล เปลี่ยนได้ตลอดจากปุ่มด้านบน'),
   el('div',{class:'pick'},...cfg().supervisors.map(s=>el('button',{type:'button',onclick:()=>{S.scope=s.scope;render();window.scrollTo({top:0});}},el('b',{},s.title),el('span',{},SCOPE_SUB[s.scope]||'')))));}
@@ -1288,6 +1431,7 @@ render();
   db.doc('sync/demand').onSnapshot(s=>{S.demand=s.exists?s.data():null;render();},err);
   db.doc('sync/sales').onSnapshot(s=>{S.sales=s.exists?s.data():null;render();},err);
   db.doc('sync/staff').onSnapshot(s=>{S.staff=s.exists?s.data():null;render();},err);
+  S.pp={};['core','evals','items'].forEach(k=>db.doc('passport/'+k).onSnapshot(s=>{S.pp={...S.pp,[k]:s.exists?s.data():null};render();},err));
   db.collection('stock').onSnapshot(q=>{S.stocks=q.docs.map(d=>d.data());render();},err);
 })();
 })();

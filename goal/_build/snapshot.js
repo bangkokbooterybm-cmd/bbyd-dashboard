@@ -6,7 +6,7 @@ const [dataDir,password,out]=process.argv.slice(2);
 if(!dataDir||!password||!out){console.error('usage: node snapshot.js <dataDir> <password> <out.html>');process.exit(1);}
 const rd=f=>{const j=JSON.parse(fs.readFileSync(f,'utf8'));return j&&j.data&&typeof j.data==='object'&&!Array.isArray(j.data)?j.data:j;};
 const col=c=>{const d=path.join(dataDir,c);if(!fs.existsSync(d))return {};const o={};for(const f of fs.readdirSync(d))if(f.endsWith('.json'))o[f.slice(0,-5)]=rd(path.join(d,f));return o;};
-const docs={};for(const [c,o] of Object.entries({config:col('config'),sync:col('sync')}))for(const [id,v] of Object.entries(o))docs[`${c}/${id}`]=v;
+const docs={};for(const [c,o] of Object.entries({config:col('config'),sync:col('sync'),passport:col('passport')}))for(const [id,v] of Object.entries(o))docs[`${c}/${id}`]=v;
 const cols={monthly:col('monthly'),team:col('team'),stock:col('stock')};
 // public snapshot carries no sales figures: keep event days only
 (()=>{const c=docs['config/main'];if(c){delete c.liveTargets;delete c.discountPeriods;(c.supervisors||[]).forEach(v=>{v.annualTarget=null;});}
