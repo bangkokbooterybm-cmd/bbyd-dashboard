@@ -1356,7 +1356,7 @@ function viewPassport(){
   return el('div',{class:'panel'},...head,
     el('div',{class:'stats'},stat(avg==null?'–':avg.toFixed(2),`คะแนนเฉลี่ย (${sc.length} คน)`),stat(String(sc.filter(r=>r.total>=4).length),'คะแนน ≥ 4.0'),stat(String(sc.filter(r=>r.total<3).length),'คะแนน < 3.0'),stat(`${wt.filter(r=>r.ach>=100).length}/${wt.length}`,'ยอดขายถึงเป้าส่วนตัว')),
     el('div',{class:'legend'},...PSL.map(L=>el('span',{class:'ppkey',style:`--c:${L[2]}`},`${L[1]} ${L[0]>=0?'≥'+L[0]:'<2'}`))),
-    el('div',{class:'small muted'},'กดชื่อ SC เพื่อเปิดสมุดพกรายคน · SC Audit นับตามเดือนที่ระบุในฟอร์มประเมิน (ประจำเดือน) · ยอดขาย = ยอดส่วนตัวเทียบเป้าส่วนตัว · เดือนปัจจุบันเทียบเป้าถึงวันนี้ · เกณฑ์ที่ยังไม่มีข้อมูลไม่นับ แล้วคิดคะแนนจากน้ำหนักที่เหลือ'),
+    el('div',{class:'small muted'},'กดชื่อ SC เพื่อเปิดสมุดพกรายคน · SC Audit นับตามเดือนที่ระบุในฟอร์มประเมิน (ประจำเดือน) · ยอดขาย = ยอดส่วนตัวเทียบเป้าส่วนตัว · เดือนปัจจุบันเทียบเป้าทั้งเดือน (เดือนยังไม่จบ) · เกณฑ์ที่ยังไม่มีข้อมูลไม่นับ แล้วคิดคะแนนจากน้ำหนักที่เหลือ'),
     el('div',{class:'tscroll'},el('table',{},el('thead',{},el('tr',{},el('th',{},'#'),th('sc','SC','l'),th('home','สาขาหลัก','l'),th('level','Level','l'),th('tenure','อายุงาน'),th('total','Total / 5','l'),th('band','Band','l'),th('sales','Sales'),th('target','Target'),th('ach','Ach %'),
       ...PK.map(k=>th('s_'+k.k,`${k.sh} ${PW[k.k]}%`)),th('evals','Audit ครั้ง'))),tb)),
     rows.length?null:el('div',{class:'empty'},'ไม่มี SC ในทีมนี้ช่วงนี้'));
@@ -1383,7 +1383,7 @@ function ppSheet(name){
       el('div',{class:'small muted'},pLabel+(r&&r.coverage?` · คิดจากเกณฑ์ที่มีข้อมูล ${r.coverage}% ของน้ำหนักทั้งหมด`:'')),comp,leg));
   const kpis=el('div',{class:'ppkpis'},...PK.map(k=>{const s=r?r['s_'+k.k]:null;let big,cap;
     if(k.k==='sales'&&r&&r.ach!=null){big=el('div',{class:'ppbig num',style:`color:${plv(r.ach,PAL)[1]}`},r.ach.toFixed(1)+'%',el('small',{},` · ${sN(s)}/5`));
-      cap=`Sales ${kb(r.sales)} · Target ${kb(r.target)}`+(!isY&&r.partial?` · เป้าถึงวันนี้ ${kb(r.pace_target)} · ทั้งเดือน ${r.ach_full}%`:'');}
+      cap=`Sales ${kb(r.sales)} · Target ${kb(r.target)}`+((!isY&&r.partial||isY)&&r.pace_ach!=null?` · ความเร็วเทียบเป้าถึงวันนี้ ${r.pace_ach}% (เป้าถึงวันนี้ ${kb(r.pace_target)})`:'');}
     else{big=el('div',{class:'ppbig num',style:s!=null?`color:${plv(s,PSL)[2]}`:'color:var(--ink3)'},sN(s),el('small',{},' / 5'));
       cap=k.k==='sales'?(r&&r.sales?`Sales ${kb(r.sales)} · ไม่มีเป้าส่วนตัว`:'ไม่มีเป้าส่วนตัว'):k.k==='scaudit'?(r&&r.evals?`คะแนนประเมินเฉลี่ย ${f2(r.scaudit_avg)} (${r.evals} ครั้ง)`:'ยังไม่ถูกประเมินในช่วงนี้'):k.k==='stock'?'ไม่มีแจ้งสินค้าหาย':'รอข้อมูล';}
     const on=s!=null?k.lad.findIndex(([,v])=>v===s):-1;
