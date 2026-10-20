@@ -92,7 +92,7 @@ tr.click{cursor:pointer}tr.click:hover td{background:color-mix(in srgb,var(--gol
 .tcol .tv{font:600 12px var(--disp)}.tcol .tm{font-size:11px;color:var(--ink3)}
 .evl{display:flex;flex-direction:column;gap:6px}
 details.ev{border:1px solid var(--line);border-radius:10px}
-details.ev summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:96px 1fr 70px;gap:10px;align-items:center;padding:8px 12px;font-size:13px}
+details.ev summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:130px 1fr 70px;gap:10px;align-items:center;padding:8px 12px;font-size:13px}
 details.ev summary::-webkit-details-marker{display:none}
 details.ev .body{padding:8px 12px 12px;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;font-size:12.5px}
 .catbars{display:flex;gap:6px;flex-wrap:wrap}
@@ -143,7 +143,7 @@ dialog.sheet::backdrop{background:rgba(10,14,12,.5)}
 .as-big{font:700 34px var(--disp);line-height:1.1}.as-big small{font-size:14px;font-weight:600;opacity:.85}
 .as-ms{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.as-chip{font:600 12px var(--body);padding:3px 10px;border-radius:99px;background:linear-gradient(90deg,#E2B84A,#F3D27A);color:#3A2A05}
 .as-tr{display:flex;gap:6px;flex-wrap:wrap}.as-tc{display:flex;flex-direction:column;align-items:center;min-width:42px;padding:4px 6px;border-radius:8px;background:rgba(255,255,255,.08)}
-.as-tc b{font:700 16px var(--disp)}.as-tc span{font-size:10px;opacity:.8}.as-tc.top{background:linear-gradient(180deg,#F3D27A,#C9A227);color:#2A1C00}
+.as-tc{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:center;min-width:42px;padding:4px 6px;border-radius:8px;background:rgba(255,255,255,.08)}.as-tc:focus-visible{outline:2px solid #E6C75A;outline-offset:2px}.as-tc.sel{outline:2px solid #E6C75A;outline-offset:1px}.as-tc b{font:700 16px var(--disp)}.as-tc b.tier{font-size:12px;line-height:20px;white-space:nowrap}.as-tc span{font-size:10px;opacity:.8}.as-dt{margin-top:8px;padding:9px 12px;border-radius:10px;background:rgba(255,255,255,.1);border:1px solid rgba(230,199,90,.4);font-size:13px}.as-dt b{font:700 15px var(--disp);color:#F3D27A}.as-dt .try{margin-top:6px;padding:7px 10px;border-radius:8px;background:rgba(255,255,255,.12);border-left:4px solid #E6C75A;font-weight:600}.as-tc.top{background:linear-gradient(180deg,#F3D27A,#C9A227);color:#2A1C00}
 .as-bd{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
 .as-bd>div{background:rgba(255,255,255,.08);border:1px solid rgba(230,199,90,.35);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column}
 .as-bd b{font:600 14px var(--disp);color:#F3D27A}.as-bd span{font-size:11.5px;opacity:.85}
@@ -408,8 +408,11 @@ function allstarPanel(n,p){
   let bd=null;Object.entries(p.daily||{}).forEach(([ym,x])=>x.a.forEach((v,i)=>{if(v&&(!bd||v>bd.v))bd={v,ym,d:i+1,b:x.b[i]};}));
   if(bd)B.push([`ยอดสูงสุดต่อวัน ${fmtB(bd.v)}`,`${bd.d} ${ymS(bd.ym)} · ${bd.b}`]);
   const ev=(p.evals||[]).slice().sort((a,b)=>b.avg-a.avg)[0];
-  if(ev)B.push([`ประเมินสูงสุด ${f2(ev.avg)}/5`,`${thDate(ev.d)} · ${ev.ev}`]);
-  const trend=A.length?el('div',{class:'as-tr'},A.map(x=>el('div',{class:'as-tc'+(x.r<=5?' top':'')},el('b',{},x.r),el('span',{},ymS(x.ym))))):null;
+  if(ev)B.push([`ประเมินสูงสุด ${f2(ev.avg)}/5`,thDate(ev.d)]);
+  const tier=r=>r<=5?String(r):r<=10?'Top 10':r<=15?'Top 15':r<=20?'Top 20':'Top 30';
+  const sel=A.find(x=>x.ym===S.asSel);
+  const trend=A.length?el('div',{},el('div',{class:'as-tr'},A.map(x=>el('button',{type:'button',class:'as-tc'+(x.r<=5?' top':'')+(sel&&sel.ym===x.ym?' sel':''),'aria-pressed':String(!!sel&&sel.ym===x.ym),onclick:()=>{S.asSel=S.asSel===x.ym?null:x.ym;rerender();}},el('b',{class:x.r>5?'tier':''},tier(x.r)),el('span',{},ymS(x.ym))))),
+    sel?el('div',{class:'as-dt'},el('b',{},ymS(sel.ym)),` · คะแนน `,el('b',{},sel.s.toFixed(2)+'%'),` · ${sel.r<=5?'อันดับ '+sel.r:tier(sel.r)}`,sel.r>20?el('div',{class:'try'},'ต้องพยายามขึ้น'):null):el('div',{class:'small',style:'opacity:.7;margin-top:6px'},'กดที่เดือนเพื่อดูคะแนน')):null;
   return el('section',{class:'as'},el('div',{class:'as-top'},trophySVG(),el('div',{style:'flex:1;min-width:0'},head,trend?el('div',{class:'small',style:'opacity:.8;margin:8px 0 4px'},'อันดับ All Star ของคุณแต่ละเดือน'):null,trend)),
     B.length?el('div',{class:'as-bd'},B.map(([t,s])=>el('div',{},el('b',{},t),el('span',{},s)))):null);
 }
@@ -475,7 +478,7 @@ function evalPanel(p){
   const seg=el('div',{class:'seg'},[['cur',`ประเมินเดือน ${TH[cm-1]}`],['all','ประวัติย้อนหลัง (ตั้งแต่ ก.ค.)']].map(([k,l])=>el('button',{'aria-pressed':String(tab===k),onclick:()=>{S.evTab=k;rerender();}},l)));
   const list=el('div',{class:'evl'},ev.map(a=>{const c=cv(lv(a.avg,SCORE_LV)[2]);
     return el('details',{class:'ev'},el('summary',{},el('span',{},thDate(a.d)+(a.online?' · Online':''),a.d&&+a.d.slice(5,7)!==a.m?el('small',{class:'muted',style:'display:block;font-size:11px'},'นับเป็นของ '+TH[a.m-1]):null),
-        el('span',{},el('b',{},a.ev),el('span',{class:'muted'},' · '+a.br)),el('b',{style:`color:${c};text-align:right;font-family:var(--disp)`},f2(a.avg)+' / 5')),
+        el('span',{}),el('b',{style:`color:${c};text-align:right;font-family:var(--disp)`},f2(a.avg)+' / 5')),
       el('div',{class:'body'},...['SM','PK','RP','SK'].filter(k=>a.cats[k]!=null).map(k=>el('div',{},el('h3',{style:'display:flex;justify-content:space-between'},CN[k],el('span',{class:'muted',style:'font-weight:500'},'เฉลี่ย '+f2(a.cats[k]))),
           el('ul',{class:'items'},a.items.filter(i=>i[0]===k).map(i=>el('li',{style:i[2]>=4?'color:var(--l7)':i[2]<=2?'color:var(--l2)':''},el('span',{},i[1]),el('b',{},i[2])))))),
         a.note?el('div',{class:'note'},a.note):null));}));
