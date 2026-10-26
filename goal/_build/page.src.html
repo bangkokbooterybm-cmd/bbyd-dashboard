@@ -296,6 +296,24 @@ details.br[open] summary{border-bottom:1px solid var(--line)}
 .skc i{width:12px;height:12px;border-radius:50%;border:1px solid rgba(0,0,0,.25);flex:none}.skc b{font-weight:600;color:var(--ink2)}.skc.out{opacity:.5;text-decoration:line-through}
 @media (max-width:640px){.skr{grid-template-columns:1fr 40px 40px 46px}.skr .skcs{grid-column:1/-1}.skr.skhd>:last-child{display:none}}
 .fiopen{padding:10px 14px 14px;background:var(--sunk);border-top:1px solid var(--line)}
+:root{--dg-bg:#C8F5D6;--dg-bd:#22B35E;--dg-ink:#0F5A2E;--dn-bg:#F4F5F2;--dn-bd:#AEB6AC;--do-bg:#DCE8F7;--do-ink:#1F4E8C}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--dg-bg:#17432B;--dg-bd:#3FD582;--dg-ink:#A6F2C6;--dn-bg:#2A2E2B;--dn-bd:#7B857D;--do-bg:#1F3350;--do-ink:#A9CBF7}}
+:root[data-theme="dark"]{--dg-bg:#17432B;--dg-bd:#3FD582;--dg-ink:#A6F2C6;--dn-bg:#2A2E2B;--dn-bd:#7B857D;--do-bg:#1F3350;--do-ink:#A9CBF7}
+.fsum{display:flex;gap:6px;flex-wrap:wrap;margin-top:3px;font-size:11.5px}.fsum span{padding:0 6px;border-radius:99px;background:var(--sunk);color:var(--ink2)}.fsum .red{background:var(--bad-bg);color:var(--bad);font-weight:600}.fsum .grn{background:var(--dg-bg);color:var(--dg-ink);font-weight:600}
+.dkdr{grid-column:1/-1;background:var(--surface);border:2px solid var(--accent);border-radius:10px;padding:10px 14px 12px;position:relative;margin:6px 0 4px;--x:40px}
+.dkdr:before{content:"";position:absolute;top:-9px;left:var(--x);width:14px;height:14px;background:var(--surface);border-left:2px solid var(--accent);border-top:2px solid var(--accent);transform:rotate(45deg)}
+.dkh{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}.dkleg{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:11.5px}
+.dkr{display:grid;grid-template-columns:190px 1fr;gap:12px;padding:7px 0;border-top:1px solid var(--line);align-items:start}.dkr.dkhd{border-top:0;font-size:11px;color:var(--ink3);padding:2px 0}.dks{font-size:13px;padding-top:2px}
+.dkcs{display:flex;flex-wrap:wrap;gap:5px}
+.dkc{display:inline-flex;align-items:center;gap:6px;padding:2px 9px 2px 5px;border-radius:7px;border:2px solid var(--line);background:var(--surface);font-size:12px;white-space:nowrap}
+.dkc i{width:12px;height:12px;border-radius:50%;border:1px solid rgba(0,0,0,.25);flex:none}.dkc b{font-weight:600}
+.dkc.g{background:var(--dg-bg);border-color:var(--dg-bd);color:var(--dg-ink)}.dkc.n{background:var(--dn-bg);border-color:var(--dn-bd)}
+.dkc.r{border-color:var(--bad);background:var(--surface);padding-right:4px;cursor:pointer}.dkc.r b{color:var(--bad)}
+.dkc.x{background:var(--bad);border-color:var(--bad);color:#fff;padding-right:4px;cursor:pointer}.dkc.x b{color:#fff}.dkc.sel{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 40%,transparent)}
+.dkt{font-size:10.5px;font-weight:600;padding:1px 6px;border-radius:5px;margin-left:2px}.dkt.br{background:var(--do-bg);color:var(--do-ink)}.dkc.x .dkt{background:#fff;color:var(--bad)}
+.dkwh{margin-top:6px;font-size:12px;background:var(--sunk);border:1px dashed var(--line);border-radius:8px;padding:6px 10px;display:flex;flex-wrap:wrap;gap:4px 12px}.dkno{color:var(--bad);font-weight:600}
+@media (max-width:640px){.dkr{grid-template-columns:1fr}.dkr.dkhd>:last-child{display:none}}
+
 @media (max-width:900px){.fir{grid-template-columns:44px minmax(120px,1fr) 46px 46px 130px 58px 70px}.c-tot,.c-sh,.c-ns{display:none}}
 @media (max-width:560px){.fir{grid-template-columns:36px minmax(90px,1fr) 38px 38px 64px;gap:6px;padding:7px 8px}.fph,.fph img{width:34px;height:34px}.fir .spd,.fir>:nth-child(7),.c-nb{display:none}.stb{display:none}.ftiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .empty{color:var(--ink3);font-size:13px;padding:8px 0}
@@ -545,7 +563,12 @@ function posFor(){const end=`${curYM()}-31`;const l=(S.pos||[]).filter(p=>p.cutD
     c={cutDate:p.cutDate,fromDate:p.fromDate,tot:p.tot||null,_m:m,_g:p.grp?nestObj(p.grp):null,_sm:p.sm?nestObj(p.sm):null,_v:p.val?nestObj(p.val):null,_sk:p.sk?nestObj(p.sk):null};_posC.set(p,c);}
   return c;}
 // stock doc lookups: group pieces per branch, old pieces per branch/item/model, item -> product group
-function stockMaps(st){let x=_stkC.get(st);if(!x){x={g:st.grp?nestObj(st.grp):null,old:st.old?nestObj(st.old):null,sk:st.sk?nestObj(st.sk):null,ig:Object.fromEntries(st.itemGroup||[])};_stkC.set(st,x);}return x;}
+function stockMaps(st){let x=_stkC.get(st);if(!x){x={g:st.grp?nestObj(st.grp):null,old:st.old?nestObj(st.old):null,sk:st.sk?nestObj(st.sk):null,wh:(S.stockWh?.[st.stockDate]||st.wh)?Object.fromEntries((S.stockWh?.[st.stockDate]||st.wh).map(([k,v])=>[k,Object.fromEntries(v.split(',').map(p=>{const j=p.lastIndexOf(':');return [p.slice(0,j),+p.slice(j+1)];}))])):null,ig:Object.fromEntries(st.itemGroup||[])};_stkC.set(st,x);}return x;}
+// branch drawer sits under the row of branch boxes that holds the clicked box
+function placeDrawer(g){const d=g.querySelector('.dkdr'),on=g.querySelector('.ft.on');if(!d||!on)return;g.append(d);let last=on;[...g.children].forEach(t=>{if(t!==d&&t.offsetTop===on.offsetTop)last=t;});last.after(d);d.style.setProperty('--x',(on.offsetLeft-g.offsetLeft+24)+'px');}
+if(!window.__fiRz){window.__fiRz=1;addEventListener('resize',()=>document.querySelectorAll('[data-place]').forEach(placeDrawer));}
+const PLACE_TH={'Head Office':'HO','Dubai Galleria AlWasl Shop':'Dubai','Turtle Village Shop':'Turtle Village','Porto De Phuket Shop':'Porto','HuaHin Naresdamri Shop':'HuaHin','Phuket Central Event':'PKC Event','Jungceylon Plaza Event':'JCP Event','Terminal Rama3 Shop':'Terminal Rama3','Terminal Rama 3 Event':'TMT Event'};
+const placeName=n=>PLACE_TH[n]||String(n).replace(/ Shop$/,'');
 /* ---------- header / tabs ---------- */
 const PRE_TXT='เริ่มบันทึกตั้งแต่ มิ.ย. 2569';
 const TAB_C={overview:'--accent',sales:'--c-sales',audit:'--c-audit',visit:'--c-visit',focus:'--c-focus',demand:'--c-demand',team:'--c-exam',league:'--c-exam',manager:'--c-mgr',settings:'--ink3',passport:'--c-pass'};
@@ -809,12 +832,12 @@ function viewFocus(){
   const P=posFor(),soldOf=(code,i)=>P?(P._m[code]?.[i]||0):null,SX=stockMaps(fs.f.s);
   // idle = pieces made 2024 or earlier whose model has no sale at that branch in the Odoo file
   const idleOf=(code,i)=>{if(!P||!P._sm||!SX.old)return null;const o=SX.old[code]?.[i];if(!o)return 0;const sm=P._sm[code]?.[i]||{};return Object.keys(o).reduce((a,m)=>a+(sm[m]?0:o[m]),0);};
-  const tile=(title,state,sold,left,note,idle)=>{
+  const tile=(title,state,sold,left,note,idle,extra)=>{
     const has=left>0,stv=sold!=null&&sold+left>0?sold/(sold+left):null;
     const l1=has?(sold!=null?`ขายได้ ${fmt(sold)} · เหลือ ${fmt(left)}`:`เหลือ ${fmt(left)} ชิ้น`):sold?`ขายหมดแล้ว (ขายได้ ${fmt(sold)})`:sold===0?'ไม่มีของ · ไม่มียอดขายในช่วงนี้':'ไม่มีของ';
     const l2=has&&sold!=null?(sold?`ขายออก ${pct(stv,0)}`:'ยังไม่มียอดขาย'):null;
     return el('div',{class:'ft '+state+(P?'':' nopos')},el('div',{class:'ft-h'},el('b',{},title),note?el('span',{class:'ft-s num'},note):null),
-      el('span',{class:'ft-l num'},l1),l2?el('span',{class:'ft-p num'},l2):null,idle?el('span',{class:'ft-i num'},`สต็อกนิ่ง ${fmt(idle)}`):null,has&&stv!=null?el('div',{class:'ft-bar'},el('i',{style:`width:${Math.round(stv*100)}%`})):null);
+      el('span',{class:'ft-l num'},l1),l2?el('span',{class:'ft-p num'},l2):null,idle?el('span',{class:'ft-i num'},`สต็อกนิ่ง ${fmt(idle)}`):null,has&&stv!=null?el('div',{class:'ft-bar'},el('i',{style:`width:${Math.round(stv*100)}%`})):null,extra||null);
   };
   const stOf=(sold,left)=>sold+left?sold/(sold+left):-1;
   const itemsOf=b=>{const S_=c=>soldOf(b.code,c)||0;
@@ -831,22 +854,39 @@ function viewFocus(){
         return tile(lbl(x.i),x.st,sd,x.left,note,idleOf(b.code,x.i));})),
       b.skip&&b.skip.length?el('div',{class:'small muted'},`ไม่ต้องวาง (ไม่นับ): ${b.skip.map(lbl).join(', ')}`):null,
       b.exempt.length?el('div',{class:'small muted'},'ยกเว้น = ของทั้งระบบไม่พอให้ทุกสาขา · สาขาที่ได้ยกเว้นเรียงจาก Tier C ก่อน แล้ว B และ A'):null);};
-  // skin type x colour for one focus item over the given branches: pieces sold (Odoo) and left (stock file)
-  const skinBox=(i,codes,selB,nAll)=>{
-    const agg={};const add=(m,k)=>{codes.forEach(c=>{const o=m?.[c]?.[i];if(!o)return;Object.entries(o).forEach(([sk,cs])=>Object.entries(cs).forEach(([co,n])=>{const a=((agg[sk]=agg[sk]||{})[co]=agg[sk][co]||{sold:0,left:0});a[k]+=n;}));});};
-    add(SX.sk,'left');add(P&&P._sk,'sold');
-    const head=el('div',{class:'skh'},el('b',{},'แยกตามหนังและสี'),el('span',{class:'small muted'},selB?` · ${selB} (${MAIN[selB].s})`:` · ทุกสาขา (${nAll})`),
-      selB?el('button',{type:'button',class:'btn ghost small',onclick:()=>{S.fiBr[i]=null;render();}},'ดูทุกสาขา'):el('span',{class:'small muted'},' · กดกล่องสาขาด้านล่างเพื่อดูเฉพาะสาขา'));
-    if(!SX.sk)return el('div',{class:'skbox'},head,el('div',{class:'empty'},'ไฟล์สต็อกชุดนี้ยังไม่มีข้อมูลหนัง/สี · อัปโหลดสต็อกใหม่ใน Settings'));
-    const rows=Object.entries(agg).map(([sk,cs])=>{const sold=Object.values(cs).reduce((a,x)=>a+x.sold,0),left=Object.values(cs).reduce((a,x)=>a+x.left,0);return {sk,cs,sold,left,tot:sold+left};}).sort((a,b)=>b.tot-a.tot);
-    if(!rows.length)return el('div',{class:'skbox'},head,el('div',{class:'empty'},'ไม่มีของและไม่มียอดขายในสาขานี้'));
-    const tb=el('div',{class:'skt'},el('div',{class:'skr skhd'},el('span',{},'หนัง'),el('span',{class:'r'},'Sold'),el('span',{class:'r'},'Left'),el('span',{class:'r'},'ขายออก'),el('span',{},'สี (ขายได้ / เหลือ)')));
-    rows.forEach(x=>{const st=x.tot?x.sold/x.tot:null;
-      const chips=Object.entries(x.cs).sort((a,b)=>(b[1].sold+b[1].left)-(a[1].sold+a[1].left)).map(([co,v])=>el('span',{class:'skc'+(v.left?'':' out'),title:v.left?'':'สีนี้หมดแล้ว'},el('i',{style:`background:${swatchCss(co)}`}),co,el('b',{class:'num'},`${v.sold} / ${v.left}`)));
-      tb.append(el('div',{class:'skr'},el('span',{class:'sks'},x.sk),el('span',{class:'r num'},P?fmt(x.sold):'–'),el('span',{class:'r num'},fmt(x.left)),
-        el('span',{class:'r num'},st==null||!P?'–':pct(st,0)),el('span',{class:'skcs'},...chips)));});
-    return el('div',{class:'skbox'},head,tb,el('div',{class:'small muted'},'ตัวเลขในสี = ขายได้ / เหลือ · สีที่ขีดจาง = ขายหมดแล้ว (เหลือ 0) · สีบนจุดเป็นสีโดยประมาณจากชื่อสี'));
-  };
+  // skin type x colour for one branch: green = sold and in stock, grey = in stock not sold yet, red = sold and out (refill) · red says where else it can be pulled from
+  const hasWh=!!SX.wh;
+  const whereOf=(i,code,sk,co)=>{const w=SX.wh?.[[i,sk,co].join('|')]||{},br=[],ot=[];let ho=0;Object.entries(w).forEach(([k,n])=>{if(k===code)return;if(k==='HO')ho+=n;else if(MAIN[k])br.push([k,n]);else ot.push([k,n]);});
+    const sum=a=>a.reduce((t,x)=>t+x[1],0);return {br,ot,ho,tot:sum(br)+ho+sum(ot)};};
+  const colorsOf=(i,code)=>{const a={},add=(m,k)=>{const o=m?.[code]?.[i];if(!o)return;Object.entries(o).forEach(([sk,cs])=>Object.entries(cs).forEach(([co,n])=>{const x=((a[sk]=a[sk]||{})[co]=a[sk][co]||{s:0,l:0});x[k]+=n;}));};
+    add(SX.sk,'l');add(P&&P._sk,'s');return a;};
+  const kindOf=v=>v.s&&v.l?'g':v.l?'n':v.s?'r':'n';
+  const sumOf=(i,code)=>{const a=colorsOf(i,code);let grn=0,red=0,x=0;Object.entries(a).forEach(([sk,cs])=>Object.entries(cs).forEach(([co,v])=>{if(v.s&&v.l)grn++;if(v.s&&!v.l){red++;if(hasWh&&!whereOf(i,code,sk,co).tot)x++;}}));return {sk:Object.keys(a).length,grn,red,x};};
+  const sumTags=(i,code)=>{if(!SX.sk)return null;const t=sumOf(i,code);if(!t.sk&&!t.red)return null;
+    return el('div',{class:'fsum'},t.sk?el('span',{},`หนัง ${t.sk} แบบ`):null,t.grn?el('span',{class:'grn'},`ขายดีมีของ ${t.grn}`):null,t.red?el('span',{class:'red'},`สีหมด ${t.red}`+(t.x?` · หมดทุกที่ ${t.x}`:'')):null);};
+  const chipEl=(i,code,sk,co,v)=>{const k=kindOf(v),key=[i,code,sk,co].join('|');let cl=k,tg=null;
+    if(k==='r'&&hasWh){const w=whereOf(i,code,sk,co);if(w.tot)tg=el('span',{class:'dkt br'},`มีที่อื่น ${w.tot}`);else{cl='x';tg=el('span',{class:'dkt'},'หมดทุกที่');}}
+    const c=el('span',{class:'dkc '+cl+(S.fiChip===key?' sel':''),title:k==='g'?'ขายได้และยังมีของ':k==='n'?'มีของ ยังไม่มียอดขาย':'ขายได้แต่ของหมด → เติม'},el('i',{style:`background:${swatchCss(co)}`}),co,' ',el('b',{class:'num'},`${P?v.s:'–'} / ${v.l}`),tg);
+    if(k==='r'&&hasWh){c.tabIndex=0;c.setAttribute('role','button');const f=e=>{e.stopPropagation();S.fiChip=S.fiChip===key?null:key;render();};c.addEventListener('click',f);c.addEventListener('keydown',e=>{if(e.key==='Enter')f(e);});}
+    return c;};
+  const whereLine=(i,code,sk,co)=>{const w=whereOf(i,code,sk,co),f=a=>a.slice().sort((x,y)=>y[1]-x[1]).map(([k,n])=>`${placeName(k)} ${n}`).join(' · ');
+    return el('div',{class:'dkwh'},el('span',{class:'muted'},`${co} · ${sk} มีที่:`),w.br.length?el('span',{},'สาขา: ',el('b',{},f(w.br))):null,w.ho?el('span',{},'HO: ',el('b',{},String(w.ho))):null,w.ot.length?el('span',{},'ที่อื่น: ',el('b',{},f(w.ot))):null,
+      !w.tot?el('span',{class:'dkno'},'ไม่มีที่ไหนเลย · ต้องสั่งผลิต'):null);};
+  const drawer=(i,code)=>{
+    const close=el('button',{type:'button',class:'btn ghost small',onclick:e=>{e.stopPropagation();S.fiBr[i]=null;S.fiChip=null;render();}},'✕ ปิด');
+    const head=el('div',{class:'dkh'},el('b',{},`${code} · ${MAIN[code].s} · ${lbl(i)}`),
+      el('div',{class:'dkleg'},el('span',{class:'dkc g'},el('i',{style:'background:#22B35E'}),'ขายได้ + มีของ'),el('span',{class:'dkc n'},el('i',{style:'background:#9a9a9a'}),'มีของ ยังขายไม่ได้'),
+        el('span',{class:'dkc r'},el('i',{style:'background:#9a9a9a'}),'ขายได้ แต่หมด',hasWh?el('span',{class:'dkt br'},'มีที่อื่น N'):null),hasWh?el('span',{class:'dkc x'},el('i',{style:'background:#9a9a9a'}),'หมดทุกที่'):null,close));
+    const mk=body=>el('div',{class:'dkdr'},head,...body);
+    if(!SX.sk)return mk([el('div',{class:'empty'},'ไฟล์สต็อกชุดนี้ยังไม่มีข้อมูลหนัง/สี · อัปโหลดสต็อกใหม่ใน Settings')]);
+    const rows=Object.entries(colorsOf(i,code)).map(([sk,cs])=>({sk,cs,n:Object.values(cs).reduce((a,v)=>a+v.s+v.l,0)})).sort((a,b)=>b.n-a.n);
+    if(!rows.length)return mk([el('div',{class:'empty'},'ไม่มีของและไม่มียอดขายในสาขานี้')]);
+    const O={g:0,n:1,r:2},tb=[el('div',{class:'dkr dkhd'},el('span',{},'หนัง'),el('span',{},'สี · ขายได้/เหลือ'))];
+    rows.forEach(x=>{const cs=Object.entries(x.cs).map(([co,v])=>({co,v,k:kindOf(v)})).sort((a,b)=>O[a.k]-O[b.k]||(b.v.s+b.v.l)-(a.v.s+a.v.l));
+      const selc=cs.find(c=>S.fiChip===[i,code,x.sk,c.co].join('|'));
+      tb.push(el('div',{class:'dkr'},el('b',{class:'dks'},x.sk),el('div',{},el('div',{class:'dkcs'},...cs.map(c=>chipEl(i,code,x.sk,c.co,c.v))),selc?whereLine(i,code,x.sk,selc.co):null)));});
+    tb.push(el('div',{class:'small muted'},'ตัวเลขในกล่อง = ขายได้ (ไฟล์ Odoo) / เหลือ (ไฟล์สต็อก) · เรียง เขียว → เทา → แดง · สีบนจุดเป็นสีโดยประมาณจากชื่อสี'+(hasWh?' · กดกล่องแดงเพื่อดูว่าสาขาไหนมีกี่ชิ้น':'')));
+    return mk(tb);};
   // item view: one row per focus item (photo, sold/left, sell-through vs its product group, speed), open to see every branch
   const itemView=()=>{
     // every main branch, whichever Sup is viewing: the items are compared across the whole company
@@ -883,12 +923,14 @@ function viewFocus(){
         el('span',{class:'r num c-nb'},String(r.nbr),r.gap?el('span',{class:'gp'},` ขาด ${r.gap}`):null)));
       if(op){const O={miss:0,ex:1,have:2},bs=r.bs.slice().sort((x,y)=>O[x.st]-O[y.st]||((y.sold||0)-(x.sold||0)));
         S.fiBr=S.fiBr||{};const selB=S.fiBr[r.i]&&r.bs.some(x=>x.b.code===S.fiBr[r.i])?S.fiBr[r.i]:null;
-        box.append(el('div',{class:'fiopen'},skinBox(r.i,selB?[selB]:r.bs.map(x=>x.b.code),selB,r.bs.length),
-          el('div',{class:'ftiles'},...bs.map(x=>{const t=tile(x.b.code,x.st,x.sold,x.left,(x.st==='miss'?'ขาด · ':x.st==='ex'?'ยกเว้น · ':'')+MAIN[x.b.code].s,x.idle);if(!mine(x.b.code))t.classList.add('oth');
-            t.classList.add('pick');if(selB===x.b.code)t.classList.add('on');t.tabIndex=0;t.title='กดเพื่อดูหนังและสีของสาขานี้';
-            const f=()=>{S.fiBr[r.i]=selB===x.b.code?null:x.b.code;render();};t.addEventListener('click',f);t.addEventListener('keydown',e=>{if(e.key==='Enter')f();});return t;}))));}});
+        const grid=el('div',{class:'ftiles','data-place':'1'},...bs.map(x=>{const t=tile(x.b.code,x.st,x.sold,x.left,(x.st==='miss'?'ขาด · ':x.st==='ex'?'ยกเว้น · ':'')+MAIN[x.b.code].s,x.idle,sumTags(r.i,x.b.code));if(!mine(x.b.code))t.classList.add('oth');
+            t.classList.add('pick');if(selB===x.b.code)t.classList.add('on');t.tabIndex=0;t.title='กดเพื่อดูหนังและสีของสาขานี้ · กดอีกครั้งเพื่อปิด';
+            const f=()=>{S.fiBr[r.i]=selB===x.b.code?null:x.b.code;S.fiChip=null;render();};t.addEventListener('click',f);t.addEventListener('keydown',e=>{if(e.key==='Enter')f();});return t;}));
+        if(selB)grid.append(drawer(r.i,selB));
+        box.append(el('div',{class:'fiopen'},grid));}});
+    requestAnimationFrame(()=>document.querySelectorAll('[data-place]').forEach(placeDrawer));
     return [el('div',{class:'row'},el('span',{class:'small muted'},'แสดง'),fseg),box,
-      el('div',{class:'small muted'},`กดที่รุ่นเพื่อดูรายสาขา · Sell-through = ขายได้ ÷ (ขายได้ + เหลือ) · แสดงครบทุกสาขา (BKK + UPC) ทุก Sup เห็นเหมือนกัน${isSr()?'':' · กล่องสาขาของทีม '+team()+' เป็นสีเข้ม อีกทีมสีจาง'} · ขีดดำบนแท่ง = ค่าเฉลี่ยของกลุ่มสินค้าเดียวกันทุกสาขา · Fast = เร็วกว่ากลุ่ม 20% ขึ้นไป · Slow = ช้ากว่ากลุ่ม 20% ขึ้นไป · ของรวมไม่ถึง 10 ชิ้น = n/a · สต็อกนิ่ง = ผลิตปี 2024 ลงไป และรุ่นนั้นยังไม่มียอดขายที่สาขานั้นในไฟล์ Odoo · นับเฉพาะสาขาที่ต้องวางรุ่นนั้น`)];
+      el('div',{class:'small muted'},`กดที่รุ่นเพื่อดูรายสาขา · กดกล่องสาขาเพื่อดูหนังและสี · Sell-through = ขายได้ ÷ (ขายได้ + เหลือ) · แสดงครบทุกสาขา (BKK + UPC) ทุก Sup เห็นเหมือนกัน${isSr()?'':' · กล่องสาขาของทีม '+team()+' เป็นสีเข้ม อีกทีมสีจาง'} · ขีดดำบนแท่ง = ค่าเฉลี่ยของกลุ่มสินค้าเดียวกันทุกสาขา · Fast = เร็วกว่ากลุ่ม 20% ขึ้นไป · Slow = ช้ากว่ากลุ่ม 20% ขึ้นไป · ของรวมไม่ถึง 10 ชิ้น = n/a · สต็อกนิ่ง = ผลิตปี 2024 ลงไป และรุ่นนั้นยังไม่มียอดขายที่สาขานั้นในไฟล์ Odoo · นับเฉพาะสาขาที่ต้องวางรุ่นนั้น`)];
   };
   const card=b=>{
     const v=b.ok/b.req,t=fLv(v),bar=el('div',{class:'fbar '+t});bar.append(el('i',{style:`width:${Math.min(100,v*100)}%`}),el('b',{style:'left:90%'}));
@@ -964,7 +1006,9 @@ async function uploadStock(file,out){
     if(!cfg().focus.length)throw new Error('ยังไม่มีรายชื่อ Focus Product');
     const r=GSProc.parseStock(wb,cfg().focus,cfg().focusExclude);
     if(!r.stockDate)throw new Error('อ่านวันที่สต็อกไม่ได้ (ช่อง A1 แบบ "Stock: 25.09.69", ชื่อชีทแบบ "Stock 30.09.69" หรือวันที่ในแถวแรก)');
+    const whRows=r.wh;delete r.wh; // stock locations live in their own document (keeps each document small)
     await S.db.doc('stock/'+r.stockDate).set(Object.assign(r,{uploadedAt:Date.now(),fileName:file.name}));
+    if(whRows)await S.db.doc('stock/wh-'+r.stockDate).set({whFor:r.stockDate,wh:whRows,uploadedAt:Date.now()});
     out.replaceChildren(el('span',{},`บันทึกสต็อก ณ ${thDate(r.stockDate)} · ${fmt(r.rowsRead)} ชิ้น`));toast('อัปโหลดสต็อกแล้ว');
   }catch(e){out.replaceChildren(el('span',{class:'warn'},'อัปโหลดไม่สำเร็จ: '+(e.message||e.code||e)));}
 }
@@ -1588,7 +1632,7 @@ render();
   db.doc('sync/sales').onSnapshot(s=>{S.sales=s.exists?s.data():null;render();},err);
   db.doc('sync/staff').onSnapshot(s=>{S.staff=s.exists?s.data():null;render();},err);
   S.pp={};['core','evals','items','photos','photos2'].forEach(k=>db.doc('passport/'+k).onSnapshot(s=>{S.pp={...S.pp,[k]:s.exists?s.data():null};render();},err));
-  db.collection('stock').onSnapshot(q=>{S.stocks=q.docs.map(d=>d.data());render();},err);
+  db.collection('stock').onSnapshot(q=>{const all=q.docs.map(d=>d.data());S.stocks=all.filter(d=>d.stockDate);S.stockWh=Object.fromEntries(all.filter(d=>d.whFor).map(d=>[d.whFor,d.wh]));render();},err);
   db.collection('pos').onSnapshot(q=>{S.pos=q.docs.map(d=>d.data());render();},err);
 })();
 })();

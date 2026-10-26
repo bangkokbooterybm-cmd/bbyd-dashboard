@@ -18,3 +18,5 @@ Never commit `_out/` or any downloaded data.
 SC Passport (`passport/core|evals|items|photos|photos2`) is per-SC data incl. personal sales (approved for Sups 18 Oct 2026); no branch or company totals.
 
 Focus Product sales (`pos/<cutDate>`, uploaded from Odoo in the board's Settings) are published as pieces sold only; snapshot.js turns baht into shares of the 17-branch total.
+
+Focus Product stock locations (where each skin/colour sits, incl. Head Office and other shops) are stored in `stock/wh-<stockDate>` (field `wh`), separate from `stock/<stockDate>` to keep documents small. Save the whole `stock` collection so both come through.

@@ -261,6 +261,8 @@ var GSProc = (function () {
   function bump3(o, a, b, c, q) { o[a] = o[a] || {}; o[a][b] = o[a][b] || {}; o[a][b][c] = (o[a][b][c] || 0) + q; }
   var IDLE_YEAR = 2024; // made 2024 or earlier and no sale of that model at that branch = idle stock
   function nested(o) { return Object.keys(o).map(function (k) { var v = o[k]; return [k, typeof v === 'object' ? nested(v) : v]; }); }
+  // item -> skin -> colour -> place -> pieces, flattened to [['item|skin|colour','PLACE:n,PLACE:n']] to keep the saved document small
+  function flatWh(w) { var out = []; Object.keys(w).forEach(function (i) { Object.keys(w[i]).forEach(function (s) { Object.keys(w[i][s]).forEach(function (c) { var o = w[i][s][c]; out.push([i + '|' + s + '|' + c, Object.keys(o).sort().map(function (k) { return k + ':' + o[k]; }).join(',')]); }); }); }); return out; }
   // excl = { BRANCH: [focus item names the branch does not carry] } (e.g. Paragon has no sunglass)
   function parseStock(wb, focus, excl) {
     excl = excl || {}; var skip = function (k, item) { return (excl[k] || []).indexOf(item) >= 0; };
@@ -279,16 +281,20 @@ var GSProc = (function () {
     var match = makeMatcher(focus);
     var wToCode = {}; Object.keys(MAIN).forEach(function (k) { wToCode[MAIN[k].w] = k; });
     var poolSet = {}; POOL_EXTRA.forEach(function (w) { poolSet[w] = 1; }); Object.keys(MAIN).forEach(function (k) { poolSet[MAIN[k].w] = 1; });
-    var seen = {}, have = {}, pool = {}, rowsRead = 0, dup = 0, grp = {}, old = {}, ig = {}, sk = {};
+    var seen = {}, have = {}, pool = {}, rowsRead = 0, dup = 0, grp = {}, old = {}, ig = {}, sk = {}, wh = {}, ONLINE = { WhatsApp: 1, Website: 1, Shopee: 1, 'Central Online': 1, 'Online to Offline': 1 };
     Object.keys(MAIN).forEach(function (k) { have[k] = {}; grp[k] = {}; old[k] = {}; sk[k] = {}; });
     t.rows.forEach(function (r) {
       if (!r || !r[cB]) return;
       if (seen[r[cB]]) { dup++; return; } seen[r[cB]] = 1; // 1 barcode = 1 piece
       rowsRead++;
-      var w = norm(r[cBr]); if (!poolSet[w]) return;
-      var q = cQ >= 0 ? (+r[cQ] || 1) : 1, code = wToCode[w], g = groupOf(cG >= 0 ? r[cG] : null);
+      var w = norm(r[cBr]), q = cQ >= 0 ? (+r[cQ] || 1) : 1, item = match(r[cM], cG >= 0 ? r[cG] : null);
+      // where is each skin/colour: every physical place (17 branches, Head Office, other shops/events), not the online channels
+      if (item && !ONLINE[w] && w) { var wl = wToCode[w] || (w === 'Head Office' ? 'HO' : w), ws = skinType(cSk >= 0 ? r[cSk] : ''), wc = colorOf(cCo >= 0 ? r[cCo] : '');
+        var w1 = wh[item] = wh[item] || {}, w2 = w1[ws] = w1[ws] || {}, w3 = w2[wc] = w2[wc] || {}; w3[wl] = (w3[wl] || 0) + q; }
+      if (!poolSet[w]) return;
+      var code = wToCode[w], g = groupOf(cG >= 0 ? r[cG] : null);
       if (code && g) grp[code][g] = (grp[code][g] || 0) + q;
-      var item = match(r[cM], cG >= 0 ? r[cG] : null); if (!item) return;
+      if (!item) return;
       pool[item] = (pool[item] || 0) + q;
       if (g) { ig[item] = ig[item] || {}; ig[item][g] = (ig[item][g] || 0) + q; }
       if (code) { have[code][item] = (have[code][item] || 0) + q;
@@ -319,7 +325,7 @@ var GSProc = (function () {
     });
     var poolAll = {}; focus.forEach(function (f) { poolAll[f.name] = pool[f.name] || 0; });
     var itemGroup = Object.keys(ig).map(function (i) { var o = ig[i]; return [i, Object.keys(o).sort(function (a, b) { return o[b] - o[a]; })[0]]; });
-    return { stockDate: stockDate, stockLabel: a1, rowsRead: rowsRead, dupBarcodes: dup, branches: branches, shortages: shortages, pool: poolAll, grp: nested(grp), old: nested(old), sk: nested(sk), itemGroup: itemGroup };
+    return { stockDate: stockDate, stockLabel: a1, rowsRead: rowsRead, dupBarcodes: dup, branches: branches, shortages: shortages, pool: poolAll, grp: nested(grp), old: nested(old), sk: nested(sk), wh: flatWh(wh), itemGroup: itemGroup };
   }
 
 
@@ -470,4 +476,4 @@ var GSProc = (function () {
   return { parseSales: parseSales, parseStaff: parseStaff, salesScope: salesScope, focusFromWorkbook: focusFromWorkbook, MAIN: MAIN, POOL_EXTRA: POOL_EXTRA, parseAudit: parseAudit, parseDemand: parseDemand, parseStock: parseStock, parsePOS: parsePOS, groupOf: groupOf, branchCode: branchCode, scopeOfPerson: scopeOfPerson, scopeOfBranch: scopeOfBranch, focusBase: focusBase };
 })();
 if (typeof module !== 'undefined') module.exports = GSProc;
-if (typeof module !== 'undefined') module.exports = GSProc;
+
