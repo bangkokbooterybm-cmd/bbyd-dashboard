@@ -834,7 +834,7 @@ function viewFocus(){
   const idleOf=(code,i)=>{if(!P||!P._sm||!SX.old)return null;const o=SX.old[code]?.[i];if(!o)return 0;const sm=P._sm[code]?.[i]||{};return Object.keys(o).reduce((a,m)=>a+(sm[m]?0:o[m]),0);};
   const tile=(title,state,sold,left,note,idle,extra)=>{
     const has=left>0,stv=sold!=null&&sold+left>0?sold/(sold+left):null;
-    const l1=has?(sold!=null?`ขายได้ ${fmt(sold)} · เหลือ ${fmt(left)}`:`เหลือ ${fmt(left)} ชิ้น`):sold?`ขายหมดแล้ว (ขายได้ ${fmt(sold)})`:sold===0?'ไม่มีของ · ไม่มียอดขายในช่วงนี้':'ไม่มีของ';
+    const l1=has?(sold!=null?`เหลือ ${fmt(left)} · ขายได้ ${fmt(sold)}`:`เหลือ ${fmt(left)} ชิ้น`):sold?`ขายหมดแล้ว (ขายได้ ${fmt(sold)})`:sold===0?'ไม่มีของ · ไม่มียอดขายในช่วงนี้':'ไม่มีของ';
     const l2=has&&sold!=null?(sold?`ขายออก ${pct(stv,0)}`:'ยังไม่มียอดขาย'):null;
     return el('div',{class:'ft '+state+(P?'':' nopos')},el('div',{class:'ft-h'},el('b',{},title),note?el('span',{class:'ft-s num'},note):null),
       el('span',{class:'ft-l num'},l1),l2?el('span',{class:'ft-p num'},l2):null,idle?el('span',{class:'ft-i num'},`สต็อกนิ่ง ${fmt(idle)}`):null,has&&stv!=null?el('div',{class:'ft-bar'},el('i',{style:`width:${Math.round(stv*100)}%`})):null,extra||null);
@@ -866,7 +866,7 @@ function viewFocus(){
     return el('div',{class:'fsum'},t.sk?el('span',{},`หนัง ${t.sk} แบบ`):null,t.grn?el('span',{class:'grn'},`ขายดีมีของ ${t.grn}`):null,t.red?el('span',{class:'red'},`สีหมด ${t.red}`+(t.x?` · หมดทุกที่ ${t.x}`:'')):null);};
   const chipEl=(i,code,sk,co,v)=>{const k=kindOf(v),key=[i,code,sk,co].join('|');let cl=k,tg=null;
     if(k==='r'&&hasWh){const w=whereOf(i,code,sk,co);if(w.tot)tg=el('span',{class:'dkt br'},`มีที่อื่น ${w.tot}`);else{cl='x';tg=el('span',{class:'dkt'},'หมดทุกที่');}}
-    const c=el('span',{class:'dkc '+cl+(S.fiChip===key?' sel':''),title:k==='g'?'ขายได้และยังมีของ':k==='n'?'มีของ ยังไม่มียอดขาย':'ขายได้แต่ของหมด → เติม'},el('i',{style:`background:${swatchCss(co)}`}),co,' ',el('b',{class:'num'},`${P?v.s:'–'} / ${v.l}`),tg);
+    const c=el('span',{class:'dkc '+cl+(S.fiChip===key?' sel':''),title:k==='g'?'ขายได้และยังมีของ':k==='n'?'มีของ ยังไม่มียอดขาย':'ขายได้แต่ของหมด → เติม'},el('i',{style:`background:${swatchCss(co)}`}),co,' ',el('b',{class:'num'},`${v.l} / ${P?v.s:'–'}`),tg);
     if(k==='r'&&hasWh){c.tabIndex=0;c.setAttribute('role','button');const f=e=>{e.stopPropagation();S.fiChip=S.fiChip===key?null:key;render();};c.addEventListener('click',f);c.addEventListener('keydown',e=>{if(e.key==='Enter')f(e);});}
     return c;};
   const whereLine=(i,code,sk,co)=>{const w=whereOf(i,code,sk,co),f=a=>a.slice().sort((x,y)=>y[1]-x[1]);
@@ -882,11 +882,11 @@ function viewFocus(){
     if(!SX.sk)return mk([el('div',{class:'empty'},'ไฟล์สต็อกชุดนี้ยังไม่มีข้อมูลหนัง/สี · อัปโหลดสต็อกใหม่ใน Settings')]);
     const rows=Object.entries(colorsOf(i,code)).map(([sk,cs])=>({sk,cs,n:Object.values(cs).reduce((a,v)=>a+v.s+v.l,0)})).sort((a,b)=>b.n-a.n);
     if(!rows.length)return mk([el('div',{class:'empty'},'ไม่มีของและไม่มียอดขายในสาขานี้')]);
-    const O={g:0,n:1,r:2},tb=[el('div',{class:'dkr dkhd'},el('span',{},'หนัง'),el('span',{},'สี · ขายได้/เหลือ'))];
+    const O={g:0,n:1,r:2},tb=[el('div',{class:'dkr dkhd'},el('span',{},'หนัง'),el('span',{},'สี · เหลือ/ขายได้'))];
     rows.forEach(x=>{const cs=Object.entries(x.cs).map(([co,v])=>({co,v,k:kindOf(v)})).sort((a,b)=>O[a.k]-O[b.k]||(b.v.s+b.v.l)-(a.v.s+a.v.l));
       const selc=cs.find(c=>S.fiChip===[i,code,x.sk,c.co].join('|'));
       tb.push(el('div',{class:'dkr'},el('b',{class:'dks'},x.sk),el('div',{},el('div',{class:'dkcs'},...cs.map(c=>chipEl(i,code,x.sk,c.co,c.v))),selc?whereLine(i,code,x.sk,selc.co):null)));});
-    tb.push(el('div',{class:'small muted'},'ตัวเลขในกล่อง = ขายได้ (ไฟล์ Odoo) / เหลือ (ไฟล์สต็อก) · เรียง เขียว → เทา → แดง · สีบนจุดเป็นสีโดยประมาณจากชื่อสี'+(hasWh?' · กดกล่องแดงเพื่อดูว่าสาขาไหนมีกี่ชิ้น':'')));
+    tb.push(el('div',{class:'small muted'},'ตัวเลขในกล่อง = เหลือ (ไฟล์สต็อก) / ขายได้ (ไฟล์ Odoo) · เรียง เขียว → เทา → แดง · สีบนจุดเป็นสีโดยประมาณจากชื่อสี'+(hasWh?' · กดกล่องแดงเพื่อดูว่าสาขาไหนมีกี่ชิ้น':'')));
     return mk(tb);};
   // item view: one row per focus item (photo, sold/left, sell-through vs its product group, speed), open to see every branch
   const itemView=()=>{
@@ -910,7 +910,7 @@ function viewFocus(){
     const fseg=el('div',{class:'seg subtabs',role:'group'},...[['all',`ทั้งหมด ${rows.length}`],['Fast',`Fast ${cnt('Fast')}`],['Normal',`Normal ${cnt('Normal')}`],['Slow',`Slow ${cnt('Slow')}`],['na',`ข้อมูลไม่พอ ${cnt('na')}`]].filter(x=>x[0]!=='na'||cnt('na')).map(([k,l])=>el('button',{type:'button','aria-pressed':String(ff===k),onclick:()=>{S.fiF=k;render();}},l)));
     const th=(k,l)=>el('button',{type:'button',class:'fis'+(so.k===k?' on':''),onclick:e=>{e.stopPropagation();S.fiSort=so.k===k?{k,d:-so.d}:{k,d:-1};render();}},l+(so.k===k?(so.d<0?' ▼':' ▲'):''));
     S.fiOpen=S.fiOpen||{};
-    const box=el('div',{class:'fitems'},el('div',{class:'fir fih'},el('span',{}),el('span',{},'Model'),el('span',{class:'r'},th('sold','Sold')),el('span',{class:'r'},th('left','Left')),el('span',{class:'r c-tot'},th('tot','Total')),
+    const box=el('div',{class:'fitems'},el('div',{class:'fir fih'},el('span',{}),el('span',{},'Model'),el('span',{class:'r'},th('left','Left')),el('span',{class:'r'},th('sold','Sold')),el('span',{class:'r c-tot'},th('tot','Total')),
       el('span',{class:'r'},th('st','Sell-through')),el('span',{}),el('span',{class:'r c-sh'},th('share','Share of Sales')),el('span',{class:'r c-ns'},th('ns','สต็อกนิ่ง')),el('span',{class:'r c-nb'},th('nbr','สาขาที่มีของ'))));
     const SPC={Fast:'var(--good)',Normal:'var(--ylw)',Slow:'var(--bad)'};
     list.forEach(r=>{const op=!!S.fiOpen[r.i],c=r.speed?SPC[r.speed]:'var(--ink3)',ph=FOCUS_PH[r.i];
@@ -918,7 +918,7 @@ function viewFocus(){
       box.append(el('button',{type:'button',class:'fir'+(op?' open':''),'aria-expanded':String(op),onclick:()=>{S.fiOpen[r.i]=!op;render();}},
         el('span',{class:'fph'},ph?el('img',{src:ph,alt:''}):null),
         el('span',{class:'fnm'},el('b',{},(op?'▾ ':'▸ ')+lbl(r.i)),el('small',{},r.g||'')),
-        el('span',{class:'r num'},r.sold==null?'–':fmt(r.sold)),el('span',{class:'r num'},fmt(r.left)),el('span',{class:'r num muted c-tot'},r.tot==null?'–':fmt(r.tot)),
+        el('span',{class:'r num'},fmt(r.left)),el('span',{class:'r num'},r.sold==null?'–':fmt(r.sold)),el('span',{class:'r num muted c-tot'},r.tot==null?'–':fmt(r.tot)),
         bar,el('span',{class:'spd',style:`background:${c}`},r.speed||'n/a'),
         el('span',{class:'r num c-sh'},r.share==null?'–':pct(r.share,1)),el('span',{class:'r num c-ns'},r.ns?el('b',{},fmt(r.ns)):'–'),
         el('span',{class:'r num c-nb'},String(r.nbr),r.gap?el('span',{class:'gp'},` ขาด ${r.gap}`):null)));
