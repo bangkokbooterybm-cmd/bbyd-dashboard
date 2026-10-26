@@ -311,7 +311,7 @@ details.br[open] summary{border-bottom:1px solid var(--line)}
 .dkc.r{border-color:var(--bad);background:var(--surface);padding-right:4px;cursor:pointer}.dkc.r b{color:var(--bad)}
 .dkc.x{background:var(--bad);border-color:var(--bad);color:#fff;padding-right:4px;cursor:pointer}.dkc.x b{color:#fff}.dkc.sel{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 40%,transparent)}
 .dkt{font-size:10.5px;font-weight:600;padding:1px 6px;border-radius:5px;margin-left:2px}.dkt.br{background:var(--do-bg);color:var(--do-ink)}.dkc.x .dkt{background:#fff;color:var(--bad)}
-.dkwh{margin-top:6px;font-size:12px;background:var(--sunk);border:1px dashed var(--line);border-radius:8px;padding:6px 10px;display:flex;flex-wrap:wrap;gap:4px 12px}.dkno{color:var(--bad);font-weight:600}
+.dkwh{margin-top:6px;font-size:12px;background:var(--sunk);border:1px dashed var(--line);border-radius:8px;padding:6px 10px;display:flex;flex-wrap:wrap;gap:4px 12px}.dkno{color:var(--bad);font-weight:600}.dkout,.dkout b{color:var(--bad)}
 @media (max-width:640px){.dkr{grid-template-columns:1fr}.dkr.dkhd>:last-child{display:none}}
 
 @media (max-width:900px){.fir{grid-template-columns:44px minmax(120px,1fr) 46px 46px 130px 58px 70px}.c-tot,.c-sh,.c-ns{display:none}}
@@ -567,7 +567,7 @@ function stockMaps(st){let x=_stkC.get(st);if(!x){x={g:st.grp?nestObj(st.grp):nu
 // branch drawer sits under the row of branch boxes that holds the clicked box
 function placeDrawer(g){const d=g.querySelector('.dkdr'),on=g.querySelector('.ft.on');if(!d||!on)return;g.append(d);let last=on;[...g.children].forEach(t=>{if(t!==d&&t.offsetTop===on.offsetTop)last=t;});last.after(d);d.style.setProperty('--x',(on.offsetLeft-g.offsetLeft+24)+'px');}
 if(!window.__fiRz){window.__fiRz=1;addEventListener('resize',()=>document.querySelectorAll('[data-place]').forEach(placeDrawer));}
-const PLACE_TH={'Head Office':'HO','Dubai Galleria AlWasl Shop':'Dubai','Turtle Village Shop':'Turtle Village','Porto De Phuket Shop':'Porto','HuaHin Naresdamri Shop':'HuaHin','Phuket Central Event':'PKC Event','Jungceylon Plaza Event':'JCP Event','Terminal Rama3 Shop':'Terminal Rama3','Terminal Rama 3 Event':'TMT Event'};
+const PLACE_TH={'Head Office':'HO','Dubai Galleria AlWasl Shop':'Dubai','Turtle Village Shop':'TVTS','Porto De Phuket Shop':'PDPS','HuaHin Naresdamri Shop':'HHNS','Marketing Store':'MKT','Phuket Central Event':'PKCE','Phuket Central Event2':'PKCE2','Jungceylon Plaza Event':'JCPE','Terminal Rama3 Shop':'TMTS','Terminal Rama 3 Event':'TMTE','Terminal 21 Event':'TMNE','Zen Event':'ZENE'};
 const placeName=n=>PLACE_TH[n]||String(n).replace(/ Shop$/,'');
 /* ---------- header / tabs ---------- */
 const PRE_TXT='เริ่มบันทึกตั้งแต่ มิ.ย. 2569';
@@ -869,8 +869,9 @@ function viewFocus(){
     const c=el('span',{class:'dkc '+cl+(S.fiChip===key?' sel':''),title:k==='g'?'ขายได้และยังมีของ':k==='n'?'มีของ ยังไม่มียอดขาย':'ขายได้แต่ของหมด → เติม'},el('i',{style:`background:${swatchCss(co)}`}),co,' ',el('b',{class:'num'},`${P?v.s:'–'} / ${v.l}`),tg);
     if(k==='r'&&hasWh){c.tabIndex=0;c.setAttribute('role','button');const f=e=>{e.stopPropagation();S.fiChip=S.fiChip===key?null:key;render();};c.addEventListener('click',f);c.addEventListener('keydown',e=>{if(e.key==='Enter')f(e);});}
     return c;};
-  const whereLine=(i,code,sk,co)=>{const w=whereOf(i,code,sk,co),f=a=>a.slice().sort((x,y)=>y[1]-x[1]).map(([k,n])=>`${placeName(k)} ${n}`).join(' · ');
-    return el('div',{class:'dkwh'},el('span',{class:'muted'},`${co} · ${sk} มีที่:`),w.br.length?el('span',{},'สาขา: ',el('b',{},f(w.br))):null,w.ho?el('span',{},'HO: ',el('b',{},String(w.ho))):null,w.ot.length?el('span',{},'ที่อื่น: ',el('b',{},f(w.ot))):null,
+  const whereLine=(i,code,sk,co)=>{const w=whereOf(i,code,sk,co),f=a=>a.slice().sort((x,y)=>y[1]-x[1]);
+    const mine_=[...f(w.br),...(w.ho?[['HO',w.ho]]:[])],out=f(w.ot);const item=(k,n,c)=>el('span',{class:c||''},`${placeName(k)} `,el('b',{},String(n)));
+    return el('div',{class:'dkwh'},el('span',{class:'muted'},`${co} · ${sk} มีที่:`),...mine_.map(([k,n])=>item(k,n)),...out.map(([k,n])=>item(k,n,'dkout')),
       !w.tot?el('span',{class:'dkno'},'ไม่มีที่ไหนเลย · ต้องสั่งผลิต'):null);};
   const drawer=(i,code)=>{
     const close=el('button',{type:'button',class:'btn ghost small',onclick:e=>{e.stopPropagation();S.fiBr[i]=null;S.fiChip=null;render();}},'✕ ปิด');
