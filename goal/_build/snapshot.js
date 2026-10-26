@@ -10,7 +10,7 @@ const docs={};for(const [c,o] of Object.entries({config:col('config'),sync:col('
 const cols={monthly:col('monthly'),team:col('team'),stock:col('stock'),pos:col('pos')};
 // Odoo focus-product sales (pos/<cutDate>): pieces only; baht values become shares of the 17-branch total so no sales figure is published
 for(const [k,v] of Object.entries(cols.pos)){const grand=Object.values(v.tot||{}).reduce((a,b)=>a+b,0)||1,f=x=>Math.round(x/grand*1e6)/1e6;
-  cols.pos[k]={cutDate:v.cutDate,fromDate:v.fromDate,sold:v.sold,grp:v.grp,sm:v.sm,
+  cols.pos[k]={cutDate:v.cutDate,fromDate:v.fromDate,sold:v.sold,grp:v.grp,sm:v.sm,sk:v.sk,
     val:(v.val||[]).map(([c,a])=>[c,a.map(([i,n])=>[i,f(n)])]),tot:Object.fromEntries(Object.entries(v.tot||{}).map(([c,n])=>[c,f(n)]))};}
 // public snapshot carries no sales figures: keep event days only
 (()=>{const c=docs['config/main'];if(c){delete c.liveTargets;delete c.discountPeriods;(c.supervisors||[]).forEach(v=>{v.annualTarget=null;});}

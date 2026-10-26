@@ -255,6 +255,10 @@ var GSProc = (function () {
   }
   // production year from the barcode: 2 digits after a letter, followed by 4 digits, + 1980
   function prodYear(lot) { var re = /[A-Za-z](\d{2})(?=\d{4})/g, m, last = null; lot = String(lot || ''); while ((m = re.exec(lot))) { last = m[1]; re.lastIndex = m.index + 1; } if (last == null) return null; var y = 1980 + +last; return y >= 2000 && y <= 2030 ? y : null; }
+  // skin type without size letter / (LTD) / (XTD): "Matte Crocodile Belly S (XTD)" -> "Matte Crocodile Belly" (same as the stock file's Skin Group)
+  function skinType(s) { return norm(s).replace(/\s*\((LTD|XTD)\)/ig, '').replace(/\s+[A-Z]$/, '').trim() || '(ไม่ระบุหนัง)'; }
+  function colorOf(s) { var m = norm(s).match(/Color:\s*([^,]+)/i); return m ? m[1].trim() : (norm(s).replace(/^Color:\s*/i, '') || '(ไม่ระบุสี)'); }
+  function bump3(o, a, b, c, q) { o[a] = o[a] || {}; o[a][b] = o[a][b] || {}; o[a][b][c] = (o[a][b][c] || 0) + q; }
   var IDLE_YEAR = 2024; // made 2024 or earlier and no sale of that model at that branch = idle stock
   function nested(o) { return Object.keys(o).map(function (k) { var v = o[k]; return [k, typeof v === 'object' ? nested(v) : v]; }); }
   // excl = { BRANCH: [focus item names the branch does not carry] } (e.g. Paragon has no sunglass)
@@ -269,13 +273,14 @@ var GSProc = (function () {
     stockDate = dmy(a1) || dmy(t.name);
     if (!stockDate) { for (var ci = 0; ci < 6 && !stockDate; ci++) { var cell = sheet[XLSX.utils.encode_cell({ r: 0, c: ci })]; if (cell && typeof cell.v === 'number') { var dd = toDate(cell.v); if (dd) stockDate = ymd(dd); } } }
     var h = t.header, find = function (names) { for (var i = 0; i < names.length; i++) { var k = h.indexOf(names[i]); if (k >= 0) return k; } return -1; };
+    var cSk = find(['Skin']), cCo = find(['Color', 'Colour']);
     var cB = find(['Barcode', 'Serial No.', 'Serial No']), cM = h.indexOf('Model'), cG = find(['Prod.Group', 'Product Category']), cBr = h.indexOf('Branch'), cQ = find(['Qty.', 'QTY', 'Qty']);
     if (!/stock/i.test(a1) || !/\d/.test(a1)) a1 = stockDate ? 'Stock: ' + stockDate : a1;
     var match = makeMatcher(focus);
     var wToCode = {}; Object.keys(MAIN).forEach(function (k) { wToCode[MAIN[k].w] = k; });
     var poolSet = {}; POOL_EXTRA.forEach(function (w) { poolSet[w] = 1; }); Object.keys(MAIN).forEach(function (k) { poolSet[MAIN[k].w] = 1; });
-    var seen = {}, have = {}, pool = {}, rowsRead = 0, dup = 0, grp = {}, old = {}, ig = {};
-    Object.keys(MAIN).forEach(function (k) { have[k] = {}; grp[k] = {}; old[k] = {}; });
+    var seen = {}, have = {}, pool = {}, rowsRead = 0, dup = 0, grp = {}, old = {}, ig = {}, sk = {};
+    Object.keys(MAIN).forEach(function (k) { have[k] = {}; grp[k] = {}; old[k] = {}; sk[k] = {}; });
     t.rows.forEach(function (r) {
       if (!r || !r[cB]) return;
       if (seen[r[cB]]) { dup++; return; } seen[r[cB]] = 1; // 1 barcode = 1 piece
@@ -287,6 +292,7 @@ var GSProc = (function () {
       pool[item] = (pool[item] || 0) + q;
       if (g) { ig[item] = ig[item] || {}; ig[item][g] = (ig[item][g] || 0) + q; }
       if (code) { have[code][item] = (have[code][item] || 0) + q;
+        bump3(sk[code], item, skinType(cSk >= 0 ? r[cSk] : ''), colorOf(cCo >= 0 ? r[cCo] : ''), q);
         var yr = prodYear(r[cB]), md = norm(r[cM]);
         if (yr == null || yr <= IDLE_YEAR) { old[code][item] = old[code][item] || {}; old[code][item][md] = (old[code][item][md] || 0) + q; } }
     });
@@ -313,7 +319,7 @@ var GSProc = (function () {
     });
     var poolAll = {}; focus.forEach(function (f) { poolAll[f.name] = pool[f.name] || 0; });
     var itemGroup = Object.keys(ig).map(function (i) { var o = ig[i]; return [i, Object.keys(o).sort(function (a, b) { return o[b] - o[a]; })[0]]; });
-    return { stockDate: stockDate, stockLabel: a1, rowsRead: rowsRead, dupBarcodes: dup, branches: branches, shortages: shortages, pool: poolAll, grp: nested(grp), old: nested(old), itemGroup: itemGroup };
+    return { stockDate: stockDate, stockLabel: a1, rowsRead: rowsRead, dupBarcodes: dup, branches: branches, shortages: shortages, pool: poolAll, grp: nested(grp), old: nested(old), sk: nested(sk), itemGroup: itemGroup };
   }
 
 
@@ -422,7 +428,8 @@ var GSProc = (function () {
     if (miss.length) throw new Error('ไฟล์ Odoo ไม่มีคอลัมน์: ' + miss.join(', '));
     var c = {}; t.h.forEach(function (n, k) { if (!(n in c)) c[n] = k; });
     var cD = c['Date'], cW = c['Company/Warehouse'], cL = c['Order Lines/Lot/serial Number'], cQ = c['Order Lines/Quantity'], cC = c['Order Lines/Product/Product Category'],
-      cM = c['Order Lines/Product/Model'], cP = c['Order Lines/Product/Sales Price'], cU = c['Order Lines/Unit Price'], cX = c['Order Lines/Discount (%)'];
+      cM = c['Order Lines/Product/Model'], cP = c['Order Lines/Product/Sales Price'], cU = c['Order Lines/Unit Price'], cX = c['Order Lines/Discount (%)'],
+      cSk = c['Order Lines/Product/Skin'], cAt = c['Order Lines/Product/Attribute Values'];
     var dkey = function (v) { if (typeof v === 'number') return v; var d = v instanceof Date ? v : null; if (!d) { var s = String(v).replace('T', ' '); var m = s.match(/^(\d{4})-(\d{2})-(\d{2})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/); if (m) d = new Date(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0), +(m[6] || 0)); else d = toDate(v); }
       return d ? (d - new Date(1899, 11, 30)) / 864e5 : null; };
     var cur = null, lines = [], maxD = null, minD = null, wToCode = {};
@@ -433,14 +440,15 @@ var GSProc = (function () {
       if (r[cD] != null && r[cD] !== '') { var dk = dkey(r[cD]); cur = { d: dk, w: norm(r[cW]) }; if (dk != null) { if (maxD == null || dk > maxD) maxD = dk; if (minD == null || dk < minD) minD = dk; } }
       if (!cur) return;
       var unit = (+r[cU] || 0) * (1 - (cX != null ? (+r[cX] || 0) : 0) / 100);
-      lines.push({ d: cur.d, w: cur.w, lot: norm(r[cL]), q: +r[cQ] || 0, cat: norm(r[cC]), m: norm(r[cM]), list: +r[cP] || 0, unit: unit });
+      lines.push({ d: cur.d, w: cur.w, lot: norm(r[cL]), q: +r[cQ] || 0, cat: norm(r[cC]), m: norm(r[cM]), list: +r[cP] || 0, unit: unit,
+        sk: skinType(cSk != null ? r[cSk] : ''), co: colorOf(cAt != null ? r[cAt] : '') });
     });
     // net by lot: barcode with net qty > 0 = 1 piece, counted at its latest positive line
     var byLot = {}, kept = [];
     lines.forEach(function (l) { if (l.lot) (byLot[l.lot] = byLot[l.lot] || []).push(l); else if (l.q > 0) kept.push(l); });
     Object.keys(byLot).forEach(function (k) { var ls = byLot[k], s = 0, best = null; ls.forEach(function (x) { s += x.q; if (x.q > 0 && (!best || x.d > best.d)) best = x; }); if (s > 0 && best) kept.push(best); });
-    var match = makeMatcher(focus), sold = {}, grp = {}, sm = {}, val = {}, tot = {}, diag = { lines: lines.length, pieces: 0, counted: 0, focusPcs: 0, otherWh: {} };
-    Object.keys(MAIN).forEach(function (k) { sold[k] = {}; grp[k] = {}; sm[k] = {}; val[k] = {}; tot[k] = 0; });
+    var match = makeMatcher(focus), sold = {}, grp = {}, sm = {}, val = {}, tot = {}, skc = {}, diag = { lines: lines.length, pieces: 0, counted: 0, focusPcs: 0, otherWh: {} };
+    Object.keys(MAIN).forEach(function (k) { sold[k] = {}; grp[k] = {}; sm[k] = {}; val[k] = {}; tot[k] = 0; skc[k] = {}; });
     kept.forEach(function (l) {
       if (!(l.list > 1 && l.unit > 0)) return;
       diag.pieces++;
@@ -450,12 +458,13 @@ var GSProc = (function () {
       var item = match(l.m, l.cat); if (!item) return;
       diag.focusPcs++; sold[code][item] = (sold[code][item] || 0) + 1; val[code][item] = (val[code][item] || 0) + l.unit;
       sm[code][item] = sm[code][item] || {}; sm[code][item][l.m] = (sm[code][item][l.m] || 0) + 1;
+      bump3(skc[code], item, l.sk, l.co, 1);
     });
     var day = function (v) { if (v == null) return null; var d = XLSX.SSF.parse_date_code(v); return d ? d.y + '-' + pad(d.m) + '-' + pad(d.d) : null; };
     var soldArr = {}; Object.keys(sold).forEach(function (k) { soldArr[k] = Object.keys(sold[k]).map(function (i) { return [i, sold[k][i]]; }); });
     diag.otherWh = Object.keys(diag.otherWh).sort(function (a, b) { return diag.otherWh[b] - diag.otherWh[a]; }).map(function (w) { return [w, diag.otherWh[w]]; });
     Object.keys(val).forEach(function (k) { Object.keys(val[k]).forEach(function (i) { val[k][i] = Math.round(val[k][i]); }); tot[k] = Math.round(tot[k]); });
-    return { cutDate: day(maxD), fromDate: day(minD), sold: soldArr, grp: nested(grp), sm: nested(sm), val: nested(val), tot: tot, diag: diag };
+    return { cutDate: day(maxD), fromDate: day(minD), sold: soldArr, grp: nested(grp), sm: nested(sm), val: nested(val), tot: tot, sk: nested(skc), diag: diag };
   }
 
   return { parseSales: parseSales, parseStaff: parseStaff, salesScope: salesScope, focusFromWorkbook: focusFromWorkbook, MAIN: MAIN, POOL_EXTRA: POOL_EXTRA, parseAudit: parseAudit, parseDemand: parseDemand, parseStock: parseStock, parsePOS: parsePOS, groupOf: groupOf, branchCode: branchCode, scopeOfPerson: scopeOfPerson, scopeOfBranch: scopeOfBranch, focusBase: focusBase };
