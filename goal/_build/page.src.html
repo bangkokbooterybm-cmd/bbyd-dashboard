@@ -538,9 +538,10 @@ function stockFor(){
 function focusStats(scope=S.scope){
   const f=stockFor();if(!f)return null;const X=cfg().focusExclude||{};
   // drop items a branch does not carry (config focusExclude) even from stock files saved before the rule
-  const br=mainIn(scope).map(k=>{const b={code:k,...f.s.branches[k]},ex=X[k]||[];if(!ex.length||!b.req)return b;
+  const names=new Set((cfg().focus||[]).map(x=>x.name)); // items cut from the focus list drop out of stock files saved before the cut
+  const br=mainIn(scope).map(k=>{const b={code:k,...f.s.branches[k]};if(!b.req)return b;const ex=[...(X[k]||[]),...[...b.have.map(h=>h[0]),...b.exempt,...b.missing].filter(i=>!names.has(i))];if(!ex.length)return b;
     const inHave=b.have.filter(h=>ex.includes(h[0])),inEx=b.exempt.filter(i=>ex.includes(i)),inMiss=b.missing.filter(i=>ex.includes(i)),n=inHave.length+inEx.length+inMiss.length;
-    return {...b,have:b.have.filter(h=>!ex.includes(h[0])),exempt:b.exempt.filter(i=>!ex.includes(i)),missing:b.missing.filter(i=>!ex.includes(i)),req:b.req-n,ok:b.ok-inHave.length-inEx.length,pcs:b.pcs-inHave.reduce((a,h)=>a+h[1],0),skip:ex};}).filter(b=>b.req);
+    return {...b,have:b.have.filter(h=>!ex.includes(h[0])),exempt:b.exempt.filter(i=>!ex.includes(i)),missing:b.missing.filter(i=>!ex.includes(i)),req:b.req-n,ok:b.ok-inHave.length-inEx.length,pcs:b.pcs-inHave.reduce((a,h)=>a+h[1],0),skip:X[k]||[]};}).filter(b=>b.req);
   const avg=br.length?br.reduce((a,b)=>a+b.ok/b.req,0)/br.length:null;
   return {f,br,avg,pass:br.filter(b=>b.ok/b.req>=0.9).length};
 }
