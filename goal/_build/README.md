@@ -9,10 +9,12 @@ Refresh (every 3 days, scheduled):
    demand.xlsx (1GI-TUQoQc3p5bHVmA_CsLvz_Ae23mSpdJWxJCO1cQIQ).
    A small sheet (demand) comes back inline instead of as a tool-results file: save it with
    `python3 -I goal/_build/extract_inline.py <fileId> <xlsxDir>/demand.xlsx`. Never skip a sheet.
-2. Save the artifact db (collections config, monthly, stock, team, sync, passport) with ArtifactData out_dir into a folder.
+2. Save the artifact db (collections config, monthly, stock, pos, team, sync, passport) with ArtifactData out_dir into a folder.
 3. `npm i xlsx@0.18.5` then `node goal/_build/run.js <xlsxDir> <dbDir> <password>`.
 4. run.js must not print "WARNING not refreshed". Write `_out/sync_*.json` back to the artifact db (collection `sync`),
    then commit `goal/index.html` only.
 Never commit `_out/` or any downloaded data.
 
 SC Passport (`passport/core|evals|items|photos|photos2`) is per-SC data incl. personal sales (approved for Sups 18 Oct 2026); no branch or company totals.
+
+Focus Product sales (`pos/<cutDate>`, uploaded from Odoo in the board's Settings) are published as pieces sold only; snapshot.js turns baht into shares of the 17-branch total.

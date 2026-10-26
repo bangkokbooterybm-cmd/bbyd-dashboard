@@ -7,7 +7,11 @@ if(!dataDir||!password||!out){console.error('usage: node snapshot.js <dataDir> <
 const rd=f=>{const j=JSON.parse(fs.readFileSync(f,'utf8'));return j&&j.data&&typeof j.data==='object'&&!Array.isArray(j.data)?j.data:j;};
 const col=c=>{const d=path.join(dataDir,c);if(!fs.existsSync(d))return {};const o={};for(const f of fs.readdirSync(d))if(f.endsWith('.json'))o[f.slice(0,-5)]=rd(path.join(d,f));return o;};
 const docs={};for(const [c,o] of Object.entries({config:col('config'),sync:col('sync'),passport:col('passport')}))for(const [id,v] of Object.entries(o))docs[`${c}/${id}`]=v;
-const cols={monthly:col('monthly'),team:col('team'),stock:col('stock')};
+const cols={monthly:col('monthly'),team:col('team'),stock:col('stock'),pos:col('pos')};
+// Odoo focus-product sales (pos/<cutDate>): pieces only; baht values become shares of the 17-branch total so no sales figure is published
+for(const [k,v] of Object.entries(cols.pos)){const grand=Object.values(v.tot||{}).reduce((a,b)=>a+b,0)||1,f=x=>Math.round(x/grand*1e6)/1e6;
+  cols.pos[k]={cutDate:v.cutDate,fromDate:v.fromDate,sold:v.sold,grp:v.grp,sm:v.sm,
+    val:(v.val||[]).map(([c,a])=>[c,a.map(([i,n])=>[i,f(n)])]),tot:Object.fromEntries(Object.entries(v.tot||{}).map(([c,n])=>[c,f(n)]))};}
 // public snapshot carries no sales figures: keep event days only
 (()=>{const c=docs['config/main'];if(c){delete c.liveTargets;delete c.discountPeriods;(c.supervisors||[]).forEach(v=>{v.annualTarget=null;});}
  const sl=docs['sync/sales'];if(sl){const ev=x=>x?{events:(x.events||[]).map(e=>({code:e.code,days:e.days})),eventDays:x.eventDays??null}:x;
@@ -47,4 +51,4 @@ if(saved)open_(saved,true).then(h=>{if(h)show(h);else{try{localStorage.removeIte
 document.getElementById('f').addEventListener('submit',async ev=>{ev.preventDefault();const pw=document.getElementById('p').value;const h=await open_(pw);
 if(h){if(document.getElementById('r').checked){try{localStorage.setItem('gb.pw',pw)}catch(e){}}show(h);}});</script></body></html>`;
 fs.mkdirSync(path.dirname(out),{recursive:true});fs.writeFileSync(out,wrap);
-console.log('wrote',out,(wrap.length/1024).toFixed(0)+'KB','docs',Object.keys(docs).length,'monthly',Object.keys(cols.monthly).length,'stock',Object.keys(cols.stock).length);
+console.log('wrote',out,(wrap.length/1024).toFixed(0)+'KB','docs',Object.keys(docs).length,'monthly',Object.keys(cols.monthly).length,'stock',Object.keys(cols.stock).length,'pos',Object.keys(cols.pos).length);

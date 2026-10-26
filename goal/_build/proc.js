@@ -219,15 +219,19 @@ var GSProc = (function () {
     var parts = String(name).replace(/\s+3\/4/, '').split('/');
     return parts.map(function (p) { return p.split(',')[0].replace(/\s+V\.?\s*\d+$/i, '').trim(); }).filter(Boolean);
   }
+  // Odoo models counted under each focus item, as agreed for the Offline Sales Review (26 Oct 2026). Items not listed here fall back to name-prefix matching.
+  var FOCUS_MODELS = {"Cervin With Handle": ["Cervin With Handle Bag"], "Barzaar 3/4": ["Barzaar Bag"], "Daisy Sling / Daisy Chain": ["Daisy Sling Bag", "Daisy Chain Bag", "Daisy Chain V.3 Bag"], "Maria": ["Maria Bag"], "Fairy Square": ["Fairy Square Bag"], "Lennox": ["Lennox Bag"], "Selena": ["Selena Bag"], "Richard": ["Richard Bag"], "Baby Maria": ["Baby Maria Bag"], "Sarah": ["Sarah Bag"], "Baby Goldmas": ["Baby Goldmas Bag"], "Austin": ["Austin Bag"], "Corey": ["Corey Bag"], "Stuffy": ["Stuffy Bag"], "Goldmas": ["Goldmas Bag"], "Rosalie": ["Rosalie Bag"], "Emma": ["Emma Bag"], "Grandmax": ["Grandmax Bag", "Grandmax V.2 Bag", "Grandmax V.3 Bag"], "Pillody": ["Pillody Bag"], "Vanna": ["Vanna Bag"], "Veera": ["Veera Bag"], "Travelling Bag": ["Travelling Bag", "Travelling Bag V.2"], "Carmen": ["Carmen Backpack"], "Belt Pin Buckle": ["Belt Pin Buckle", "Belt Pin Buckle Extra", "Belt Pin Buckle 2 Tone", "Belt Pin Buckle 2 Tone Extra"], "Belt Auto Buckle": ["Belt Auto Buckle", "Belt Auto Buckle Extra"], "Belt B Buckle": ["Belt B Buckle"], "Card Holder BBY": ["Card Holder BBY"], "Claudia, M,L, V2": ["Claudia M Purse", "Claudia L Purse", "Claudia V.2 Purse", "Claudia Purse"], "Round Zipper": ["Round Zipper Purse", "Round Zipper V.2 Purse", "Round Zipper C Purse", "Round Zipper For Card Purse", "Round Zipper With Handle Purse", "Mini Round Zipper Purse", "2 Round Zipper", "2 Round Zipper C"], "3 Puff": ["3 Puff Purse"], "2 Pollar For Card, V2": ["2 Pollar For Card", "2 Pollar For Card V.2"], "Round Zipper Open": ["Round Zipper Open Purse", "Round Zipper Open C Purse", "Round Zipper Open With Handle Purse"], "US Card, V 2": ["US Card Wallet", "US Card V.2 Wallet"], "Baby Wallet With Card Side": ["Baby Wallet With Card Side"], "US Coin": ["US Coin Wallet"], "SMC4945": ["SMC4945 Men Shoes"], "SMC4973": ["SMC4973 Men Shoes"], "SMC4968": ["SMC4968 Men Shoes"], "SMC4967": ["SMC4967 Men Shoes"], "SMD9826": ["SMD9826 Men Shoes"], "SMD3955": ["SMD3955 Men Shoes"], "SMD9821": ["SMD9821 Men Shoes"], "SWS5113": ["SWS5113 Lady Shoes"], "Key Chain Valent": ["Key Chain Valent"], "Key Chain": ["Key Chain"], "Key Chain Heart V.2": ["Key Chain Heart V.2"], "Magnet BBY": ["Magnet BBY"]};
   function makeMatcher(focus) {
-    var bases = [];
-    focus.forEach(function (f) { if (f.name === 'All Model') return; focusBase(f.name).forEach(function (b) { bases.push({ b: b, item: f.name }); }); });
+    var bases = [], exactModel = {};
+    focus.forEach(function (f) { var ms = FOCUS_MODELS[f.name]; if (ms) ms.forEach(function (m) { exactModel[m.toLowerCase()] = f.name; }); });
+    focus.forEach(function (f) { if (f.name === 'All Model' || FOCUS_MODELS[f.name]) return; focusBase(f.name).forEach(function (b) { bases.push({ b: b, item: f.name }); }); });
     bases.sort(function (a, b) { return b.b.length - a.b.length; });
     var exact = { 'Key Chain': true };
     var glasses = focus.some(function (f) { return f.name === 'All Model'; });
     return function (model, group) {
       if (glasses && group && /Glasses Case/i.test(group)) return 'All Model';
-      var m = norm(model); if (!m) return null;
+      var m = norm(model).replace(/\s+/g, ' '); if (!m) return null;
+      if (exactModel[m.toLowerCase()]) return exactModel[m.toLowerCase()];
       for (var i = 0; i < bases.length; i++) {
         var b = bases[i].b;
         if (exact[b]) { if (m.toLowerCase() === b.toLowerCase()) return bases[i].item; continue; }
@@ -236,6 +240,23 @@ var GSProc = (function () {
       return null;
     };
   }
+  // product group used for the sell-through benchmark (same mapping as the Offline Sales Review)
+  var GROUP_MAP = { 'PW Wallet': 'Wallet', 'PW Card Holder': 'Card Holder', 'PW Purse': 'Purse', 'BG Clutch': 'Clutch', 'BG Slingbag': 'Sling Bag', 'BG Handbag': 'Handbag',
+    'BG Shoulder Bag': 'Shoulder Bag', 'BG Backpack': 'Backpack', 'BG Document': 'Document Bag', 'BG Travel': 'Travel & Waist Bag', 'BG Waist Bag': 'Travel & Waist Bag', 'BG Golf Bag': 'Travel & Waist Bag',
+    'AC Key Chain': 'Key Chain', 'AC Glasses Case': 'Glasses Case', "AC Watch's Strap": 'Watch Strap', 'AC Watch Box': 'Watch Strap' };
+  function groupOf(cat) {
+    var c = norm(cat), sub = c.indexOf(' / ') >= 0 ? c.split(' / ').pop() : c;
+    if (!c || /^Model/.test(c)) return null; // display models
+    if (GROUP_MAP[sub]) return GROUP_MAP[sub];
+    if (/^Belt/.test(c)) return 'Belt';
+    if (/^SW/.test(sub)) return "Women's Shoes";
+    if (/^(SM|SU)/.test(sub) || /^SM/.test(c)) return "Men's Shoes";
+    return 'Other Accessories';
+  }
+  // production year from the barcode: 2 digits after a letter, followed by 4 digits, + 1980
+  function prodYear(lot) { var re = /[A-Za-z](\d{2})(?=\d{4})/g, m, last = null; lot = String(lot || ''); while ((m = re.exec(lot))) { last = m[1]; re.lastIndex = m.index + 1; } if (last == null) return null; var y = 1980 + +last; return y >= 2000 && y <= 2030 ? y : null; }
+  var IDLE_YEAR = 2024; // made 2024 or earlier and no sale of that model at that branch = idle stock
+  function nested(o) { return Object.keys(o).map(function (k) { var v = o[k]; return [k, typeof v === 'object' ? nested(v) : v]; }); }
   // excl = { BRANCH: [focus item names the branch does not carry] } (e.g. Paragon has no sunglass)
   function parseStock(wb, focus, excl) {
     excl = excl || {}; var skip = function (k, item) { return (excl[k] || []).indexOf(item) >= 0; };
@@ -253,17 +274,21 @@ var GSProc = (function () {
     var match = makeMatcher(focus);
     var wToCode = {}; Object.keys(MAIN).forEach(function (k) { wToCode[MAIN[k].w] = k; });
     var poolSet = {}; POOL_EXTRA.forEach(function (w) { poolSet[w] = 1; }); Object.keys(MAIN).forEach(function (k) { poolSet[MAIN[k].w] = 1; });
-    var seen = {}, have = {}, pool = {}, rowsRead = 0, dup = 0;
-    Object.keys(MAIN).forEach(function (k) { have[k] = {}; });
+    var seen = {}, have = {}, pool = {}, rowsRead = 0, dup = 0, grp = {}, old = {}, ig = {};
+    Object.keys(MAIN).forEach(function (k) { have[k] = {}; grp[k] = {}; old[k] = {}; });
     t.rows.forEach(function (r) {
       if (!r || !r[cB]) return;
       if (seen[r[cB]]) { dup++; return; } seen[r[cB]] = 1; // 1 barcode = 1 piece
       rowsRead++;
       var w = norm(r[cBr]); if (!poolSet[w]) return;
+      var q = cQ >= 0 ? (+r[cQ] || 1) : 1, code = wToCode[w], g = groupOf(cG >= 0 ? r[cG] : null);
+      if (code && g) grp[code][g] = (grp[code][g] || 0) + q;
       var item = match(r[cM], cG >= 0 ? r[cG] : null); if (!item) return;
-      var q = cQ >= 0 ? (+r[cQ] || 1) : 1;
       pool[item] = (pool[item] || 0) + q;
-      var code = wToCode[w]; if (code) have[code][item] = (have[code][item] || 0) + q;
+      if (g) { ig[item] = ig[item] || {}; ig[item][g] = (ig[item][g] || 0) + q; }
+      if (code) { have[code][item] = (have[code][item] || 0) + q;
+        var yr = prodYear(r[cB]), md = norm(r[cM]);
+        if (yr == null || yr <= IDLE_YEAR) { old[code][item] = old[code][item] || {}; old[code][item][md] = (old[code][item][md] || 0) + q; } }
     });
     var need = {}; // item -> list of main branches that must carry it
     focus.forEach(function (f) { need[f.name] = Object.keys(MAIN).filter(function (k) { return f[MAIN[k].t] && !skip(k, f.name); }); });
@@ -287,7 +312,8 @@ var GSProc = (function () {
       branches[k] = { req: req.length, have: h2, exempt: ex, missing: miss, ok: h2.length + ex.length, pcs: h2.reduce(function (a, x) { return a + x[1]; }, 0) };
     });
     var poolAll = {}; focus.forEach(function (f) { poolAll[f.name] = pool[f.name] || 0; });
-    return { stockDate: stockDate, stockLabel: a1, rowsRead: rowsRead, dupBarcodes: dup, branches: branches, shortages: shortages, pool: poolAll };
+    var itemGroup = Object.keys(ig).map(function (i) { var o = ig[i]; return [i, Object.keys(o).sort(function (a, b) { return o[b] - o[a]; })[0]]; });
+    return { stockDate: stockDate, stockLabel: a1, rowsRead: rowsRead, dupBarcodes: dup, branches: branches, shortages: shortages, pool: poolAll, grp: nested(grp), old: nested(old), itemGroup: itemGroup };
   }
 
 
@@ -381,6 +407,58 @@ var GSProc = (function () {
     return { people: people, diag: diag };
   }
 
-  return { parseSales: parseSales, parseStaff: parseStaff, salesScope: salesScope, focusFromWorkbook: focusFromWorkbook, MAIN: MAIN, POOL_EXTRA: POOL_EXTRA, parseAudit: parseAudit, parseDemand: parseDemand, parseStock: parseStock, branchCode: branchCode, scopeOfPerson: scopeOfPerson, scopeOfBranch: scopeOfBranch, focusBase: focusBase };
+  /* ---------- Odoo POS export (Point of Sale > Orders, with Order Lines) ---------- */
+  // pieces sold per main branch per focus item · 1 barcode = 1 piece (net by lot, returns cancel out) · skips list price <=1 and free lines
+  function parsePOS(wb, focus) {
+    var t = null;
+    for (var i = 0; i < wb.SheetNames.length && !t; i++) {
+      var rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[i]], { header: 1, raw: true, defval: null });
+      var h = (rows[0] || []).map(function (x) { return String(x == null ? '' : x).replace(/ /g, ' ').replace(/\s+/g, ' ').trim(); });
+      if (h.indexOf('Order Lines/Product/Model') >= 0) t = { name: wb.SheetNames[i], h: h, rows: rows.slice(1) };
+    }
+    if (!t) throw new Error('ไม่พบคอลัมน์ "Order Lines/Product/Model" (ต้อง export จาก Point of Sale > Orders พร้อม Order Lines)');
+    var need = ['Date', 'Company/Warehouse', 'Order Lines/Lot/serial Number', 'Order Lines/Quantity', 'Order Lines/Product/Product Category', 'Order Lines/Product/Model', 'Order Lines/Product/Sales Price', 'Order Lines/Unit Price'];
+    var miss = need.filter(function (n) { return t.h.indexOf(n) < 0; });
+    if (miss.length) throw new Error('ไฟล์ Odoo ไม่มีคอลัมน์: ' + miss.join(', '));
+    var c = {}; t.h.forEach(function (n, k) { if (!(n in c)) c[n] = k; });
+    var cD = c['Date'], cW = c['Company/Warehouse'], cL = c['Order Lines/Lot/serial Number'], cQ = c['Order Lines/Quantity'], cC = c['Order Lines/Product/Product Category'],
+      cM = c['Order Lines/Product/Model'], cP = c['Order Lines/Product/Sales Price'], cU = c['Order Lines/Unit Price'], cX = c['Order Lines/Discount (%)'];
+    var dkey = function (v) { if (typeof v === 'number') return v; var d = v instanceof Date ? v : null; if (!d) { var s = String(v).replace('T', ' '); var m = s.match(/^(\d{4})-(\d{2})-(\d{2})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/); if (m) d = new Date(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0), +(m[6] || 0)); else d = toDate(v); }
+      return d ? (d - new Date(1899, 11, 30)) / 864e5 : null; };
+    var cur = null, lines = [], maxD = null, minD = null, wToCode = {};
+    Object.keys(MAIN).forEach(function (k) { wToCode[MAIN[k].w] = k; });
+    t.rows.forEach(function (r) {
+      if (!r) return;
+      if ((r[cM] == null || r[cM] === '') && (r[cP] == null || r[cP] === '')) return; // trailing "Part:" rows
+      if (r[cD] != null && r[cD] !== '') { var dk = dkey(r[cD]); cur = { d: dk, w: norm(r[cW]) }; if (dk != null) { if (maxD == null || dk > maxD) maxD = dk; if (minD == null || dk < minD) minD = dk; } }
+      if (!cur) return;
+      var unit = (+r[cU] || 0) * (1 - (cX != null ? (+r[cX] || 0) : 0) / 100);
+      lines.push({ d: cur.d, w: cur.w, lot: norm(r[cL]), q: +r[cQ] || 0, cat: norm(r[cC]), m: norm(r[cM]), list: +r[cP] || 0, unit: unit });
+    });
+    // net by lot: barcode with net qty > 0 = 1 piece, counted at its latest positive line
+    var byLot = {}, kept = [];
+    lines.forEach(function (l) { if (l.lot) (byLot[l.lot] = byLot[l.lot] || []).push(l); else if (l.q > 0) kept.push(l); });
+    Object.keys(byLot).forEach(function (k) { var ls = byLot[k], s = 0, best = null; ls.forEach(function (x) { s += x.q; if (x.q > 0 && (!best || x.d > best.d)) best = x; }); if (s > 0 && best) kept.push(best); });
+    var match = makeMatcher(focus), sold = {}, grp = {}, sm = {}, val = {}, tot = {}, diag = { lines: lines.length, pieces: 0, counted: 0, focusPcs: 0, otherWh: {} };
+    Object.keys(MAIN).forEach(function (k) { sold[k] = {}; grp[k] = {}; sm[k] = {}; val[k] = {}; tot[k] = 0; });
+    kept.forEach(function (l) {
+      if (!(l.list > 1 && l.unit > 0)) return;
+      diag.pieces++;
+      var code = wToCode[l.w]; if (!code) { diag.otherWh[l.w || '(ว่าง)'] = (diag.otherWh[l.w || '(ว่าง)'] || 0) + 1; return; }
+      diag.counted++; tot[code] += l.unit;
+      var g = groupOf(l.cat); if (g) grp[code][g] = (grp[code][g] || 0) + 1;
+      var item = match(l.m, l.cat); if (!item) return;
+      diag.focusPcs++; sold[code][item] = (sold[code][item] || 0) + 1; val[code][item] = (val[code][item] || 0) + l.unit;
+      sm[code][item] = sm[code][item] || {}; sm[code][item][l.m] = (sm[code][item][l.m] || 0) + 1;
+    });
+    var day = function (v) { if (v == null) return null; var d = XLSX.SSF.parse_date_code(v); return d ? d.y + '-' + pad(d.m) + '-' + pad(d.d) : null; };
+    var soldArr = {}; Object.keys(sold).forEach(function (k) { soldArr[k] = Object.keys(sold[k]).map(function (i) { return [i, sold[k][i]]; }); });
+    diag.otherWh = Object.keys(diag.otherWh).sort(function (a, b) { return diag.otherWh[b] - diag.otherWh[a]; }).map(function (w) { return [w, diag.otherWh[w]]; });
+    Object.keys(val).forEach(function (k) { Object.keys(val[k]).forEach(function (i) { val[k][i] = Math.round(val[k][i]); }); tot[k] = Math.round(tot[k]); });
+    return { cutDate: day(maxD), fromDate: day(minD), sold: soldArr, grp: nested(grp), sm: nested(sm), val: nested(val), tot: tot, diag: diag };
+  }
+
+  return { parseSales: parseSales, parseStaff: parseStaff, salesScope: salesScope, focusFromWorkbook: focusFromWorkbook, MAIN: MAIN, POOL_EXTRA: POOL_EXTRA, parseAudit: parseAudit, parseDemand: parseDemand, parseStock: parseStock, parsePOS: parsePOS, groupOf: groupOf, branchCode: branchCode, scopeOfPerson: scopeOfPerson, scopeOfBranch: scopeOfBranch, focusBase: focusBase };
 })();
+if (typeof module !== 'undefined') module.exports = GSProc;
 if (typeof module !== 'undefined') module.exports = GSProc;
