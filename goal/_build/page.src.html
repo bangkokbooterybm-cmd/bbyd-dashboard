@@ -123,6 +123,16 @@ details.au li b{font-family:var(--disp);min-width:18px;text-align:right}
 :is(.vcal,.vlg) .vb.ok{background:var(--good);border-color:var(--good);color:var(--surface)} :is(.vcal,.vlg) .vb.ok::after{content:' ✓'} :is(.vcal,.vlg) .vb.ex{border-color:var(--brass);color:var(--brass);background:var(--brass-bg)}
 .vcal .day.off{background:var(--bad-bg);border-color:color-mix(in srgb,var(--bad) 45%,var(--line))}
 .vcal .day.off .dn{color:var(--bad)}
+:is(.vcal,.vlg) .vb.wk{border-color:var(--c-visit);color:var(--c-visit);background:color-mix(in srgb,var(--c-visit) 10%,var(--surface))}
+:is(.vcal,.vlg) .vb.wk::before{content:'⇄ '}
+:is(.vcal,.vlg) .vb.lv{border-left-width:3px;font-weight:500}
+:is(.vcal,.vlg) .vb.lv.warn{border-color:var(--warn);color:var(--warn);background:var(--warn-bg)}
+:is(.vcal,.vlg) .vb.lv.good{border-color:var(--good);color:var(--good);background:var(--good-bg)}
+:is(.vcal,.vlg) .vb.lv.bad{border-color:var(--bad);color:var(--bad);background:var(--bad-bg)}
+:is(.vcal,.vlg) .vb.lv.mute{border-style:dashed;border-color:var(--ink3);color:var(--ink2);background:var(--sunk)}
+:is(.vcal,.vlg) .vb.lv.void{text-decoration:line-through}
+.vlrow{display:grid;grid-template-columns:92px 64px minmax(80px,1fr) auto;gap:10px;align-items:center;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);font-size:13px}
+@media (max-width:560px){.vlrow{grid-template-columns:70px 52px 1fr}.vlrow>:nth-child(4){grid-column:1/-1}}
 .vcal .offt{font-size:10px;font-weight:600;color:var(--bad);letter-spacing:.02em}
 .vlg .vli{display:inline-flex;align-items:center;gap:6px}
 :is(.vcal,.vlg) .vb.nt{border-style:dashed;border-color:var(--accent);color:var(--accent);background:var(--surface)}
@@ -687,7 +697,7 @@ const placeName=n=>PLACE_TH[n]||String(n).replace(/ Shop$/,'');
 const PRE_TXT='เริ่มบันทึกตั้งแต่ มิ.ย. 2569';
 const TAB_C={overview:'--accent',sales:'--c-sales',audit:'--c-audit',visit:'--c-visit',focus:'--c-focus',demand:'--c-demand',team:'--c-exam',league:'--c-exam',manager:'--c-mgr',settings:'--ink3',passport:'--c-pass'};
 const tcVar=k=>`var(${TAB_C[k]||'--accent'})`;
-const TABS=[['overview','Overview'],['sales',NO_SALES?'Events':'Sales & Events'],['audit','SC Audit'],['passport','SC Passport'],['visit','Visit'],['focus','Focus Product'],['demand','Product Demand'],['team','SC Exam / All Star'],['league','League']];
+const TABS=[['overview','Overview'],['sales',NO_SALES?'Events':'Sales & Events'],['audit','SC Audit'],['passport','SC Passport'],['visit','Visit'],['focus','Focus Product'],['demand','Product Demand'],['team','SC Exam / All Star'],['league','BBY All Star']];
 function renderHeader(){
   const seg=$('#scopeSeg');seg.replaceChildren();
   cfg().supervisors.forEach(s=>seg.append(el('button',{type:'button','aria-pressed':String(s.scope===S.scope),onclick:()=>{S.scope=s.scope;render();}},s.title)));
@@ -893,24 +903,96 @@ function logOffKind(t){const s=String(t||'').trim().toLowerCase();return /นั
 // day number -> kind for the current Sup: Settings first, then what the Sup sent through the form
 function offMap(scope,ymk){const o=dayOffFor(scope,ymk),m=new Map();['sick','biz','hol','off'].forEach(k=>o[k].forEach(d=>{if(!m.has(d))m.set(d,k);}));
   (S.audit?.logs||[]).filter(l=>l.scope===team()&&l.ym===ymk&&evOK(l.ev)).forEach(l=>{const k=logOffKind(l.t),d=+l.d.slice(8);if(k&&!m.has(d))m.set(d,k);});return m;}
+// workdays at a place other than the usual branch: config/main.otherDays[YYYY-MM][scope] = [{d:day,p:place,n:note}]
+function otherDaysFor(scope,ymk){return (((cfg().otherDays||{})[ymk]||{})[scope]||[]).filter(x=>x&&Number.isInteger(x.d));}
+function otherMap(scope,ymk){const m=new Map();otherDaysFor(scope,ymk).forEach(x=>{if(!m.has(x.d))m.set(x.d,[]);m.get(x.d).push(x);});return m;}
 function offSummary(m){const n={};m.forEach(k=>n[k]=(n[k]||0)+1);return OFF_KINDS.filter(([k])=>n[k]).map(([k,l])=>`${l} ${n[k]} วัน`).join(' · ');}
+/* ---- live Visit confirmation status: BBY Visit Log (Apps Script). url + key are read from config/main.visitApi (encrypted in the public snapshot), never written in this file ---- */
+const VL={items:null,at:null,err:null,busy:null,tried:0,sig:'',okAt:null};
+const VL_ST={pending:['รอ SC ยืนยัน','warn','⏳'],ok:['ยืนยันแล้ว','good','✓'],auto:['รับทราบอัตโนมัติ (เกิน 3 วัน)','good','✓'],review:['SC แย้ง · รอตัดสิน','bad','!'],kept:['ตัดสินแล้ว · นับ','good','✓'],void:['ตัดสินแล้ว · ไม่นับ','bad','✕'],nosc:['ซุปไม่ได้เลือก SC','mute','–']};
+const vlSt=i=>VL_ST[i.st]||[String(i.st||'?'),'mute','?'];
+const vlCfg=()=>{const a=cfg().visitApi;return a&&a.url&&a.key?a:null;};
+function vlFetch(force){
+  const a=vlCfg();
+  if(!a){if(!VL.err){VL.err='ยังไม่ได้ตั้งค่าระบบยืนยัน';}return Promise.resolve();}
+  if(VL.busy)return VL.busy;
+  if(!force&&Date.now()-VL.tried<15000)return Promise.resolve();
+  VL.tried=Date.now();
+  const ctl=typeof AbortController==='function'?new AbortController():null,tm=setTimeout(()=>ctl&&ctl.abort(),25000);
+  VL.busy=(async()=>{
+    try{
+      const r=await fetch(a.url+(a.url.includes('?')?'&':'?')+'api=board&k='+encodeURIComponent(a.key),{signal:ctl?ctl.signal:undefined});
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      const j=await r.json();
+      if(!j||j.ok!==true||!Array.isArray(j.items))throw new Error((j&&j.error)||'รูปแบบข้อมูลไม่ถูกต้อง');
+      const sig=JSON.stringify(j.items),changed=sig!==VL.sig||VL.err||VL.items===null;
+      VL.items=j.items;VL.at=j.at;VL.err=null;VL.sig=sig;VL.okAt=Date.now();
+      if(changed)vlRefresh();
+    }catch(e){
+      const was=VL.err;VL.err=String((e&&e.name==='AbortError')?'หมดเวลา':(e&&e.message)||e);
+      if(!was)vlRefresh();
+    }finally{clearTimeout(tm);VL.busy=null;}
+  })();
+  return VL.busy;
+}
+function vlRefresh(){if(S.scope&&S.tab==='visit')render();}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.scope&&S.tab==='visit')vlFetch(true);});
+setInterval(()=>{if(!document.hidden&&S.scope&&S.tab==='visit')vlFetch(true);},60000);
+const vlCode=i=>(GSProc.branchCode(i.branch)||String(i.branch||'').trim()||'ไม่ระบุสาขา');
+const vlMonth=i=>String(i.date||'').slice(0,7)===curYM();
+// items that belong to this board's supervisor (the Senior board also sees every Sup in the summary table)
+function vlOwn(i){const k=nameKey(i.sup);return isSr()?k===SR_KEY:S.scope==='BKK'?k===EV_KEY.BKK:k===nameKey(SUP_NAME.UPC);}
+const vlCal=()=>(VL.items||[]).filter(i=>vlMonth(i)&&vlOwn(i));
+function vlHM(ts){const d=new Date(ts);return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
+function vlBanner(){
+  if(VL.err)return el('div',{class:'banner',style:'background:var(--bad-bg);color:var(--bad)'},el('b',{},'ดึงสถานะยืนยันไม่ได้'),` · ${VL.err}`,VL.okAt?` · แสดงข้อมูลที่ดึงได้ล่าสุดเมื่อ ${vlHM(VL.okAt)}`:' · ช่องที่ว่างอาจยังไม่ถูกตรวจสถานะ ไม่ได้แปลว่าไม่มีการเยี่ยม',el('button',{type:'button',class:'btn ghost small',style:'margin-left:10px',onclick:()=>{VL.err=null;vlFetch(true);render();}},'ลองใหม่'));
+  if(VL.items===null)return el('div',{class:'stamp'},'กำลังดึงสถานะยืนยัน…');
+  return el('div',{class:'stamp'},'สถานะยืนยันจากระบบ (ดึงสด) ',el('b',{},vlHM(VL.okAt)),' · อัปเดตทุก 60 วินาที');
+}
+function vlRow(i,showDate){
+  const [lb,tone]=vlSt(i),late=i.late?el('span',{class:'pill warn'},'ส่งช้า'):null;
+  const extra=i.st==='pending'&&i.due?`ครบกำหนด ${thDate(i.due)}`:(i.ack?`ตอบเมื่อ ${String(i.ack).replace('T',' ')}`:'');
+  return el('div',{class:'vlrow'},el('span',{class:'num'},showDate?thDate(i.date):`${i.date}`.slice(8)+' '+MONTHS[+String(i.date).slice(5,7)-1]),el('b',{},vlCode(i)),
+    el('span',{},i.name||i.sc||'–',el('span',{class:'muted small'},` · ${i.purpose||''}`)),
+    el('span',{style:'display:flex;gap:6px;flex-wrap:wrap;align-items:center'},el('span',{class:'pill '+tone},lb),late,extra?el('span',{class:'muted small'},extra):null));
+}
+// summary of the selected month by supervisor: waiting for SC / disputed / no SC chosen, each count equals the rows listed under it
+function vlSummary(){
+  if(VL.items===null)return null;
+  const all=VL.items.filter(i=>vlMonth(i)&&(isSr()||vlOwn(i))),sups=[...new Set(all.map(i=>i.sup))];
+  const NEED=['pending','review','nosc'];
+  const head=el('h3',{},`สถานะยืนยัน Visit · ${MONTHS[S.month-1]} ${YEAR}`);
+  if(!all.length)return el('div',{class:'panel',style:'border-top-width:1px'},head,el('div',{class:'empty'},'ยังไม่มีรายการของ Supervisor นี้ในระบบยืนยันเดือนนี้ (ช่องในปฏิทินที่ไม่มีสถานะยืนยันมาจากชีทประเมินเท่านั้น)'));
+  const rows=sups.map(sp=>{const it=all.filter(i=>i.sup===sp),c=k=>it.filter(i=>i.st===k).length;return {sp,it,pending:c('pending'),review:c('review'),nosc:c('nosc'),done:it.filter(i=>['ok','auto','kept'].includes(i.st)).length,void:c('void')};});
+  const tbl=el('table',{},el('thead',{},el('tr',{},el('th',{},'Supervisor'),el('th',{},'รอ SC ยืนยัน'),el('th',{},'SC แย้ง'),el('th',{},'ไม่ได้เลือก SC'),el('th',{},'ยืนยันแล้ว/นับ'),el('th',{},'ไม่นับ'),el('th',{},'ทั้งหมด'))),
+    el('tbody',{},...rows.map(r=>el('tr',{},el('td',{},r.sp),el('td',{class:'num'+(r.pending?' s-lo':'')},String(r.pending)),el('td',{class:'num'+(r.review?' s-lo':'')},String(r.review)),el('td',{class:'num'},String(r.nosc)),el('td',{class:'num'},String(r.done)),el('td',{class:'num'},String(r.void)),el('td',{class:'num'},String(r.it.length))))));
+  const lists=rows.map(r=>{const need=r.it.filter(i=>NEED.includes(i.st)).sort((a,b)=>String(b.date).localeCompare(String(a.date))||vlCode(a).localeCompare(vlCode(b)));
+    if(!need.length)return el('div',{class:'small muted'},`${r.sp}: ไม่มีรายการที่ต้องตาม`);
+    const d=el('details',{class:'au plain'},el('summary',{style:'display:flex;gap:10px;grid-template-columns:none'},el('b',{},r.sp),`ต้องตาม ${need.length} รายการ (รอ ${r.pending} · แย้ง ${r.review} · ไม่ได้เลือก SC ${r.nosc})`),el('div',{style:'padding:10px;display:flex;flex-direction:column;gap:6px'},...need.map(i=>vlRow(i,true))));d.open=true;return d;});
+  return el('div',{class:'panel',style:'border-top-width:1px'},head,el('div',{class:'tscroll'},tbl),...lists);
+}
+function vlLegend(){return el('div',{class:'legend vlg'},el('b',{},'สถานะยืนยันจาก SC:'),...['pending','ok','auto','review','void','nosc'].map(k=>{const [lb,tone,ic]=VL_ST[k];return el('span',{class:'vli'},el('span',{class:'vb lv '+tone+(k==='void'?' void':'')},ic+' CODE'),lb);}));}
 function visitCal(st,logs){
   const [y,m]=curYM().split('-').map(Number),days=new Date(y,m,0).getDate(),lead=(new Date(y,m-1,1).getDay()+6)%7;
   const t=new Date(),todayK=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
   const by={};st.all.forEach(v=>(by[v.d]=by[v.d]||[]).push(v));
   const lg={};logs.forEach(l=>(lg[l.d]=lg[l.d]||[]).push(l));
-  const om=offMap(S.scope,curYM());
+  const om=offMap(S.scope,curYM()),wm=otherMap(S.scope,curYM()),lvAll={};vlCal().forEach(i=>(lvAll[i.date]=lvAll[i.date]||[]).push(i));
   const g=el('div',{class:'vcal',role:'grid','aria-label':'Visit calendar'});
   ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach((d,i)=>g.append(el('div',{class:'dow'+(i>4?' we':'')},d)));
   for(let i=0;i<lead;i++)g.append(el('div',{class:'day blank'}));
   for(let d=1;d<=days;d++){
     const k=`${curYM()}-${String(d).padStart(2,'0')}`,vs=(by[k]||[]).slice().sort((a,b)=>vCode(a).localeCompare(vCode(b)));
-    const offK=om.get(d),isOff=!!offK,offL=isOff?OFF_LABEL[offK]:null;
-    const c=el('div',{class:'day'+(isOff?' off':vs.length||lg[k]?' has':'')+(k===todayK?' today':'')},el('div',{class:'dn num'},String(d)));
+    const lv=(lvAll[k]||[]).slice().sort((a,b)=>vlCode(a).localeCompare(vlCode(b))||String(a.name).localeCompare(String(b.name)));
+    const lvBy={};lv.forEach(i=>(lvBy[vlCode(i)]=lvBy[vlCode(i)]||[]).push(i));
+    const wk=wm.get(d)||[],offK=om.get(d),isOff=!!offK,offL=isOff?OFF_LABEL[offK]:null;
+    const c=el('div',{class:'day'+(isOff?' off':vs.length||lg[k]||wk.length||lv.length?' has':'')+(k===todayK?' today':'')},el('div',{class:'dn num'},String(d)));
     if(isOff)c.append(el('div',{class:'offt'},offL));
-    vs.forEach(v=>c.append(el('div',{class:'vb'+(v.x?' ex':v.audits?' ok':''),title:`${vCode(v)}${v.audits?` · ประเมิน ${v.audits} คน`:' · Visit อย่างเดียว'}${v.x?' · ไม่นับ KPI':''}`},vCode(v))));
+    vs.filter(v=>!((lvBy[vCode(v)]||[]).length>=Math.max(1,v.audits||0))).forEach(v=>c.append(el('div',{class:'vb'+(v.x?' ex':v.audits?' ok':''),title:`${vCode(v)}${v.audits?` · ประเมิน ${v.audits} คน`:' · Visit อย่างเดียว'}${v.x?' · ไม่นับ KPI':''}`},vCode(v))));
     (lg[k]||[]).filter(l=>!logOffKind(l.t)).forEach(l=>c.append(el('div',{class:'vb oth',title:'ไม่ได้เลือกสาขา · นอก KPI'},'ไม่ระบุสาขา')));
-    if(vs.length||lg[k]||isOff){c.classList.add('tap');c.tabIndex=0;c.setAttribute('role','button');const fn=()=>dayDetail(k,vs,lg[k]||[],offL);c.addEventListener('click',fn);c.addEventListener('keydown',e=>{if(e.key==='Enter')fn();});}
+    lv.forEach(i=>{const [lb,tone,ic]=vlSt(i);c.append(el('div',{class:'vb lv '+tone+(i.st==='void'?' void':''),title:`${vlCode(i)} · ${i.name||i.sc||''} · ${lb}${i.kpi?' · นับ KPI':''}${i.late?' · ส่งช้า':''}`},`${ic} ${vlCode(i)} ${i.name||''}`.trim()));});
+    wk.forEach(x=>c.append(el('div',{class:'vb wk',title:`ทำงานนอกสาขาปกติ · ${x.p}${x.n?' · '+x.n:''}`},x.p)));
+    if(vs.length||lg[k]||isOff||wk.length||lv.length){c.classList.add('tap');c.tabIndex=0;c.setAttribute('role','button');const fn=()=>dayDetail(k,vs,lg[k]||[],offL,wk,lv);c.addEventListener('click',fn);c.addEventListener('keydown',e=>{if(e.key==='Enter')fn();});}
     g.append(c);
   }
   const tail=(lead+days)%7;if(tail)for(let i=tail;i<7;i++)g.append(el('div',{class:'day blank'}));
@@ -918,12 +1000,13 @@ function visitCal(st,logs){
 }
 function viewVisit(){
   if(!peopleOK())return preBox('Visit');
+  vlFetch(false);
   const st=visitStats(),chips=el('div',{class:'chips'});
   st.br.forEach(b=>{const n=st.by[b]||0;chips.append(el('button',{type:'button',class:'chip '+(n>=3?'good':n>=1?'warn':'bad'),onclick:()=>branchDetail(b)},b,el('b',{},String(n))));});
   const ls=lagStats([...visitsMonth(),...auditsMonth()]);
   const list=el('div',{});st.all.slice().sort((a,b)=>b.d.localeCompare(a.d)).forEach(v=>list.append(visitCard(v)));
   const logs=(S.audit?.logs||[]).filter(l=>l.scope===team()&&l.ym===curYM()&&evOK(l.ev)).sort((a,b)=>b.d.localeCompare(a.d));
-  return el('div',{class:'panel'},el('h2',{},`Visit · ${MONTHS[S.month-1]} ${YEAR}`),needSync('audit'),stampTxt('ข้อมูลจากชีทประเมิน SC อัปเดต',S.audit?.updatedAt),
+  return el('div',{class:'panel'},el('h2',{},`Visit · ${MONTHS[S.month-1]} ${YEAR}`),needSync('audit'),stampTxt('ข้อมูลจากชีทประเมิน SC อัปเดต',S.audit?.updatedAt),vlBanner(),vlSummary(),
     el('div',{class:'stats'},stat(`${st.visited}/${st.br.length}`,'สาขาที่เข้าแล้ว'),stat(String(st.total),'จำนวนครั้ง'),stat(st.avg==null?'–':st.avg.toFixed(1),'เฉลี่ยต่อสาขา'),stat(`${st.full}/${st.br.length}`,'สาขาที่ครบ 3 ครั้ง (เกณฑ์ KPI)'),stat(String(st.visitOnly),'Visit อย่างเดียว'),stat(ls?`${ls.avg.toFixed(1)} วัน`:'–',ls?`ลงฟอร์มหลังวันที่ไปจริง (เฉลี่ย) · ช้าเกิน ${LATE} วัน ${ls.late}/${ls.n}`:'ลงฟอร์มหลังวันที่ไปจริง')),
     el('div',{class:'legend'},el('span',{class:'key good'},'≥3 ครั้ง'),el('span',{class:'key warn'},'1–2 ครั้ง'),el('span',{class:'key bad'},'ยังไม่เข้า')),chips,
     el('div',{class:'small muted'},'กดสาขาเพื่อดูประวัติ Visit · 1 Visit = คนเดียว สาขาเดียว วันเดียว · นับทุกรายการ Onsite ในชีทประเมิน'+(isSr()?' · การลงพื้นที่ UPC แสดงไว้แต่ไม่นับ KPI':'')),
@@ -932,8 +1015,8 @@ function viewVisit(){
     logs.length?el('h3',{},'บันทึกวันที่ไม่ได้ระบุสาขา'):null,
     logs.length?el('div',{class:'diag'},...logs.map(l=>el('span',{},el('b',{},thDate(l.d)),` · ${l.ev} · ${l.t}`))):null,
     el('h3',{},`Visit Calendar · ${sup().title||'Supervisor'} (${SUP_NAME[S.scope]||''}) · ${MONTHS[S.month-1]} ${YEAR}`),
-    el('div',{class:'legend vlg'},el('span',{class:'vli'},el('span',{class:'vb ok'},'CODE'),'Visit + ประเมิน SC'),el('span',{class:'vli'},el('span',{class:'vb'},'CODE'),'Visit อย่างเดียว'),isSr()?el('span',{class:'key',style:'color:var(--brass)'},'UPC (ไม่นับ KPI)'):null,logs.some(l=>!logOffKind(l.t))?el('span',{class:'vli'},el('span',{class:'vb oth'},'ไม่ระบุสาขา'),'ลงฟอร์มโดยไม่เลือกสาขา (ไม่นับ KPI)'):null,(()=>{const t=offSummary(offMap(S.scope,curYM()));return t?el('span',{class:'key bad'},t):null;})()),
-    el('div',{class:'tscroll'},visitCal(st,logs)));
+    el('div',{class:'legend vlg'},el('span',{class:'vli'},el('span',{class:'vb ok'},'CODE'),'Visit + ประเมิน SC'),el('span',{class:'vli'},el('span',{class:'vb'},'CODE'),'Visit อย่างเดียว'),isSr()?el('span',{class:'key',style:'color:var(--brass)'},'UPC (ไม่นับ KPI)'):null,logs.some(l=>!logOffKind(l.t))?el('span',{class:'vli'},el('span',{class:'vb oth'},'ไม่ระบุสาขา'),'ลงฟอร์มโดยไม่เลือกสาขา (ไม่นับ KPI)'):null,(()=>{const t=offSummary(offMap(S.scope,curYM()));return t?el('span',{class:'key bad'},t):null;})(),otherDaysFor(S.scope,curYM()).length?el('span',{class:'vli'},el('span',{class:'vb wk'},'PLACE'),'ทำงานนอกสาขาปกติ (ไม่นับ KPI Visit)'):null),
+    vlLegend(),el('div',{class:'tscroll'},visitCal(st,logs)));
 }
 
 /* ---------- Focus ---------- */
@@ -1203,6 +1286,16 @@ function viewSettings(){
     wrap.append(el('div',{class:'panel'},el('h3',{},`Day Off · ${MONTHS[S.month-1]} ${YEAR}`),el('div',{class:'small muted'},'ใส่วันที่ เว้นวรรคหรือคั่นด้วย , · Public Holiday = วันหยุดนักขัตฤกษ์ · Personal Leave = ลากิจ · แสดงเป็นช่องสีแดงในปฏิทิน Visit · วันที่ Sup ลงในฟอร์มว่าวันหยุด/ลา ก็เป็นสีแดงเองโดยไม่ต้องใส่ซ้ำ'),
       ...rows.map(r=>el('div',{style:'display:flex;flex-direction:column;gap:4px'},el('b',{class:'small'},`${r.sv.title} (${SUP_NAME[r.sv.scope]||''})`),...OFF_KINDS.map(([k,l])=>el('label',{class:'row small'},l,r.inp[k])))),
       el('button',{class:'btn small',type:'button',onclick:()=>saveCfg(c=>{c.dayoff=c.dayoff||{};const m={};rows.forEach(r=>{const x={};OFF_KINDS.forEach(([k])=>{const v=days(r.inp[k].value);if(v.length)x[k]=v;});if(Object.keys(x).length)m[r.sv.scope]=x;});c.dayoff[ymk]=m;})},'บันทึกวันหยุด')));}
+  {const ymk=curYM(),nd=new Date(YEAR,S.month,0).getDate(),sc=el('select',{},...cfg().supervisors.map(sv=>el('option',{value:sv.scope},`${sv.title} (${SUP_NAME[sv.scope]||''})`)));
+    sc.value=S.scope;
+    const dt=el('input',{type:'date',min:`${ymk}-01`,max:`${ymk}-${String(nd).padStart(2,'0')}`,value:`${ymk}-01`}),pl=el('input',{type:'text',placeholder:'สถานที่ เช่น Office BBY, ZENL',list:'odplaces'}),nt=el('input',{type:'text',placeholder:'หมายเหตุ (ไม่บังคับ)',style:'min-width:200px'});
+    const dl=el('datalist',{id:'odplaces'},...[...new Set([...(cfg().branches||[]).map(b=>b.code),'Office BBY','Office n2j'])].map(v=>el('option',{value:v})));
+    const all=[];cfg().supervisors.forEach(sv=>otherDaysFor(sv.scope,ymk).forEach(x=>all.push({sv,x})));all.sort((a,b)=>a.x.d-b.x.d||a.sv.scope.localeCompare(b.sv.scope));
+    wrap.append(el('div',{class:'panel'},el('h3',{},`วันทำงานนอกสาขาปกติ · ${MONTHS[S.month-1]} ${YEAR}`),el('div',{class:'small muted'},'วันที่ Sup ทำงานแต่ไม่ได้เข้าสาขาปกติ เช่น เข้า Office หรือไปสาขาอื่น · นับเป็นวันทำงาน (ไม่ใช่วันหยุด) · แสดงในปฏิทิน Visit เป็นป้ายสีฟ้า · กดวันที่ในปฏิทินเพื่อดูรายละเอียด'),
+      el('div',{class:'row'},sc,dt,pl,nt,dl,el('button',{class:'btn small',type:'button',onclick:()=>{const v=dt.value,p=pl.value.trim();if(!v||v.slice(0,7)!==ymk){toast('เลือกวันที่ในเดือนนี้');return;}if(!p){toast('ใส่สถานที่');return;}
+        const d=+v.slice(8),n=nt.value.trim(),scp=sc.value;document.activeElement?.blur();saveCfg(c=>{c.otherDays=c.otherDays||{};const m=c.otherDays[ymk]=c.otherDays[ymk]||{};const a=m[scp]=m[scp]||[];a.push(n?{d,p,n}:{d,p});a.sort((x,y)=>x.d-y.d);});}},'เพิ่ม')),
+      all.length?el('div',{class:'diag'},...all.map(({sv,x})=>el('span',{class:'row'},el('b',{},`${x.d} ${MONTHS[S.month-1]}`),`${SUP_NAME[sv.scope]||sv.title} · ${x.p}${x.n?' · '+x.n:''}`,
+        el('button',{class:'btn ghost small',type:'button',onclick:()=>{document.activeElement?.blur();saveCfg(c=>{const a=(((c.otherDays||{})[ymk]||{})[sv.scope])||[];const i=a.findIndex(y=>y.d===x.d&&y.p===x.p&&(y.n||'')===(x.n||''));if(i>=0)a.splice(i,1);if(!a.length&&c.otherDays?.[ymk])delete c.otherDays[ymk][sv.scope];});}},'ลบ')))):el('div',{class:'empty'},'ยังไม่มีรายการเดือนนี้')));}
   const ro=rosterIn(),am=cfg().aliases||{};
   const ta=el('textarea',{rows:4,style:'width:100%',placeholder:'ชื่อในรายชื่อ = ชื่ออื่นที่กรอกในชีท เช่น\nกิ้ฟ = กุ๊บกิ๊บ, กิ๊ฟ'});
   ta.value=Object.entries(am).map(([k,v])=>`${k} = ${v.join(', ')}`).join('\n');
@@ -1310,11 +1403,14 @@ function branchDetail(code){
 }
 
 /* --- one calendar day --- */
-function dayDetail(k,vs,lgs,off){
+function dayDetail(k,vs,lgs,off,wk,lv){
+  wk=wk||[];lv=lv||[];
   const list=el('div',{});vs.forEach(v=>list.append(visitCard(v)));
   sheet(thDate(k),off?el('div',{class:'banner',style:'background:var(--bad-bg);color:var(--bad)'},off):null,
+    wk.length?el('div',{class:'diag'},el('b',{},'ทำงานนอกสาขาปกติ'),...wk.map(x=>el('span',{},`${x.p}${x.n?' · '+x.n:''}`))):null,
+    lv.length?el('div',{style:'display:flex;flex-direction:column;gap:6px'},el('h4',{style:'margin:0'},`สถานะยืนยันจาก SC · ${lv.length} รายการ`),...lv.map(i=>vlRow(i,false))):null,
     vs.length?list:null,lgs.length?el('div',{class:'diag'},...lgs.map(l=>el('span',{},el('b',{},'ไม่ระบุสาขา'),` · ${l.t}`,l.lag>LATE?` · ลงช้า ${l.lag} วัน`:''))):null,
-    !vs.length&&!lgs.length?el('div',{class:'empty'},'ไม่มีบันทึกวันนี้'):null);
+    !vs.length&&!lgs.length&&!wk.length&&!lv.length?el('div',{class:'empty'},'ไม่มีบันทึกวันนี้'):null);
 }
 
 /* --- exam detail --- */
@@ -1476,7 +1572,7 @@ function leagueData(ymk){
 }
 function viewLeague(){
   const ymk=asCurYM();
-  if(!ymk)return el('div',{class:'panel'},el('h2',{},'League'),el('div',{class:'empty'},'ยังไม่มีข้อมูล BBY SC All Star'));
+  if(!ymk)return el('div',{class:'panel'},el('h2',{},'BBY All Star'),el('div',{class:'empty'},'ยังไม่มีข้อมูล BBY SC All Star'));
   const L=leagueData(ymk),mName=MONTHS[+ymk.slice(5)-1],f=S.lgTeam||'ALL';
   const top=L.ytd.slice(0,3),champ=top[0]||{n:'–',avg:0},mChamp=L.rows[0],range=`${MONTHS[+L.ms[0].slice(5)-1]}–${mName}`;
   const tPill=t=>t?el('span',{class:'pill lt'},t):null;
