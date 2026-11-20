@@ -944,7 +944,10 @@ const vlMonth=i=>String(i.date||'').slice(0,7)===curYM();
 function vlOwn(i){const k=nameKey(i.sup);return isSr()?k===SR_KEY:S.scope==='BKK'?k===EV_KEY.BKK:k===nameKey(SUP_NAME.UPC);}
 const vlCal=()=>(VL.items||[]).filter(i=>vlMonth(i)&&vlOwn(i));
 function vlHM(ts){const d=new Date(ts);return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
+const GOAL_URL='https://bangkokbooterybm-cmd.github.io/bbyd-dashboard/goal/';
 function vlBanner(){
+  // artifact view: claude.ai blocks the request, so point to the /goal/ board instead of showing a raw error; the public /goal/ board keeps the error bar
+  if(VL.err&&!NO_SALES)return el('div',{class:'banner'},'สถานะยืนยันจาก SC ดูได้ที่บอร์ด ',el('a',{href:GOAL_URL,target:'_blank',rel:'noopener',style:'color:inherit;font-weight:600'},'/goal/'),' · ปฏิทินด้านล่างแสดงจากชีทประเมิน');
   if(VL.err)return el('div',{class:'banner',style:'background:var(--bad-bg);color:var(--bad)'},el('b',{},'ดึงสถานะยืนยันไม่ได้'),` · ${VL.err}`,VL.okAt?` · แสดงข้อมูลที่ดึงได้ล่าสุดเมื่อ ${vlHM(VL.okAt)}`:' · ช่องที่ว่างอาจยังไม่ถูกตรวจสถานะ ไม่ได้แปลว่าไม่มีการเยี่ยม',el('button',{type:'button',class:'btn ghost small',style:'margin-left:10px',onclick:()=>{VL.err=null;vlFetch(true);render();}},'ลองใหม่'));
   if(VL.items===null)return el('div',{class:'stamp'},'กำลังดึงสถานะยืนยัน…');
   return el('div',{class:'stamp'},'สถานะยืนยันจากระบบ (ดึงสด) ',el('b',{},vlHM(VL.okAt)),' · อัปเดตทุก 60 วินาที');
