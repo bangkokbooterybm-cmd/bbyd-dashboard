@@ -20,3 +20,15 @@ SC Passport (`passport/core|evals|items|photos|photos2`) is per-SC data incl. pe
 Focus Product sales (`pos/<cutDate>`, uploaded from Odoo in the board's Settings) are published as pieces sold only; snapshot.js turns baht into shares of the 17-branch total.
 
 Focus Product stock locations (where each skin/colour sits, incl. Head Office and other shops) are stored in `stock/wh-<stockDate>` (field `wh`), separate from `stock/<stockDate>` to keep documents small. Save the whole `stock` collection so both come through.
+
+## Odoo Stock / Sales Cut from the central Drive (since 21 Nov 2026)
+Focus Product stock and sales no longer need the manual upload in Settings. Each refresh takes the raw Odoo exports from
+Drive "BBY Data Update" (id 11jN94wU6n89fwrcxRmyHn_4byKQp1U7e): `Stock\` (1iQY1ojfu-4pSinuVDOul0E9Bf8cG89hQ) + `Form Uploads\Stock (File responses)`
+(1NWvANO0ODRlcZvIpSx1MrLJcR-x4g79I1qeDlRqex3_O34CuqJdyiGzRekPc9XZxCBXxJ9M0), and `Sales Cut\` (1Ym3qa0PdRP2jcHSwo_Y_AwWp6tS9cpfd) + `Form Uploads\Sales Cut (File responses)`
+(1awGDDrwdt-BZeIvdg7yk0HrWwIwWIJOnweOlLSY63IWyTbdBWPdAjmB3FG00PXMAT9w9_8w0).
+- File rule (central rule 7): newest upload time (Drive modifiedTime) across the folders listed above wins, one file for Stock and one for Sales Cut. Same time to the second = stop and ask.
+- Stock date: `YYYY-MM-DD` at the front of the file name, otherwise the upload time in Thai time (UTC+7). The raw export carries no date.
+- `node drive_odoo.js <stock.xlsx|-> <pos.xlsx|-> <dbDir> <stockDate> [stockName] [posName]` reads the raw columns by name, checks 16,500-19,500 pieces
+  and that pieces = unique lots, runs the same parseStock/parsePOS as the Settings upload, and writes `stock/<date>`, `stock/wh-<date>`, `pos/<cutDate>` into `<dbDir>` and `_out/db/`.
+  Exit 2 / "ERROR" = check failed: keep the old stock/pos, publish the rest and report it. Write `_out/db/**` back with ArtifactData `set` BEFORE `node run.js` rebuilds the snapshot (or rerun run.js).
+- Never read Stock / Sales Cut from the Data Update folder on the computer.
